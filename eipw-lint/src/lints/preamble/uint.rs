@@ -18,7 +18,7 @@ impl<'n> Lint for Uint<'n> {
             Some(s) => s,
         };
 
-        if let Err(_) = field.value().trim().parse::<u64>() {
+        if field.value().trim().parse::<u64>().is_err() {
             let label = format!("preamble header `{}` must be an unsigned integer", self.0);
 
             ctx.report(Snippet {
@@ -113,7 +113,7 @@ impl<'n> Lint for UintList<'n> {
 
         // TODO: replace with `is_sorted` when #53485 is stabilized
         let mut sorted = values.clone();
-        sorted.sort();
+        sorted.sort_unstable();
 
         if sorted != values {
             let label = format!(

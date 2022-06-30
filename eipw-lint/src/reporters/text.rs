@@ -21,7 +21,7 @@ impl<W> Reporter for Text<W>
 where
     W: Write,
 {
-    fn report<'a>(&self, snippet: Snippet<'a>) -> Result<(), Error> {
+    fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
         writeln!(self.inner.borrow_mut(), "{}", DisplayList::from(snippet)).map_err(Error::new)
     }
 }

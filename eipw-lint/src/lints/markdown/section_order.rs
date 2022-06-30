@@ -82,7 +82,7 @@ impl<'n> Lint for SectionOrder<'n> {
         // Check that sections are in the correct order.
         let map: HashMap<_, _> = headings.into_iter().map(|(a, b)| (b, a)).collect();
         let mut max_line = 0;
-        for (idx, name) in self.0.into_iter().enumerate() {
+        for (idx, name) in self.0.iter().enumerate() {
             if let Some(line_start) = map.get(*name).copied() {
                 let cur = max_line;
                 max_line = line_start;

@@ -17,7 +17,6 @@ use crate::preamble::Preamble;
 use crate::reporters::Reporter;
 
 use std::collections::HashMap;
-use std::rc::Rc;
 
 pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
     use lints::{markdown, preamble};
@@ -176,10 +175,10 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
     .into_iter()
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 #[must_use]
 pub struct Linter<'a, R> {
-    lints: HashMap<&'a str, Rc<dyn Lint>>,
+    lints: HashMap<&'a str, Box<dyn Lint>>,
     origin: Option<&'a str>,
     reporter: R,
 }
@@ -198,15 +197,15 @@ impl<'a, R> Linter<'a, R> {
         Self {
             reporter,
             origin: None,
-            lints: default_lints().map(|(s, l)| (s, l.into())).collect(),
+            lints: default_lints().collect(),
         }
     }
 
     pub fn add_lint<T>(mut self, slug: &'a str, lint: T) -> Self
     where
-        T: 'static + Into<Rc<dyn Lint>>,
+        T: 'static + Lint,
     {
-        if self.lints.insert(slug, lint.into()).is_some() {
+        if self.lints.insert(slug, lint.boxed()).is_some() {
             panic!("duplicate slug: {}", slug);
         }
 

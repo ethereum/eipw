@@ -25,7 +25,7 @@ pub struct Json {
 }
 
 impl Reporter for Json {
-    fn report<'a>(&self, snippet: Snippet<'a>) -> Result<(), Error> {
+    fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
         let def = SnippetDef::from(snippet);
         let value = serde_json::to_value(def).map_err(Error::new)?;
         self.reports.borrow_mut().push(value);

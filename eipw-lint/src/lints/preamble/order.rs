@@ -46,7 +46,7 @@ impl<'n> Lint for Order<'n> {
 
         // Check that headers are in the correct order.
         let mut max_line = 0;
-        for (idx, name) in self.0.into_iter().enumerate() {
+        for (idx, name) in self.0.iter().enumerate() {
             if let Some(field) = ctx.preamble().by_name(name) {
                 let cur = max_line;
                 max_line = field.line_start();

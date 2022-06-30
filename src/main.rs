@@ -59,7 +59,7 @@ enum EitherReporter {
 }
 
 impl Reporter for EitherReporter {
-    fn report<'s>(&self, snippet: Snippet<'s>) -> Result<(), eipw_lint::reporters::Error> {
+    fn report(&self, snippet: Snippet<'_>) -> Result<(), eipw_lint::reporters::Error> {
         match self {
             Self::Json(j) => j.report(snippet),
             Self::Text(s) => s.report(snippet),

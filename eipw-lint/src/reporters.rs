@@ -39,5 +39,5 @@ impl Error {
 }
 
 pub trait Reporter {
-    fn report<'a>(&self, snippet: Snippet<'a>) -> Result<(), Error>;
+    fn report(&self, snippet: Snippet<'_>) -> Result<(), Error>;
 }

@@ -19,6 +19,7 @@ use educe::Educe;
 use snafu::Snafu;
 
 use std::fmt::Debug;
+use std::ops::Deref;
 
 #[derive(Debug, Snafu)]
 #[non_exhaustive]
@@ -77,6 +78,13 @@ impl<'a> Context<'a> {
 
 pub trait Lint: Debug {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error>;
+}
+
+impl Lint for Box<dyn Lint> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+        let lint: &dyn Lint = self.deref();
+        lint.lint(slug, ctx)
+    }
 }
 
 pub(crate) trait LintExt: Lint {

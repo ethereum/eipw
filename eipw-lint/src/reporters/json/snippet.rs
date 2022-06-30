@@ -60,7 +60,7 @@ mod annotation_vec {
         Ok(v.into_iter().map(|Wrapper(a)| a).collect())
     }
 
-    pub fn serialize<S>(v: &Vec<Annotation<'_>>, ser: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(v: &[Annotation<'_>], ser: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -117,7 +117,7 @@ mod slice_vec {
         Ok(v.into_iter().map(|Wrapper(a)| a).collect())
     }
 
-    pub fn serialize<S>(v: &Vec<Slice<'_>>, ser: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(v: &[Slice<'_>], ser: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -150,7 +150,7 @@ mod source_annotation_vec {
         Ok(v.into_iter().map(|Wrapper(a)| a).collect())
     }
 
-    pub fn serialize<S>(v: &Vec<SourceAnnotation<'_>>, ser: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(v: &[SourceAnnotation<'_>], ser: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -183,14 +183,14 @@ pub struct SnippetDef<'a> {
     pub slices: Vec<Slice<'a>>,
 }
 
-impl<'a> Into<Snippet<'a>> for SnippetDef<'a> {
-    fn into(self) -> Snippet<'a> {
+impl<'a> From<SnippetDef<'a>> for Snippet<'a> {
+    fn from(def: SnippetDef<'a>) -> Self {
         let SnippetDef {
             title,
             footer,
             opt,
             slices,
-        } = self;
+        } = def;
         Snippet {
             title,
             footer,

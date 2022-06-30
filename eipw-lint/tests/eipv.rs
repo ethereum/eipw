@@ -51,6 +51,7 @@ async fn eipv() -> std::io::Result<()> {
             Err(e) => return Err(e),
         };
 
+        println!("Testing {}...", entry.path().display());
         let reports = Linter::<Text<String>>::default()
             .check(&input)
             .await

@@ -20,9 +20,12 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
-    use lints::preamble;
+    use lints::{markdown, preamble};
 
     [
+        //
+        // Preamble
+        //
         ("preamble-no-dup", preamble::NoDuplicates.boxed()),
         ("preamble-trim", preamble::Trim.boxed()),
         ("preamble-eip", preamble::Uint("eip").boxed()),
@@ -151,6 +154,24 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             }
             .boxed(),
         ),
+        //
+        // Markdown
+        //
+        (
+            "markdown-order-section",
+            markdown::SectionOrder(&[
+                "Abstract",
+                "Motivation",
+                "Specification",
+                "Rationale",
+                "Backwards Compatibility",
+                "Test Cases",
+                "Reference Implementation",
+                "Security Considerations",
+                "Copyright",
+            ])
+            .boxed(),
+        ),
     ]
     .into_iter()
 }
@@ -262,10 +283,21 @@ where
             ..Default::default()
         };
 
+        let mut preamble_lines: u32 = preamble_source.matches('\n').count().try_into().unwrap();
+        preamble_lines += 3;
+
         let body = comrak::parse_document(&arena, body_source, &options);
+
+        for node in body.descendants() {
+            let mut data = node.data.borrow_mut();
+            if data.start_line != 0 {
+                data.start_line += preamble_lines;
+            }
+        }
 
         let context = Context {
             body,
+            source,
             body_source,
             preamble,
             origin: self.origin,

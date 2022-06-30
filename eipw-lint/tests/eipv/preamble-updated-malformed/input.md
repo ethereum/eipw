@@ -29,7 +29,7 @@ These are the backwards compatibility concerns for the EIP.
 ## Test Cases
 These are the test cases for the EIP.
 
-## Implementation
+## Reference Implementation
 This is the implementation for the EIP.
 
 ## Security Considerations

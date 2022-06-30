@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+pub mod markdown;
 pub mod preamble;
 
 use annotate_snippets::snippet::Snippet;
@@ -22,11 +23,14 @@ use std::fmt::Debug;
 pub enum Error {
     #[snafu(context(false))]
     ReportFailed { source: reporters::Error },
+    #[snafu(context(false))]
+    InvalidUtf8 { source: std::string::FromUtf8Error },
 }
 
 #[derive(Debug)]
 pub struct Context<'a> {
     pub(crate) preamble: Preamble<'a>,
+    pub(crate) source: &'a str,
     pub(crate) body_source: &'a str,
     pub(crate) body: &'a AstNode<'a>,
     pub(crate) origin: Option<&'a str>,
@@ -36,6 +40,17 @@ pub struct Context<'a> {
 impl<'a> Context<'a> {
     pub fn preamble(&self) -> &Preamble<'a> {
         &self.preamble
+    }
+
+    /// XXX: comrak doesn't include a source field with its `AstNode`, so use
+    ///      this instead. Don't expose it publicly since it's really hacky.
+    ///      Yes, lines start at one.
+    pub(crate) fn line(&self, mut line: u32) -> &'a str {
+        line -= 1;
+        self.source
+            .split('\n')
+            .nth(line.try_into().unwrap())
+            .unwrap()
     }
 
     pub fn body_source(&self) -> &'a str {

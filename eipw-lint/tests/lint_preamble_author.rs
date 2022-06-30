@@ -23,7 +23,6 @@ hello world"#;
         .unwrap()
         .into_inner();
 
-    println!("{}", reports);
     assert_eq!(
         reports,
         r#"error[preamble-author]: authors in the preamble must match the expected format

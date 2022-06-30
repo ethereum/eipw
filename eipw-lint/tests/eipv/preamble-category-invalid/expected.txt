@@ -1,0 +1,5 @@
+error[preamble-enum-category]: preamble header `category` has an unrecognized value
+  |
+9 | category: Unknown
+  |          ^^^^^^^^ must be one of: `Core`, `Networking`, `Interface`, `ERC`
+  |

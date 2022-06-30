@@ -1,0 +1,6 @@
+error[preamble-list-requires]: preamble header list items must begin with a space
+   |
+11 | requires: 20,1337,2048
+   |             ^ missing space
+   |                  ^ missing space
+   |

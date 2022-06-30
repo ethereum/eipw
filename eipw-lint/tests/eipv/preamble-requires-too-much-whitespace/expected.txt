@@ -1,0 +1,5 @@
+error[preamble-list-requires]: preamble header list items have extra whitespace
+   |
+11 | requires: 20, 1337 , 2048
+   |              ^^^^^^ extra space
+   |

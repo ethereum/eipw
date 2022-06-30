@@ -1,0 +1,5 @@
+error[preamble-eip]: preamble header `eip` must be an unsigned integer
+  |
+2 | eip: -1
+  |     ^^^ not a non-negative integer
+  |

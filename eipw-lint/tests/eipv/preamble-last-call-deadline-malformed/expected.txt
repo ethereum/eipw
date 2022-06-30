@@ -1,0 +1,5 @@
+error[preamble-date-last-call-deadline]: preamble header `last-call-deadline` is not a date in the `YYYY-MM-DD` format
+  |
+8 | last-call-deadline: 2020/01/01
+  |                    ^^^^^^^^^^^ input contains invalid characters
+  |

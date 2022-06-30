@@ -1,0 +1,5 @@
+error: missing delimiter `:` in preamble field
+   |
+11 | hello world
+   |
+error[preamble-req]: preamble is missing header(s): `eip`, `title`, `description`, `author`, `discussions-to`, `status`, `type`, `created`

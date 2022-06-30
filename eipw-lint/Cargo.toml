@@ -1,0 +1,23 @@
+[package]
+name = "eipw-lint"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+rust-version = "1.60"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+comrak = "0.13.0"
+annotate-snippets = "0.9.1"
+snafu = "0.7.1"
+regex = "1.5.6"
+serde_json = "1.0.81"
+serde = { version = "1.0.137", features = [ "derive" ] }
+tokio = { version = "1.19.2", features = [ "macros" ] }
+url = "2.2.2"
+chrono = { version = "0.4.19", default-features = false }
+
+[dev-dependencies]
+assert_matches = "1.5.0"
+tokio = { version = "1.19.2", features = [ "rt", "fs" ] }

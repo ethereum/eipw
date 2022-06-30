@@ -1,0 +1,5 @@
+error[preamble-order]: preamble has extra header(s)
+   |
+11 | updated: 2020/01/01
+   | ^^^^^^^ unrecognized header
+   |

@@ -1,0 +1,12 @@
+error[preamble-author]: authors in the preamble must match the expected format
+  |
+5 | author: John Doe (@johndoe) <john.doe@example.com>
+  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unrecognized author
+  |
+  = help: Try `Random J. User (@username)` for an author with a GitHub username.
+  = help: Try `Random J. User <test@example.com>` for an author with an email.
+  = help: Try `Random J. User` for an author without contact information.
+error[preamble-author]: preamble header `author` must contain at least one GitHub username
+  |
+5 | author: John Doe (@johndoe) <john.doe@example.com>
+  |

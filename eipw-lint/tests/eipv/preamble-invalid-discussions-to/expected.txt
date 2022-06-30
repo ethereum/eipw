@@ -1,0 +1,5 @@
+error[preamble-discussions-to]: preamble header `discussions-to` is not a valid URL
+  |
+6 | discussions-to: not a website dot com
+  |                ^^^^^^^^^^^^^^^^^^^^^^ relative URL without a base
+  |

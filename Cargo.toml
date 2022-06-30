@@ -1,0 +1,15 @@
+[workspace]
+members = [ "eipw-lint" ]
+
+[package]
+name = "eipw"
+description = "Ethereum Improvement Proposal linter that's one more than eipv"
+version = "0.1.0"
+edition = "2021"
+license = "MPL-2.0"
+rust-version = "1.60"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+eipw-lint = { version = "0.1.0", path = "eipw-lint" }

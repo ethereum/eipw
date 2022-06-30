@@ -204,9 +204,9 @@ impl<'a, R> Linter<'a, R> {
 
     pub fn add_lint<T>(mut self, slug: &'a str, lint: T) -> Self
     where
-        T: 'static + Lint,
+        T: 'static + Into<Rc<dyn Lint>>,
     {
-        if self.lints.insert(slug, Rc::new(lint)).is_some() {
+        if self.lints.insert(slug, lint.into()).is_some() {
             panic!("duplicate slug: {}", slug);
         }
 

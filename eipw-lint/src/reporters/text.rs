@@ -19,7 +19,7 @@ pub struct Text<W> {
 
 impl<W> Reporter for Text<W>
 where
-    W: Debug + Write,
+    W: Write,
 {
     fn report<'a>(&self, snippet: Snippet<'a>) -> Result<(), Error> {
         writeln!(self.inner.borrow_mut(), "{}", DisplayList::from(snippet)).map_err(Error::new)

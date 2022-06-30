@@ -17,6 +17,7 @@ serde = { version = "1.0.137", features = [ "derive" ] }
 tokio = { version = "1.19.2", features = [ "macros" ] }
 url = "2.2.2"
 chrono = { version = "0.4.19", default-features = false }
+educe = { version = "0.4.19", default-features = false, features = [ "Debug" ] }
 
 [dev-dependencies]
 assert_matches = "1.5.0"

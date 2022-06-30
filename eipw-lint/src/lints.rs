@@ -14,6 +14,8 @@ use comrak::nodes::AstNode;
 use crate::preamble::Preamble;
 use crate::reporters::{self, Reporter};
 
+use educe::Educe;
+
 use snafu::Snafu;
 
 use std::fmt::Debug;
@@ -27,13 +29,15 @@ pub enum Error {
     InvalidUtf8 { source: std::string::FromUtf8Error },
 }
 
-#[derive(Debug)]
+#[derive(Educe)]
+#[educe(Debug)]
 pub struct Context<'a> {
     pub(crate) preamble: Preamble<'a>,
     pub(crate) source: &'a str,
     pub(crate) body_source: &'a str,
     pub(crate) body: &'a AstNode<'a>,
     pub(crate) origin: Option<&'a str>,
+    #[educe(Debug(ignore))]
     pub(crate) reporter: &'a dyn Reporter,
 }
 

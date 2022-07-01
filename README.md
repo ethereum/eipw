@@ -3,6 +3,21 @@ eipw
 
 The [EIP] validator that's one more than `eipv`.
 
+```
+USAGE:
+    eipw [OPTIONS] [SOURCES]...
+
+ARGS:
+    <SOURCES>...    Files and/or directories to check
+
+OPTIONS:
+        --format <FORMAT>     Output format [default: text] [possible values: text, json]
+    -h, --help                Print help information
+        --lints <LINTS>       Additional lints to enable
+        --list-lints          List all available lints
+        --no-default-lints    Do not enable the default lints
+```
+
 [EIP]: https://eips.ethereum.org/
 
 ## Demo

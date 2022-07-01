@@ -112,7 +112,7 @@ async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io:
 }
 
 #[tokio::main]
-async fn run() -> Result<(), ()> {
+async fn run() -> Result<(), usize> {
     let opts = Opts::parse();
 
     if opts.list_lints {
@@ -124,7 +124,7 @@ async fn run() -> Result<(), ()> {
 
     let sources = collect_sources(opts.sources).await.unwrap();
 
-    let mut has_errors = false;
+    let mut n_errors = 0;
 
     for source in sources {
         let reporter = match opts.format {
@@ -154,7 +154,7 @@ async fn run() -> Result<(), ()> {
 
         // TODO: The json output isn't valid when parsing multiple files.
 
-        has_errors |= reporter.counts().error > 0;
+        n_errors += reporter.counts().error;
 
         match reporter.into_inner() {
             EitherReporter::Json(j) => serde_json::to_writer_pretty(&stdout, &j).unwrap(),
@@ -162,16 +162,16 @@ async fn run() -> Result<(), ()> {
         }
     }
 
-    if has_errors {
-        Err(())
+    if n_errors > 0 {
+        Err(n_errors)
     } else {
         Ok(())
     }
 }
 
 fn main() {
-    if run().is_err() {
-        eprintln!("validation failed :(");
+    if let Err(n_errors) = run() {
+        eprintln!("validation failed with {} errors :(", n_errors);
         std::process::exit(1);
     }
 }

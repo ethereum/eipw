@@ -10,7 +10,7 @@ pub mod reporters;
 
 use annotate_snippets::snippet::{Annotation, AnnotationType, Snippet};
 
-use comrak::{Arena, ComrakOptions};
+use comrak::{Arena, ComrakExtensionOptions, ComrakOptions};
 
 use crate::lints::{Context, Error as LintError, Lint, LintExt as _};
 use crate::preamble::Preamble;
@@ -280,6 +280,10 @@ where
 
         let arena = Arena::new();
         let options = ComrakOptions {
+            extension: ComrakExtensionOptions {
+                table: true,
+                ..Default::default()
+            },
             ..Default::default()
         };
 

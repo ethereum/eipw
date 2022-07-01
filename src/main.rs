@@ -8,6 +8,7 @@ use annotate_snippets::snippet::Snippet;
 
 use clap::{Parser, ValueEnum};
 
+use eipw_lint::reporters::count::Count;
 use eipw_lint::reporters::{Json, Reporter, Text};
 use eipw_lint::{default_lints, Linter};
 
@@ -111,23 +112,27 @@ async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io:
 }
 
 #[tokio::main]
-async fn main() {
+async fn run() -> Result<(), ()> {
     let opts = Opts::parse();
 
     if opts.list_lints {
         list_lints();
-        return;
+        return Ok(());
     }
 
     let stdout = std::io::stdout();
 
     let sources = collect_sources(opts.sources).await.unwrap();
 
+    let mut has_errors = false;
+
     for source in sources {
         let reporter = match opts.format {
             Format::Json => EitherReporter::Json(Json::default()),
             Format::Text => EitherReporter::Text(Text::default()),
         };
+
+        let reporter = Count::new(reporter);
 
         let origin = source.to_string_lossy();
         let mut linter = Linter::new(reporter).origin(&origin);
@@ -149,9 +154,24 @@ async fn main() {
 
         // TODO: The json output isn't valid when parsing multiple files.
 
-        match reporter {
+        has_errors |= reporter.counts().error > 0;
+
+        match reporter.into_inner() {
             EitherReporter::Json(j) => serde_json::to_writer_pretty(&stdout, &j).unwrap(),
             EitherReporter::Text(t) => println!("{}", t.into_inner()),
         }
+    }
+
+    if has_errors {
+        Err(())
+    } else {
+        Ok(())
+    }
+}
+
+fn main() {
+    if run().is_err() {
+        eprintln!("validation failed :(");
+        std::process::exit(1);
     }
 }

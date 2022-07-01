@@ -142,9 +142,9 @@ async fn run() -> Result<(), ()> {
         }
 
         if !opts.lints.is_empty() {
-            let lints: HashMap<_, _> = default_lints().collect();
-            for (slug, lint) in lints {
-                linter = linter.add_lint(slug, lint);
+            let mut lints: HashMap<_, _> = default_lints().collect();
+            for slug in &opts.lints {
+                linter = linter.add_lint(slug, lints.remove(slug.as_str()).unwrap());
             }
         }
 

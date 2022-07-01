@@ -65,6 +65,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | id                                  | Description                                                                                               |
 |-------------------------------------|-----------------------------------------------------------------------------------------------------------|
 | `markdown-order-section`            | Checks that there are no extra sections and that sections are in the correct order.                       |
+| `markdown-rel-links`                | Checks that all URLs in the page are relative.                                                            |
 | `preamble-author`                   | Checks that the author header is correctly formatted, and that there is at least one GitHub user listed.  |
 | `preamble-date-created`             | Checks that the `created` header is a date.                                                               |
 | `preamble-date-last-call-deadline`  | Checks that the `last-call-deadline` header is a date.                                                    |

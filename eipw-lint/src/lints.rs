@@ -51,6 +51,7 @@ impl<'a> Context<'a> {
     ///      this instead. Don't expose it publicly since it's really hacky.
     ///      Yes, lines start at one.
     pub(crate) fn line(&self, mut line: u32) -> &'a str {
+        assert_ne!(line, 0);
         line -= 1;
         self.source
             .split('\n')

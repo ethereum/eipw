@@ -171,6 +171,7 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             ])
             .boxed(),
         ),
+        ("markdown-rel-links", markdown::RelativeLinks.boxed()),
     ]
     .into_iter()
 }
@@ -289,7 +290,12 @@ where
 
         for node in body.descendants() {
             let mut data = node.data.borrow_mut();
-            if data.start_line != 0 {
+            if data.start_line == 0 {
+                if let Some(parent) = node.parent() {
+                    // TODO: Check if this actually works; I haven't tested it.
+                    data.start_line = parent.data.borrow().start_line;
+                }
+            } else {
                 data.start_line += preamble_lines;
             }
         }

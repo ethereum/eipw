@@ -158,7 +158,7 @@ async fn run() -> Result<(), usize> {
 
         match reporter.into_inner() {
             EitherReporter::Json(j) => serde_json::to_writer_pretty(&stdout, &j).unwrap(),
-            EitherReporter::Text(t) => println!("{}", t.into_inner()),
+            EitherReporter::Text(t) => print!("{}", t.into_inner()),
         }
     }
 

@@ -1,0 +1,6 @@
+error[preamble-re-description]: preamble header `description` should not contain `standard` (or similar words.)
+  |
+4 | description: A standard description
+  |             ^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
+  |
+  = info: the pattern in question: `(?i)standar\w*\b`

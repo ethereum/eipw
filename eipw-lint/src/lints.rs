@@ -28,6 +28,20 @@ pub enum Error {
     ReportFailed { source: reporters::Error },
     #[snafu(context(false))]
     InvalidUtf8 { source: std::string::FromUtf8Error },
+    Custom {
+        source: Box<dyn std::error::Error + 'static>,
+    },
+}
+
+impl Error {
+    pub fn custom<E>(source: E) -> Self
+    where
+        E: 'static + std::error::Error,
+    {
+        Self::Custom {
+            source: Box::new(source) as Box<dyn std::error::Error>,
+        }
+    }
 }
 
 #[derive(Educe)]

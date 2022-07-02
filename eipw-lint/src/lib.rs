@@ -19,6 +19,7 @@ use crate::reporters::Reporter;
 use std::collections::HashMap;
 
 pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
+    use lints::preamble::regex;
     use lints::{markdown, preamble};
 
     [
@@ -29,6 +30,18 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
         ("preamble-trim", preamble::Trim.boxed()),
         ("preamble-eip", preamble::Uint("eip").boxed()),
         ("preamble-author", preamble::Author("author").boxed()),
+        ("preamble-re-title", preamble::Regex {
+            name: "title",
+            mode: regex::Mode::Excludes,
+            pattern: r"(?i)standar\w*\b",
+            message: "preamble header `title` should not contain `standard` (or similar words.)",
+        }.boxed()),
+        ("preamble-re-description", preamble::Regex {
+            name: "description",
+            mode: regex::Mode::Excludes,
+            pattern: r"(?i)standar\w*\b",
+            message: "preamble header `description` should not contain `standard` (or similar words.)",
+        }.boxed()),
         (
             "preamble-discussions-to",
             preamble::Url("discussions-to").boxed(),

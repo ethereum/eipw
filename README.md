@@ -81,6 +81,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-no-dup`                   | Checks that there are no duplicate headers.                                                               |
 | `preamble-order`                    | Checks that the preamble headers are in the correct order.                                                |
 | `preamble-re-description`           | Checks that the description doesn't contain "standard" or similar words.                                  |
+| `preamble-re-discussions-to`        | Checks that the `discussions-to` header points to Ethereum Magicians                                      |
 | `preamble-re-title`                 | Checks that the title doesn't contain "standard" or similar words.                                        |
 | `preamble-req`                      | Checks that all required preamble headers are present.                                                    |
 | `preamble-req-category`             | Checks that the `category` header is present only when required.                                          |

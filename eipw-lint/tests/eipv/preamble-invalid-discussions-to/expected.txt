@@ -3,3 +3,9 @@ error[preamble-discussions-to]: preamble header `discussions-to` is not a valid 
 6 | discussions-to: not a website dot com
   |                ^^^^^^^^^^^^^^^^^^^^^^ relative URL without a base
   |
+error[preamble-re-discussions-to]: preamble header `discussions-to` should point to a thread on ethereum-magicians.org
+  |
+6 | discussions-to: not a website dot com
+  |                ^^^^^^^^^^^^^^^^^^^^^^ required pattern was not matched
+  |
+  = info: the pattern in question: `^https://ethereum-magicians.org/`

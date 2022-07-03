@@ -46,6 +46,18 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             "preamble-discussions-to",
             preamble::Url("discussions-to").boxed(),
         ),
+        (
+            "preamble-re-discussions-to",
+            preamble::Regex {
+                name: "discussions-to",
+                mode: regex::Mode::Includes,
+                pattern: "^https://ethereum-magicians.org/",
+                message: concat!(
+                    "preamble header `discussions-to` should ",
+                    "point to a thread on ethereum-magicians.org"
+                ),
+            }.boxed(),
+        ),
         ("preamble-list-author", preamble::List("author").boxed()),
         ("preamble-list-requires", preamble::List("requires").boxed()),
         (

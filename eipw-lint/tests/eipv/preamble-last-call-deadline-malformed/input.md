@@ -3,7 +3,7 @@ eip: 1
 title: A sample proposal
 description: A sample description
 author: John Doe (@johndoe)
-discussions-to: https://example.com
+discussions-to: https://ethereum-magicians.org/
 status: Last Call
 last-call-deadline: 2020/01/01
 type: Standards Track

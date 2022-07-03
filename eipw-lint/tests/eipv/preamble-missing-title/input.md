@@ -2,7 +2,7 @@
 eip: 1
 description: A sample description
 author: John Doe (@johndoe)
-discussions-to: https://example.com
+discussions-to: https://ethereum-magicians.org/
 status: Draft
 type: Standards Track
 category: Core

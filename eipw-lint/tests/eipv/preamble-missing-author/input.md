@@ -2,7 +2,7 @@
 eip: 1
 title: A sample proposal
 description: A sample description
-discussions-to: https://example.com
+discussions-to: https://ethereum-magicians.org/
 status: Draft
 type: Standards Track
 category: Core

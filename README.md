@@ -87,5 +87,6 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-req-category`             | Checks that the `category` header is present only when required.                                          |
 | `preamble-req-last-call-deadline`   | Checks that the `last-call-deadline` header is present only when required.                                |
 | `preamble-req-withdrawal-reason`    | Checks that the `withdrawal-reason` header is present only when required.                                 |
+| `preamble-requires-status`          | Checks that EIPs listed in `requires` have statuses further along than the current proposal.              |
 | `preamble-trim`                     | Checks that there is no extra whitespace around preamble fields.                                          |
 | `preamble-uint-requires`            | Checks that the `requires` header is a sorted list of non-negative integers.                              |

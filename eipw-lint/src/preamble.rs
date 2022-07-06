@@ -63,7 +63,7 @@ impl<'a> Fields<'a> {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Preamble<'a> {
     fields: Fields<'a>,
 }

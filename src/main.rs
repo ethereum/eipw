@@ -124,42 +124,37 @@ async fn run() -> Result<(), usize> {
 
     let sources = collect_sources(opts.sources).await.unwrap();
 
-    let mut n_errors = 0;
+    let reporter = match opts.format {
+        Format::Json => EitherReporter::Json(Json::default()),
+        Format::Text => EitherReporter::Text(Text::default()),
+    };
 
-    for source in sources {
-        let reporter = match opts.format {
-            Format::Json => EitherReporter::Json(Json::default()),
-            Format::Text => EitherReporter::Text(Text::default()),
-        };
+    let reporter = Count::new(reporter);
 
-        let reporter = Count::new(reporter);
+    let mut linter = Linter::new(reporter);
 
-        let origin = source.to_string_lossy();
-        let mut linter = Linter::new(reporter).origin(&origin);
+    if opts.no_default_lints {
+        linter = linter.clear_lints();
+    }
 
-        if opts.no_default_lints {
-            linter = linter.clear_lints();
+    if !opts.lints.is_empty() {
+        let mut lints: HashMap<_, _> = default_lints().collect();
+        for slug in &opts.lints {
+            linter = linter.add_lint(slug, lints.remove(slug.as_str()).unwrap());
         }
+    }
 
-        if !opts.lints.is_empty() {
-            let mut lints: HashMap<_, _> = default_lints().collect();
-            for slug in &opts.lints {
-                linter = linter.add_lint(slug, lints.remove(slug.as_str()).unwrap());
-            }
-        }
+    for source in &sources {
+        linter = linter.check_file(source);
+    }
 
-        let text = fs::read_to_string(&source).await.unwrap();
+    let reporter = linter.run().await.unwrap();
 
-        let reporter = linter.check(&text).await.unwrap();
+    let n_errors = reporter.counts().error;
 
-        // TODO: The json output isn't valid when parsing multiple files.
-
-        n_errors += reporter.counts().error;
-
-        match reporter.into_inner() {
-            EitherReporter::Json(j) => serde_json::to_writer_pretty(&stdout, &j).unwrap(),
-            EitherReporter::Text(t) => print!("{}", t.into_inner()),
-        }
+    match reporter.into_inner() {
+        EitherReporter::Json(j) => serde_json::to_writer_pretty(&stdout, &j).unwrap(),
+        EitherReporter::Text(t) => print!("{}", t.into_inner()),
     }
 
     if n_errors > 0 {

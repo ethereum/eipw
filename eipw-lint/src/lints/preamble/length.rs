@@ -16,7 +16,7 @@ pub struct Length<'n> {
 }
 
 impl<'n> Lint for Length<'n> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.name) {
             None => return Ok(()),
             Some(f) => f,

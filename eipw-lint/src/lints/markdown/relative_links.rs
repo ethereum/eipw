@@ -16,7 +16,7 @@ use regex::bytes::Regex;
 pub struct RelativeLinks;
 
 impl Lint for RelativeLinks {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
 
         let links = ctx

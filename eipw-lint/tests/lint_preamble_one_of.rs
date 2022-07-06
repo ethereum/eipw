@@ -26,7 +26,8 @@ hello world"#;
                 values: &["v1", "v2"],
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -60,7 +61,8 @@ hello world"#;
                 values: &["v1", "v2"],
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -94,7 +96,8 @@ hello world"#;
                 values: &["v1", "v2"],
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -119,7 +122,8 @@ hello world"#;
                 values: &["v1", "v2"],
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();

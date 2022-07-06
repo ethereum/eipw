@@ -14,10 +14,10 @@ use std::collections::hash_map::{Entry, HashMap};
 pub struct NoDuplicates;
 
 impl Lint for NoDuplicates {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let mut defined = HashMap::new();
 
-        for field in ctx.preamble.fields() {
+        for field in ctx.preamble().fields() {
             match defined.entry(field.name()) {
                 Entry::Vacant(v) => {
                     v.insert(field);

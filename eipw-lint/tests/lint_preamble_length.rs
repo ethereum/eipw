@@ -25,7 +25,8 @@ hello world"#;
                 max: None,
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -58,7 +59,8 @@ hello world"#;
                 max: None,
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();

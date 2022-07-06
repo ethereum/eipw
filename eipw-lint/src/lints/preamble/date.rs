@@ -14,7 +14,7 @@ use crate::lints::{Context, Error, Lint};
 pub struct Date<'n>(pub &'n str);
 
 impl<'n> Lint for Date<'n> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.0) {
             None => return Ok(()),
             Some(s) => s,

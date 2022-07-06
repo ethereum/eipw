@@ -12,7 +12,7 @@ use crate::lints::{Context, Error, Lint};
 pub struct Uint<'n>(pub &'n str);
 
 impl<'n> Lint for Uint<'n> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.0) {
             None => return Ok(()),
             Some(s) => s,
@@ -54,7 +54,7 @@ impl<'n> Lint for Uint<'n> {
 pub struct UintList<'n>(pub &'n str);
 
 impl<'n> Lint for UintList<'n> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.0) {
             None => return Ok(()),
             Some(s) => s,

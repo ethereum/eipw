@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Snippet};
+use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
 
 use crate::lints::{Context, Error, Lint};
 
@@ -12,7 +12,7 @@ use crate::lints::{Context, Error, Lint};
 pub struct Required<'n>(pub &'n [&'n str]);
 
 impl<'n> Lint for Required<'n> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let missing = self
             .0
             .iter()
@@ -30,7 +30,13 @@ impl<'n> Lint for Required<'n> {
                     label: Some(&label),
                 }),
                 footer: vec![],
-                slices: vec![],
+                slices: vec![Slice {
+                    fold: true,
+                    annotations: vec![],
+                    line_start: 1,
+                    source: ctx.line(1),
+                    origin: ctx.origin(),
+                }],
                 opt: Default::default(),
             })?;
         }

@@ -20,14 +20,15 @@ hello world"#;
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
         .add_lint("preamble-required", Required(&["a1", "b2"]))
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
 
     assert_eq!(
         reports,
-        "error[preamble-required]: preamble is missing header(s): `b2`\n"
+        "error[preamble-required]: preamble is missing header(s): `b2`\n |\n |\n"
     );
 }
 
@@ -43,14 +44,18 @@ hello world"#;
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
         .add_lint("preamble-required", Required(&["a1", "b2"]))
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
 
     assert_eq!(
         reports,
-        "error[preamble-required]: preamble is missing header(s): `a1`, `b2`\n"
+        r#"error[preamble-required]: preamble is missing header(s): `a1`, `b2`
+ |
+ |
+"#
     );
 }
 
@@ -67,7 +72,8 @@ hello world"#;
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
         .add_lint("preamble-required", Required(&["a1", "b2"]))
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();

@@ -26,7 +26,8 @@ hello world"#;
                 name: "header",
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -61,7 +62,8 @@ hello world"#;
                 name: "header",
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -87,7 +89,8 @@ hello world"#;
                 name: "header",
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -122,7 +125,8 @@ hello world"#;
                 name: "header",
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();

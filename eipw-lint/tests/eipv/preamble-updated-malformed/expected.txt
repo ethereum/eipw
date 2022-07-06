@@ -1,4 +1,5 @@
 error[preamble-order]: preamble has extra header(s)
+  --> input.md:11:1
    |
 11 | updated: 2020/01/01
    | ^^^^^^^ unrecognized header

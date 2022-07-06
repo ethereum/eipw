@@ -25,7 +25,8 @@ hello world"#;
                 then: "then",
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -51,7 +52,8 @@ hello world"#;
                 then: "then",
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -86,7 +88,8 @@ hello world"#;
                 then: "then",
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -124,7 +127,8 @@ hello world"#;
                 then: "then",
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -150,7 +154,8 @@ hello world"#;
                 then: "then",
             },
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();

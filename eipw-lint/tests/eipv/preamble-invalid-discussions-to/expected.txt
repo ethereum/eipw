@@ -1,9 +1,11 @@
 error[preamble-discussions-to]: preamble header `discussions-to` is not a valid URL
+ --> input.md:6:16
   |
 6 | discussions-to: not a website dot com
   |                ^^^^^^^^^^^^^^^^^^^^^^ relative URL without a base
   |
 error[preamble-re-discussions-to]: preamble header `discussions-to` should point to a thread on ethereum-magicians.org
+ --> input.md:6:16
   |
 6 | discussions-to: not a website dot com
   |                ^^^^^^^^^^^^^^^^^^^^^^ required pattern was not matched

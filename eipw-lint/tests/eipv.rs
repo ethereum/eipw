@@ -8,7 +8,7 @@ use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 
 use std::io::ErrorKind;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use tokio::fs;
 
@@ -27,13 +27,13 @@ async fn eipv() -> std::io::Result<()> {
             continue;
         }
 
+        std::env::set_current_dir(entry.path())?;
+
         checked = true;
 
-        let input_path = entry.path().join("input.md");
-        let expected_path = entry.path().join("expected.txt");
-        let valid_path = entry.path().join("valid.txt");
-
-        let input = fs::read_to_string(input_path).await?;
+        let input_path = Path::new("input.md");
+        let expected_path = Path::new("expected.txt");
+        let valid_path = Path::new("valid.txt");
 
         let expected = match fs::read_to_string(&expected_path).await {
             Ok(s) if s.trim().is_empty() => panic!(
@@ -53,7 +53,8 @@ async fn eipv() -> std::io::Result<()> {
 
         println!("Testing {}...", entry.path().display());
         let reports = Linter::<Text<String>>::default()
-            .check(&input)
+            .check_file(&input_path)
+            .run()
             .await
             .unwrap()
             .into_inner();

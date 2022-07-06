@@ -1,0 +1,8 @@
+error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`
+  --> input.md:12:10
+   |
+12 | requires: 20, 1337, 2048
+   |          ^^^ has a less advanced status
+   |                    ^^^^^ has a less advanced status
+   |
+   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`

@@ -1,4 +1,5 @@
 error[preamble-len-title]: preamble header `title` value is too long (max 44)
+ --> input.md:3:7
   |
 3 | title: A sample proposal whose title is too long to still be considered valid for the purposes of the Ethereum Improvement Proposal processes and the repository in which they reside
   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ too long

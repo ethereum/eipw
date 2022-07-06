@@ -1,4 +1,5 @@
 error[preamble-re-description]: preamble header `description` should not contain `standard` (or similar words.)
+ --> input.md:4:13
   |
 4 | description: A standard description
   |             ^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched

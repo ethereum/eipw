@@ -1,4 +1,5 @@
 error[preamble-list-requires]: preamble header list items have extra whitespace
+  --> input.md:11:14
    |
 11 | requires: 20, 1337 , 2048
    |              ^^^^^^ extra space

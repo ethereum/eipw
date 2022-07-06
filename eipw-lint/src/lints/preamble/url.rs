@@ -12,7 +12,7 @@ use crate::lints::{Context, Error, Lint};
 pub struct Url<'n>(pub &'n str);
 
 impl<'n> Lint for Url<'n> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.0) {
             Some(f) => f,
             None => return Ok(()),

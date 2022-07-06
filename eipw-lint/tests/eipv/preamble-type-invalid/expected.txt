@@ -1,12 +1,16 @@
 error[preamble-enum-type]: preamble header `type` has an unrecognized value
+ --> input.md:8:6
   |
 8 | type: Unknown
   |      ^^^^^^^^ must be one of: `Standards Track`, `Meta`, `Informational`
   |
 error[preamble-req-category]: preamble header `category` is only allowed when `type` is `Standards Track`
+ --> input.md:8:1
   |
 8 | type: Unknown
   | ------------- info: unless equal to `Standards Track`
+  |
+ ::: input.md:9:1
   |
 9 | category: Core
   | ^^^^^^^^^^^^^^ remove this

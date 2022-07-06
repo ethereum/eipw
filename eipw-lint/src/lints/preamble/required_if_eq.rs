@@ -16,7 +16,7 @@ pub struct RequiredIfEq<'b> {
 }
 
 impl<'n> Lint for RequiredIfEq<'n> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let then_opt = ctx.preamble().by_name(self.then);
         let when_opt = ctx.preamble().by_name(self.when);
 

@@ -20,7 +20,8 @@ header: value1
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
         .add_lint("markdown-section-order", SectionOrder(&[]))
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -51,7 +52,8 @@ header: value1
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
         .add_lint("markdown-section-order", SectionOrder(&["Banana"]))
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -87,7 +89,8 @@ header: value1
             "markdown-section-order",
             SectionOrder(&["Foo", "Banana", "Bar"]),
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();
@@ -121,7 +124,8 @@ header: value1
             "markdown-section-order",
             SectionOrder(&["Foo", "Banana", "Bar"]),
         )
-        .check(src)
+        .check_slice(None, src)
+        .run()
         .await
         .unwrap()
         .into_inner();

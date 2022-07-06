@@ -6,6 +6,7 @@
 
 pub mod count;
 pub mod json;
+pub mod null;
 pub mod text;
 
 use annotate_snippets::snippet::Snippet;

@@ -12,7 +12,7 @@ use crate::lints::{Context, Error, Lint};
 pub struct Order<'n>(pub &'n [&'n str]);
 
 impl<'n> Lint for Order<'n> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         // Check for unknown headers.
         let unknowns: Vec<_> = ctx
             .preamble()

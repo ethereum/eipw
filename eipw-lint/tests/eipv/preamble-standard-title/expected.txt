@@ -1,4 +1,5 @@
 error[preamble-re-title]: preamble header `title` should not contain `standard` (or similar words.)
+ --> input.md:3:7
   |
 3 | title: Standardize an Interface
   |       ^^^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched

@@ -12,10 +12,10 @@ use crate::lints::{Context, Error, Lint};
 pub struct Trim;
 
 impl Lint for Trim {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let mut no_space = Vec::new();
 
-        for field in ctx.preamble.fields() {
+        for field in ctx.preamble().fields() {
             let mut value = field.value();
             if value.is_empty() {
                 continue;

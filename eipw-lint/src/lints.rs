@@ -18,8 +18,11 @@ use educe::Educe;
 
 use snafu::Snafu;
 
+use std::cell::RefCell;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::ops::Deref;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Snafu)]
 #[non_exhaustive]
@@ -44,21 +47,33 @@ impl Error {
     }
 }
 
-#[derive(Educe)]
-#[educe(Debug)]
-pub struct Context<'a> {
+#[derive(Debug, Clone)]
+pub(crate) struct InnerContext<'a> {
     pub(crate) preamble: Preamble<'a>,
     pub(crate) source: &'a str,
     pub(crate) body_source: &'a str,
     pub(crate) body: &'a AstNode<'a>,
     pub(crate) origin: Option<&'a str>,
-    #[educe(Debug(ignore))]
-    pub(crate) reporter: &'a dyn Reporter,
 }
 
-impl<'a> Context<'a> {
+#[derive(Educe)]
+#[educe(Debug)]
+pub struct Context<'a, 'b>
+where
+    'b: 'a,
+{
+    pub(crate) inner: InnerContext<'a>,
+    pub(crate) eips: &'b HashMap<&'b Path, InnerContext<'b>>,
+    #[educe(Debug(ignore))]
+    pub(crate) reporter: &'b dyn Reporter,
+}
+
+impl<'a, 'b> Context<'a, 'b>
+where
+    'b: 'a,
+{
     pub fn preamble(&self) -> &Preamble<'a> {
-        &self.preamble
+        &self.inner.preamble
     }
 
     /// XXX: comrak doesn't include a source field with its `AstNode`, so use
@@ -67,36 +82,89 @@ impl<'a> Context<'a> {
     pub(crate) fn line(&self, mut line: u32) -> &'a str {
         assert_ne!(line, 0);
         line -= 1;
-        self.source
+        self.inner
+            .source
             .split('\n')
             .nth(line.try_into().unwrap())
             .unwrap()
     }
 
     pub fn body_source(&self) -> &'a str {
-        self.body_source
+        self.inner.body_source
     }
 
     pub fn body(&self) -> &'a AstNode<'a> {
-        self.body
+        self.inner.body
     }
 
     pub fn origin(&self) -> Option<&'a str> {
-        self.origin
+        self.inner.origin
     }
 
     pub fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
         self.reporter.report(snippet)?;
         Ok(())
     }
+
+    pub fn eip(&self, path: &Path) -> Context<'b, 'b> {
+        let origin = self
+            .origin()
+            .expect("lint attempted to access an external resource without having an origin");
+
+        let origin_path = PathBuf::from(origin);
+        let root = origin_path.parent().unwrap_or_else(|| Path::new("."));
+
+        let key = root.join(path);
+
+        let inner = match self.eips.get(key.as_path()) {
+            Some(i) => i,
+            None => panic!("no eip found for key `{}`", key.display()),
+        };
+
+        Context {
+            inner: inner.clone(),
+            eips: self.eips,
+            reporter: self.reporter,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct FetchContext<'a> {
+    pub(crate) preamble: &'a Preamble<'a>,
+    pub(crate) body: &'a AstNode<'a>,
+    pub(crate) eips: RefCell<HashSet<PathBuf>>,
+}
+
+impl<'a> FetchContext<'a> {
+    pub fn preamble(&self) -> &Preamble<'a> {
+        self.preamble
+    }
+
+    pub fn body(&self) -> &'a AstNode<'a> {
+        self.body
+    }
+
+    pub fn fetch(&self, path: PathBuf) {
+        self.eips.borrow_mut().insert(path);
+    }
 }
 
 pub trait Lint: Debug {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error>;
+    fn find_resources<'a>(&self, _ctx: &FetchContext<'a>) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error>;
 }
 
 impl Lint for Box<dyn Lint> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn find_resources<'a>(&self, ctx: &FetchContext<'a>) -> Result<(), Error> {
+        let lint: &dyn Lint = self.deref();
+        lint.find_resources(ctx)
+    }
+
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let lint: &dyn Lint = self.deref();
         lint.lint(slug, ctx)
     }

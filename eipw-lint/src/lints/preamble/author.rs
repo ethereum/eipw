@@ -33,7 +33,7 @@ fn footer() -> Vec<Annotation<'static>> {
 pub struct Author<'n>(pub &'n str);
 
 impl<'n> Lint for Author<'n> {
-    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a>) -> Result<(), Error> {
+    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.0) {
             None => return Ok(()),
             Some(s) => s,

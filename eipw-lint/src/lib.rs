@@ -433,7 +433,7 @@ where
             let arena = Arena::new();
             let inner = match process(&self.reporter, &arena, display_origin, source)? {
                 Some(i) => i,
-                None => return Ok(self.reporter),
+                None => continue,
             };
 
             let context = Context {

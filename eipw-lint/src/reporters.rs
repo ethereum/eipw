@@ -12,6 +12,7 @@ pub mod text;
 use annotate_snippets::snippet::Snippet;
 
 pub use self::json::Json;
+pub use self::null::Null;
 pub use self::text::Text;
 
 use std::fmt::{self, Debug};

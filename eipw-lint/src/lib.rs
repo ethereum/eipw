@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+pub mod fetch;
 pub mod lints;
 pub mod preamble;
 pub mod reporters;
@@ -13,11 +14,12 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
 use comrak::arena_tree::Node;
 use comrak::nodes::Ast;
 use comrak::{Arena, ComrakExtensionOptions, ComrakOptions};
-use reporters::null::Null;
 
 use crate::lints::{Context, Error as LintError, FetchContext, InnerContext, Lint, LintExt as _};
 use crate::preamble::Preamble;
 use crate::reporters::Reporter;
+
+use educe::Educe;
 
 use snafu::{ensure, ResultExt, Snafu};
 
@@ -263,9 +265,10 @@ impl<'a> Source<'a> {
         matches!(self, Self::String { .. })
     }
 
-    async fn fetch(&self) -> Result<String, Error> {
+    async fn fetch(&self, fetch: &dyn fetch::Fetch) -> Result<String, Error> {
         match self {
-            Self::File(f) => tokio::fs::read_to_string(f)
+            Self::File(f) => fetch
+                .fetch(f.to_path_buf())
                 .await
                 .with_context(|_| IoSnafu { path: f.to_owned() })
                 .map_err(Into::into),
@@ -274,12 +277,18 @@ impl<'a> Source<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Educe)]
+#[educe(Debug)]
 #[must_use]
 pub struct Linter<'a, R> {
     lints: HashMap<&'a str, Box<dyn Lint>>,
     sources: Vec<Source<'a>>,
+
+    #[educe(Debug(ignore))]
     reporter: R,
+
+    #[educe(Debug(ignore))]
+    fetch: Box<dyn fetch::Fetch>,
 }
 
 impl<'a, R> Default for Linter<'a, R>
@@ -297,6 +306,7 @@ impl<'a, R> Linter<'a, R> {
             reporter,
             sources: Default::default(),
             lints: default_lints().collect(),
+            fetch: Box::new(fetch::DefaultFetch::default()),
         }
     }
 
@@ -321,6 +331,14 @@ impl<'a, R> Linter<'a, R> {
 
     pub fn clear_lints(mut self) -> Self {
         self.lints.clear();
+        self
+    }
+
+    pub fn set_fetch<F>(mut self, fetch: F) -> Self
+    where
+        F: 'static + fetch::Fetch,
+    {
+        self.fetch = Box::new(fetch);
         self
     }
 }
@@ -353,7 +371,7 @@ where
 
         for source in self.sources {
             let source_origin = source.origin().map(Path::to_path_buf);
-            let source_content = source.fetch().await?;
+            let source_content = source.fetch(&*self.fetch).await?;
 
             to_check.push((source_origin, source_content));
 
@@ -362,7 +380,7 @@ where
             let display_origin = display_origin.as_deref();
 
             let arena = Arena::new();
-            let inner = match process(&Null, &arena, display_origin, source_content)? {
+            let inner = match process(&reporters::Null, &arena, display_origin, source_content)? {
                 Some(i) => i,
                 None => continue,
             };
@@ -405,7 +423,7 @@ where
                         hash_map::Entry::Vacant(v) => v,
                     };
 
-                    let content = Source::File(entry.key()).fetch().await?;
+                    let content = Source::File(entry.key()).fetch(&*self.fetch).await?;
 
                     entry.insert(content);
                 }

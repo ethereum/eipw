@@ -4,6 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#![cfg(feature = "tokio")]
+
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 

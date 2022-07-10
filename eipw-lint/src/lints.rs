@@ -19,6 +19,7 @@ use educe::Educe;
 use snafu::Snafu;
 
 use std::cell::RefCell;
+use std::cmp::max;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::ops::Deref;
@@ -87,6 +88,22 @@ where
             .split('\n')
             .nth(line.try_into().unwrap())
             .unwrap()
+    }
+
+    /// XXX: comrak doesn't include a source field with its `AstNode`, so use
+    ///      this instead. Don't expose it publicly since it's really hacky.
+    pub(crate) fn source_for_text(&self, line: u32, buf: &[u8]) -> String {
+        assert_ne!(line, 0);
+
+        let newlines = max(1, buf.iter().copied().filter(|c| *c == b'\n').count());
+
+        self.inner
+            .source
+            .split('\n')
+            .skip(usize::try_from(line - 1).unwrap())
+            .take(newlines)
+            .collect::<Vec<_>>()
+            .join("\n")
     }
 
     pub fn body_source(&self) -> &'a str {

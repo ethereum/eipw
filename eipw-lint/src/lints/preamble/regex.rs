@@ -9,6 +9,7 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, Sou
 use crate::lints::{Context, Error, Lint};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[non_exhaustive]
 pub enum Mode {
     Includes,
     Excludes,

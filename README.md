@@ -65,6 +65,8 @@ error[preamble-order]: preamble header `description` must come after `title`
 | id                                  | Description                                                                                               |
 |-------------------------------------|-----------------------------------------------------------------------------------------------------------|
 | `markdown-order-section`            | Checks that there are no extra sections and that sections are in the correct order.                       |
+| `markdown-re-eip-dash`              | Checks that other EIPs are referenced using EIP-X, not EIPX or EIP X.                                     |
+| `markdown-re-eip-not-erc`           | Checks that other EIPs are referenced using EIP-X, not ERC-X.                                             |
 | `markdown-rel-links`                | Checks that all URLs in the page are relative.                                                            |
 | `preamble-author`                   | Checks that the author header is correctly formatted, and that there is at least one GitHub user listed.  |
 | `preamble-date-created`             | Checks that the `created` header is a date.                                                               |

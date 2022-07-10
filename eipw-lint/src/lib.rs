@@ -8,6 +8,7 @@ pub mod fetch;
 pub mod lints;
 pub mod preamble;
 pub mod reporters;
+pub mod tree;
 
 use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
 
@@ -235,6 +236,22 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                 "Copyright",
             ])
             .boxed(),
+        ),
+        (
+            "markdown-re-eip-not-erc",
+            markdown::Regex {
+                mode: markdown::regex::Mode::Excludes,
+                pattern: r"(?i)erc[\w-]*[0-9]+",
+                message: "proposals must be referenced with the form `EIP-N` (not `ERC-N`)",
+            }.boxed(),
+        ),
+        (
+            "markdown-re-eip-dash",
+            markdown::Regex {
+                mode: markdown::regex::Mode::Excludes,
+                pattern: r"(?i)eip[\w]*[0-9]+",
+                message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
+            }.boxed(),
         ),
         ("markdown-rel-links", markdown::RelativeLinks.boxed()),
     ]
@@ -553,7 +570,7 @@ fn process<'r, 'a>(
         let mut data = node.data.borrow_mut();
         if data.start_line == 0 {
             if let Some(parent) = node.parent() {
-                // TODO: Check if this actually works; I haven't tested it.
+                // XXX: This doesn't actually work.
                 data.start_line = parent.data.borrow().start_line;
             }
         } else {

@@ -4,8 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+pub mod regex;
 pub mod relative_links;
 pub mod section_order;
 
+pub use self::regex::Regex;
 pub use self::relative_links::RelativeLinks;
 pub use self::section_order::SectionOrder;

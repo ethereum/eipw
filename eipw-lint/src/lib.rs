@@ -253,6 +253,10 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                 message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
             }.boxed(),
         ),
+        (
+            "markdown-link-first",
+            markdown::LinkFirst(r"(?i)eip-[0-9]+").boxed(),
+        ),
         ("markdown-rel-links", markdown::RelativeLinks.boxed()),
     ]
     .into_iter()

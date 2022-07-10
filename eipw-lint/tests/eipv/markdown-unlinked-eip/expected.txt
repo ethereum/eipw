@@ -1,0 +1,6 @@
+error[markdown-link-first]: the first match of the given pattern must be a link
+  --> input.md
+   |
+15 | This is the abstract for the EIP, which extends EIP-1234.
+   |
+   = info: the pattern in question: `(?i)eip-[0-9]+`

@@ -64,6 +64,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 
 | id                                  | Description                                                                                   |
 |-------------------------------------|-----------------------------------------------------------------------------------------------|
+| `markdown-link-first`               | First mention of an EIP must be a link.                                                       |
 | `markdown-order-section`            | There are no extra sections and the sections are in the correct order.                        |
 | `markdown-re-eip-dash`              | Other EIPs are referenced using EIP-X, not EIPX or EIP X.                                     |
 | `markdown-re-eip-not-erc`           | Other EIPs are referenced using EIP-X, not ERC-X.                                             |

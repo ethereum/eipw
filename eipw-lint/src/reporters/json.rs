@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-mod snippet;
+pub mod snippet;
 
 use annotate_snippets::snippet::Snippet;
 

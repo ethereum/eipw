@@ -4,11 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use annotate_snippets::display_list::DisplayList;
+use annotate_snippets::snippet::Snippet;
+
 use eipw_lint::fetch::Fetch;
-use eipw_lint::reporters::Json;
+use eipw_lint::reporters::json::{snippet, Json};
 use eipw_lint::Linter;
 
-use js_sys::JsString;
+use js_sys::{JsString, JSON};
 
 use std::fmt;
 use std::future::Future;
@@ -82,4 +85,14 @@ pub async fn lint(sources: Vec<JsValue>) -> Result<JsValue, JsValue> {
     };
 
     Ok(JsValue::from_serde(&reporter.into_reports()).unwrap())
+}
+
+#[wasm_bindgen]
+pub fn format(snippet: &JsValue) -> Result<String, JsValue> {
+    let json: String = JSON::stringify(snippet)?.into();
+    let snippet: Snippet = serde_json::from_str::<snippet::SnippetDef>(&json)
+        .map_err(|e| JsValue::from_str(&e.to_string()))?
+        .into();
+
+    Ok(format!("{}", DisplayList::from(snippet)))
 }

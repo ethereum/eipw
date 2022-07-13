@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_lint_js::lint;
+use eipw_lint_js::{format, lint};
 
 use serde_json::json;
 
@@ -65,6 +65,31 @@ async fn lint_one() {
        }
     ]
         };
+
+    assert_eq!(expected, actual);
+}
+
+#[wasm_bindgen_test]
+async fn format_one() {
+    let mut path = PathBuf::from("tests");
+    path.push("eips");
+    path.push("eip-1000.md");
+
+    let path = path.to_str().unwrap();
+
+    let result = lint(vec![JsValue::from_str(path)]).await.unwrap();
+
+    let snippets: Vec<serde_json::Value> = result.into_serde().unwrap();
+    let snippet = JsValue::from_serde(&snippets[0]).unwrap();
+    let actual = format(&snippet).unwrap();
+
+    let expected = r#"error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`
+  --> tests/eips/eip-1000.md:12:10
+   |
+12 | requires: 20
+   |          ^^^ has a less advanced status
+   |
+   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`"#;
 
     assert_eq!(expected, actual);
 }

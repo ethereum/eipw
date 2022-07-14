@@ -219,6 +219,14 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                 ]
             }.boxed(),
         ),
+        (
+            "preamble-file-name",
+            preamble::FileName {
+                name: "eip",
+                prefix: "eip-",
+                suffix: ".md",
+            }.boxed(),
+        ),
         //
         // Markdown
         //

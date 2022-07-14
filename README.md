@@ -77,6 +77,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-enum-category`            | The `category` header is a recognized value.                                                  |
 | `preamble-enum-status`              | The `status` header is a recognized value.                                                    |
 | `preamble-enum-type`                | The `type` header is a recognized value.                                                      |
+| `preamble-file-name`                | The file name reflects the EIP number.                                                        |
 | `preamble-len-description`          | The `description` header isn't too long.                                                      |
 | `preamble-len-title`                | The `title` header isn't too long.                                                            |
 | `preamble-list-author`              | The `author` header is a correctly formatted comma-separated list.                            |

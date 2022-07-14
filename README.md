@@ -94,3 +94,18 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-requires-status`          | EIPs listed in `requires` have statuses further along than the current proposal.              |
 | `preamble-trim`                     | There is no extra whitespace around preamble fields.                                          |
 | `preamble-uint-requires`            | The `requires` header is a sorted list of non-negative integers.                              |
+
+## JavaScript / WebAssembly
+
+`eipw-lint-js` packages `eipw` as an npm package, for use in JavaScript / TypeScript.
+
+You can find the [package on npm](https://www.npmjs.com/package/eipw-lint-js).
+
+### Building & Publishing
+
+```bash
+cd eipw-lint-js
+wasm-pack test --node
+wasm-pack build -t nodejs
+wasm-pack publish -t nodejs
+```

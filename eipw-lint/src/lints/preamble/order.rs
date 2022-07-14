@@ -8,8 +8,27 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, Sou
 
 use crate::lints::{Context, Error, Lint};
 
+use std::fmt::Write;
+
 #[derive(Debug)]
 pub struct Order<'n>(pub &'n [&'n str]);
+
+impl<'n> Order<'n> {
+    fn find_preceding(&self, present: &[&str], needle: &str) -> Option<&str> {
+        let needle_idx = match self.0.iter().position(|x| *x == needle) {
+            None | Some(0) => return None,
+            Some(i) => i,
+        };
+
+        for (idx, name) in self.0.iter().enumerate().rev() {
+            if *name != needle && present.contains(name) && idx < needle_idx {
+                return Some(name);
+            }
+        }
+
+        None
+    }
+}
 
 impl<'n> Lint for Order<'n> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
@@ -44,9 +63,11 @@ impl<'n> Lint for Order<'n> {
             })?;
         }
 
+        let present: Vec<_> = ctx.preamble().fields().map(|f| f.name()).collect();
+
         // Check that headers are in the correct order.
         let mut max_line = 0;
-        for (idx, name) in self.0.iter().enumerate() {
+        for name in self.0.iter() {
             if let Some(field) = ctx.preamble().by_name(name) {
                 let cur = max_line;
                 max_line = field.line_start();
@@ -55,18 +76,33 @@ impl<'n> Lint for Order<'n> {
                     continue;
                 }
 
-                let label = format!(
-                    "preamble header `{}` must come after `{}`",
-                    field.name(),
-                    self.0[idx - 1]
-                );
+                let label = format!("preamble header `{}` is out of order", field.name());
+                let mut footer_label = String::new();
+                let mut footer = vec![];
+
+                if let Some(preceding) = self.find_preceding(&present, field.name()) {
+                    write!(
+                        footer_label,
+                        "`{}` should come after `{}`",
+                        field.name(),
+                        preceding,
+                    )
+                    .unwrap();
+
+                    footer.push(Annotation {
+                        annotation_type: AnnotationType::Help,
+                        id: None,
+                        label: Some(&footer_label),
+                    });
+                }
+
                 ctx.report(Snippet {
                     title: Some(Annotation {
                         id: Some(slug),
                         annotation_type: AnnotationType::Error,
                         label: Some(&label),
                     }),
-                    footer: vec![],
+                    footer,
                     slices: vec![Slice {
                         line_start: field.line_start(),
                         origin: ctx.origin(),

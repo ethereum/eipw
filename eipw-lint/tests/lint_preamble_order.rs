@@ -86,10 +86,39 @@ hello world"#;
 
     assert_eq!(
         reports,
-        r#"error[preamble-order]: preamble header `b2` must come after `a1`
+        r#"error[preamble-order]: preamble header `b2` is out of order
   |
 2 | b2: hiya
   |
+  = help: `b2` should come after `a1`
+"#
+    );
+}
+
+#[tokio::test]
+async fn out_of_order_with_optional() {
+    let src = r#"---
+b2: hiya
+a1: foo
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .add_lint("preamble-order", Order(&["a1", "a2", "b2"]))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-order]: preamble header `b2` is out of order
+  |
+2 | b2: hiya
+  |
+  = help: `b2` should come after `a1`
 "#
     );
 }

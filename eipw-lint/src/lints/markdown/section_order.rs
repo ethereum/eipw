@@ -11,9 +11,27 @@ use comrak::nodes::{Ast, NodeHeading, NodeValue};
 use crate::lints::{Context, Error, Lint};
 
 use std::collections::HashMap;
+use std::fmt::Write;
 
 #[derive(Debug)]
 pub struct SectionOrder<'n>(pub &'n [&'n str]);
+
+impl<'n> SectionOrder<'n> {
+    fn find_preceding(&self, present: &[&str], needle: &str) -> Option<&str> {
+        let needle_idx = match self.0.iter().position(|x| *x == needle) {
+            None | Some(0) => return None,
+            Some(i) => i,
+        };
+
+        for (idx, name) in self.0.iter().enumerate().rev() {
+            if *name != needle && present.contains(name) && idx < needle_idx {
+                return Some(name);
+            }
+        }
+
+        None
+    }
+}
 
 impl<'n> Lint for SectionOrder<'n> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
@@ -81,8 +99,10 @@ impl<'n> Lint for SectionOrder<'n> {
 
         // Check that sections are in the correct order.
         let map: HashMap<_, _> = headings.into_iter().map(|(a, b)| (b, a)).collect();
+        let present: Vec<_> = map.keys().map(String::as_str).collect();
+
         let mut max_line = 0;
-        for (idx, name) in self.0.iter().enumerate() {
+        for name in self.0.iter() {
             if let Some(line_start) = map.get(*name).copied() {
                 let cur = max_line;
                 max_line = line_start;
@@ -91,14 +111,27 @@ impl<'n> Lint for SectionOrder<'n> {
                     continue;
                 }
 
-                let label = format!("section `{}` must come after `{}`", name, self.0[idx - 1]);
+                let label = format!("section `{}` is out of order", name);
+                let mut footer_label = String::new();
+                let mut footer = vec![];
+
+                if let Some(preceding) = self.find_preceding(&present, name) {
+                    write!(footer_label, "`{}` should come after `{}`", name, preceding,).unwrap();
+
+                    footer.push(Annotation {
+                        annotation_type: AnnotationType::Help,
+                        id: None,
+                        label: Some(&footer_label),
+                    });
+                }
+
                 ctx.report(Snippet {
                     title: Some(Annotation {
                         id: Some(slug),
                         annotation_type: AnnotationType::Error,
                         label: Some(&label),
                     }),
-                    footer: vec![],
+                    footer,
                     slices: vec![Slice {
                         line_start: line_start.try_into().unwrap(),
                         origin: ctx.origin(),

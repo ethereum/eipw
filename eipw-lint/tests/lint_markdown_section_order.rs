@@ -97,10 +97,47 @@ header: value1
 
     assert_eq!(
         reports,
-        r#"error[markdown-section-order]: section `Banana` must come after `Foo`
+        r#"error[markdown-section-order]: section `Banana` is out of order
   |
 5 | ## Banana
   |
+  = help: `Banana` should come after `Foo`
+"#
+    );
+}
+
+#[tokio::test]
+async fn out_of_order_with_optional() {
+    let src = r#"---
+header: value1
+---
+
+## Banana
+
+## Bar
+
+## Foo
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .add_lint(
+            "markdown-section-order",
+            SectionOrder(&["Orange", "Foo", "Pear", "Banana", "Bar"]),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-section-order]: section `Banana` is out of order
+  |
+5 | ## Banana
+  |
+  = help: `Banana` should come after `Foo`
 "#
     );
 }

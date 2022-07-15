@@ -1,0 +1,2 @@
+/eipw-lint/tests/eipv/**/*.md text eol=lf
+/eipw-lint/tests/eipv/**/*.txt text eol=lf

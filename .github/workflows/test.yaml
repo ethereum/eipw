@@ -19,6 +19,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
+          args: --all --all-features --locked
 
   test:
     name: Test Suite
@@ -33,6 +34,7 @@ jobs:
           profile: minimal
           toolchain: 1.60.0
           override: true
+      - run: cargo install wasm-pack --version 0.10.3
       - uses: actions-rs/cargo@v1
         with:
           command: test
@@ -41,6 +43,7 @@ jobs:
         with:
           command: test
           args: --all --all-features
+      - run: wasm-pack test --node --all
 
   fmt:
     name: Rustfmt

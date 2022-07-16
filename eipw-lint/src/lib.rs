@@ -510,6 +510,16 @@ fn process<'r, 'a>(
         Ok(v) => v,
         Err(preamble::SplitError::MissingStart { .. })
         | Err(preamble::SplitError::LeadingGarbage { .. }) => {
+            let mut footer = Vec::new();
+            if source.as_bytes().get(3) == Some(&b'\r') {
+                footer.push(Annotation {
+                    id: None,
+                    label: Some(
+                        "found a carriage return (CR), use Unix-style line endings (LF) instead",
+                    ),
+                    annotation_type: AnnotationType::Help,
+                });
+            }
             reporter
                 .report(Snippet {
                     title: Some(Annotation {
@@ -524,6 +534,7 @@ fn process<'r, 'a>(
                         source: source.lines().next().unwrap_or_default(),
                         annotations: vec![],
                     }],
+                    footer,
                     ..Default::default()
                 })
                 .map_err(LintError::from)

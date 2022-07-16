@@ -1,0 +1,6 @@
+error: first line must be `---` exactly
+ --> input.md
+  |
+1 | ---
+  |
+  = help: found a carriage return (CR), use Unix-style line endings (LF) instead

@@ -64,6 +64,36 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             pattern: r"(?i)standar\w*\b",
             message: "preamble header `title` should not contain `standard` (or similar words.)",
         }.boxed()),
+        ("preamble-re-title-erc", preamble::Regex {
+            name: "title",
+            mode: regex::Mode::Excludes,
+            pattern: r"(?i)erc[\s-]*[0-9]+",
+            message: "proposals must be referenced with the form `EIP-N` (not `ERC-N`)",
+        }.boxed()),
+        (
+            "preamble-re-title-eip-dash",
+            preamble::Regex {
+                name: "title",
+                mode: regex::Mode::Excludes,
+                pattern: r"(?i)eip[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
+            }.boxed(),
+        ),
+        (
+            "preamble-re-description-eip-dash",
+            preamble::Regex {
+                name: "description",
+                mode: regex::Mode::Excludes,
+                pattern: r"(?i)eip[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
+            }.boxed(),
+        ),
+        ("preamble-re-description-erc", preamble::Regex {
+            name: "description",
+            mode: regex::Mode::Excludes,
+            pattern: r"(?i)erc[\s-]*[0-9]+",
+            message: "proposals must be referenced with the form `EIP-N` (not `ERC-N`)",
+        }.boxed()),
         ("preamble-re-description", preamble::Regex {
             name: "description",
             mode: regex::Mode::Excludes,
@@ -220,6 +250,20 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             }.boxed(),
         ),
         (
+            "preamble-requires-ref-title",
+            preamble::RequireReferenced {
+                name: "title",
+                requires: "requires",
+            }.boxed(),
+        ),
+        (
+            "preamble-requires-ref-description",
+            preamble::RequireReferenced {
+                name: "description",
+                requires: "requires",
+            }.boxed(),
+        ),
+        (
             "preamble-file-name",
             preamble::FileName {
                 name: "eip",
@@ -249,7 +293,7 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             "markdown-re-eip-not-erc",
             markdown::Regex {
                 mode: markdown::regex::Mode::Excludes,
-                pattern: r"(?i)erc[\w-]*[0-9]+",
+                pattern: r"(?i)erc[\s-]*[0-9]+",
                 message: "proposals must be referenced with the form `EIP-N` (not `ERC-N`)",
             }.boxed(),
         ),
@@ -257,7 +301,7 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             "markdown-re-eip-dash",
             markdown::Regex {
                 mode: markdown::regex::Mode::Excludes,
-                pattern: r"(?i)eip[\w]*[0-9]+",
+                pattern: r"(?i)eip[\s]*[0-9]+",
                 message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
             }.boxed(),
         ),

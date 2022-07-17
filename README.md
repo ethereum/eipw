@@ -85,12 +85,18 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-no-dup`                   | There are no duplicate headers.                                                               |
 | `preamble-order`                    | The preamble headers are in the correct order.                                                |
 | `preamble-re-description`           | The description doesn't contain "standard" or similar words.                                  |
+| `preamble-re-description-eip-dash`  | EIPs referenced in the `description` header use a dash.                                       |
+| `preamble-re-description-erc`       | ERCs referenced in the `description` header use the `EIP-X` format.                           |
 | `preamble-re-discussions-to`        | The `discussions-to` header points to Ethereum Magicians                                      |
 | `preamble-re-title`                 | The title doesn't contain "standard" or similar words.                                        |
+| `preamble-re-title-eip-dash`        | EIPs referenced in the `title` header use a dash.                                             |
+| `preamble-re-title-erc`             | ERCs referenced in the `title` header use the `EIP-X` format.                                 |
 | `preamble-req`                      | All required preamble headers are present.                                                    |
 | `preamble-req-category`             | The `category` header is present only when required.                                          |
 | `preamble-req-last-call-deadline`   | The `last-call-deadline` header is present only when required.                                |
 | `preamble-req-withdrawal-reason`    | The `withdrawal-reason` header is present only when required.                                 |
+| `preamble-requires-ref-description` | Proposals mentioned in the `description` header appear in the `requires` header.              |
+| `preamble-requires-ref-title`       | Proposals mentioned in the `title` header appear in the `requires` header.                    |
 | `preamble-requires-status`          | EIPs listed in `requires` have statuses further along than the current proposal.              |
 | `preamble-trim`                     | There is no extra whitespace around preamble fields.                                          |
 | `preamble-uint-requires`            | The `requires` header is a sorted list of non-negative integers.                              |

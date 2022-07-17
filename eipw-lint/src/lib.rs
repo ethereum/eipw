@@ -250,6 +250,20 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             }.boxed(),
         ),
         (
+            "preamble-requires-ref-title",
+            preamble::RequireReferenced {
+                name: "title",
+                requires: "requires",
+            }.boxed(),
+        ),
+        (
+            "preamble-requires-ref-description",
+            preamble::RequireReferenced {
+                name: "description",
+                requires: "requires",
+            }.boxed(),
+        ),
+        (
             "preamble-file-name",
             preamble::FileName {
                 name: "eip",

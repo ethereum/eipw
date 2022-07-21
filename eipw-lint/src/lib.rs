@@ -508,30 +508,7 @@ where
                         hash_map::Entry::Vacant(v) => v,
                     };
 
-                    let content = match Source::File(entry.key()).fetch(&*self.fetch).await {
-                        Ok(c) => c,
-                        Err(Error::Io { path, source }) => {
-                            let label =
-                                format!("unable to read file `{}`: {}", path.display(), source);
-                            self.reporter
-                                .report(Snippet {
-                                    title: Some(Annotation {
-                                        id: None,
-                                        label: Some(&label),
-                                        annotation_type: AnnotationType::Error,
-                                    }),
-                                    slices: vec![],
-                                    ..Default::default()
-                                })
-                                .map_err(LintError::from)
-                                .with_context(|_| LintSnafu {
-                                    origin: source_origin.as_ref().cloned(),
-                                })?;
-                            String::new()
-                        }
-                        Err(e) => return Err(e),
-                    };
-
+                    let content = Source::File(entry.key()).fetch(&*self.fetch).await;
                     entry.insert(content);
                 }
             }
@@ -540,12 +517,20 @@ where
         let resources_arena = Arena::new();
         let mut parsed_eips = HashMap::new();
 
-        for (origin, source) in &fetched_eips {
+        for (origin, result) in &fetched_eips {
+            let source = match result {
+                Ok(o) => o,
+                Err(e) => {
+                    parsed_eips.insert(origin.as_path(), Err(e));
+                    continue;
+                }
+            };
+
             let inner = match process(&self.reporter, &resources_arena, None, source)? {
                 Some(s) => s,
                 None => return Ok(self.reporter),
             };
-            parsed_eips.insert(origin.as_path(), inner);
+            parsed_eips.insert(origin.as_path(), Ok(inner));
         }
 
         let mut lints: Vec<_> = self.lints.iter().collect();

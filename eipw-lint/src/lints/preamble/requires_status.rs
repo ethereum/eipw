@@ -79,7 +79,36 @@ impl<'n> Lint for RequiresStatus<'n> {
                 _ => continue,
             };
 
-            let eip = ctx.eip(&key);
+            let eip = match ctx.eip(&key) {
+                Ok(eip) => eip,
+                Err(e) => {
+                    let label = format!("unable to read file `{}`: {}", key.display(), e);
+                    ctx.report(Snippet {
+                        title: Some(Annotation {
+                            id: Some(slug),
+                            label: Some(&label),
+                            annotation_type: AnnotationType::Error,
+                        }),
+                        slices: vec![Slice {
+                            fold: false,
+                            line_start: field.line_start(),
+                            origin: ctx.origin(),
+                            source: field.source(),
+                            annotations: vec![SourceAnnotation {
+                                annotation_type: AnnotationType::Error,
+                                label: "required from here",
+                                range: (
+                                    field.name().len() + current + 1,
+                                    field.name().len() + current + 1 + item.len(),
+                                ),
+                            }],
+                        }],
+                        ..Default::default()
+                    })?;
+                    continue;
+                }
+            };
+
             let their_tier = self.tier(&map, &eip);
 
             if their_tier < min {

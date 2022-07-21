@@ -64,7 +64,7 @@ where
     'b: 'a,
 {
     pub(crate) inner: InnerContext<'a>,
-    pub(crate) eips: &'b HashMap<&'b Path, InnerContext<'b>>,
+    pub(crate) eips: &'b HashMap<&'b Path, Result<InnerContext<'b>, &'b crate::Error>>,
     #[educe(Debug(ignore))]
     pub(crate) reporter: &'b dyn Reporter,
 }
@@ -123,7 +123,7 @@ where
         Ok(())
     }
 
-    pub fn eip(&self, path: &Path) -> Context<'b, 'b> {
+    pub fn eip(&self, path: &Path) -> Result<Context<'b, 'b>, &crate::Error> {
         let origin = self
             .origin()
             .expect("lint attempted to access an external resource without having an origin");
@@ -134,15 +134,16 @@ where
         let key = root.join(path);
 
         let inner = match self.eips.get(key.as_path()) {
-            Some(i) => i,
+            Some(Ok(i)) => i,
+            Some(Err(e)) => return Err(e),
             None => panic!("no eip found for key `{}`", key.display()),
         };
 
-        Context {
+        Ok(Context {
             inner: inner.clone(),
             eips: self.eips,
             reporter: self.reporter,
-        }
+        })
     }
 }
 

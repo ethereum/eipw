@@ -85,7 +85,29 @@ impl<'n> Lint for LinkStatus<'n> {
         let mut min = usize::MAX;
 
         for (start_line, url) in Self::find_links(ctx.body()) {
-            let eip = ctx.eip(&url);
+            let eip = match ctx.eip(&url) {
+                Ok(eip) => eip,
+                Err(e) => {
+                    let label = format!("unable to read file `{}`: {}", url.display(), e);
+                    ctx.report(Snippet {
+                        title: Some(Annotation {
+                            id: Some(slug),
+                            label: Some(&label),
+                            annotation_type: AnnotationType::Error,
+                        }),
+                        slices: vec![Slice {
+                            fold: false,
+                            line_start: start_line.try_into().unwrap(),
+                            origin: ctx.origin(),
+                            source: ctx.line(start_line),
+                            annotations: vec![],
+                        }],
+                        ..Default::default()
+                    })?;
+                    continue;
+                }
+            };
+
             let their_tier = self.tier(&map, &eip);
 
             if their_tier < min {

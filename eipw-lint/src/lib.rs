@@ -310,6 +310,18 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             markdown::LinkFirst(r"(?i)eip-[0-9]+").boxed(),
         ),
         ("markdown-rel-links", markdown::RelativeLinks.boxed()),
+        (
+            "markdown-link-status",
+            markdown::LinkStatus {
+                status: "status",
+                flow: &[
+                    &["Draft", "Stagnant"],
+                    &["Review"],
+                    &["Last Call"],
+                    &["Final", "Withdrawn", "Living"],
+                ]
+            }.boxed(),
+        )
     ]
     .into_iter()
 }
@@ -496,7 +508,29 @@ where
                         hash_map::Entry::Vacant(v) => v,
                     };
 
-                    let content = Source::File(entry.key()).fetch(&*self.fetch).await?;
+                    let content = match Source::File(entry.key()).fetch(&*self.fetch).await {
+                        Ok(c) => c,
+                        Err(Error::Io { path, source }) => {
+                            let label =
+                                format!("unable to read file `{}`: {}", path.display(), source);
+                            self.reporter
+                                .report(Snippet {
+                                    title: Some(Annotation {
+                                        id: None,
+                                        label: Some(&label),
+                                        annotation_type: AnnotationType::Error,
+                                    }),
+                                    slices: vec![],
+                                    ..Default::default()
+                                })
+                                .map_err(LintError::from)
+                                .with_context(|_| LintSnafu {
+                                    origin: source_origin.as_ref().cloned(),
+                                })?;
+                            String::new()
+                        }
+                        Err(e) => return Err(e),
+                    };
 
                     entry.insert(content);
                 }

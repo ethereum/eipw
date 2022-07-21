@@ -5,11 +5,13 @@
  */
 
 pub mod link_first;
+pub mod link_status;
 pub mod regex;
 pub mod relative_links;
 pub mod section_order;
 
 pub use self::link_first::LinkFirst;
+pub use self::link_status::LinkStatus;
 pub use self::regex::Regex;
 pub use self::relative_links::RelativeLinks;
 pub use self::section_order::SectionOrder;

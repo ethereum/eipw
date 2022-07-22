@@ -1,0 +1,4 @@
+error[markdown-req-section]: body is missing section(s): `Abstract`, `Specification`, `Rationale`, `Security Considerations`, `Copyright`
+--> input.md
+ |
+ |

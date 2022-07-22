@@ -70,6 +70,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `markdown-re-eip-dash`              | Other EIPs are referenced using EIP-X, not EIPX or EIP X.                                     |
 | `markdown-re-eip-not-erc`           | Other EIPs are referenced using EIP-X, not ERC-X.                                             |
 | `markdown-rel-links`                | All URLs in the page are relative.                                                            |
+| `markdown-req-section`              | Required sections are present in the body of the proposal.                                    |
 | `preamble-author`                   | The author header is correctly formatted, and there is at least one GitHub user listed.       |
 | `preamble-date-created`             | The `created` header is a date.                                                               |
 | `preamble-date-last-call-deadline`  | The `last-call-deadline` header is a date.                                                    |

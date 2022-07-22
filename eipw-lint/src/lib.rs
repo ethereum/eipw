@@ -275,6 +275,17 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
         // Markdown
         //
         (
+            "markdown-req-section",
+            markdown::SectionRequired(&[
+                "Abstract",
+                "Specification",
+                "Rationale",
+                "Security Considerations",
+                "Copyright",
+            ])
+            .boxed(),
+        ),
+        (
             "markdown-order-section",
             markdown::SectionOrder(&[
                 "Abstract",

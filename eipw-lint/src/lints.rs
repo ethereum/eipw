@@ -24,6 +24,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
+use std::string::FromUtf8Error;
 
 #[derive(Debug, Snafu)]
 #[non_exhaustive]
@@ -31,7 +32,7 @@ pub enum Error {
     #[snafu(context(false))]
     ReportFailed { source: reporters::Error },
     #[snafu(context(false))]
-    InvalidUtf8 { source: std::string::FromUtf8Error },
+    InvalidUtf8 { source: std::str::Utf8Error },
     Custom {
         source: Box<dyn std::error::Error + 'static>,
     },
@@ -44,6 +45,14 @@ impl Error {
     {
         Self::Custom {
             source: Box::new(source) as Box<dyn std::error::Error>,
+        }
+    }
+}
+
+impl From<FromUtf8Error> for Error {
+    fn from(e: FromUtf8Error) -> Self {
+        Error::InvalidUtf8 {
+            source: e.utf8_error(),
         }
     }
 }

@@ -140,7 +140,7 @@ impl<'n> Lint for LinkStatus<'n> {
 
             let mut footer = vec![];
             let footer_label = format!(
-                "valid `{}` values for this proposal are: `{}`",
+                "because of this link, this proposal's `{}` must be one of: `{}`",
                 self.status, choices
             );
 

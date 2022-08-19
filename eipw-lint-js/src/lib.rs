@@ -4,14 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::display_list::DisplayList;
-use annotate_snippets::snippet::Snippet;
-
 use eipw_lint::fetch::Fetch;
-use eipw_lint::reporters::json::{snippet, Json};
+use eipw_lint::reporters::json::Json;
 use eipw_lint::Linter;
 
-use js_sys::{JsString, JSON};
+use js_sys::JsString;
 
 use std::fmt;
 use std::future::Future;
@@ -89,10 +86,17 @@ pub async fn lint(sources: Vec<JsValue>) -> Result<JsValue, JsValue> {
 
 #[wasm_bindgen]
 pub fn format(snippet: &JsValue) -> Result<String, JsValue> {
-    let json: String = JSON::stringify(snippet)?.into();
-    let snippet: Snippet = serde_json::from_str::<snippet::SnippetDef>(&json)
-        .map_err(|e| JsValue::from_str(&e.to_string()))?
-        .into();
+    let value: serde_json::Value = snippet
+        .into_serde()
+        .map_err(|e| JsValue::from_str(&e.to_string()))?;
 
-    Ok(format!("{}", DisplayList::from(snippet)))
+    let obj = match value {
+        serde_json::Value::Object(o) => o,
+        _ => return Err(JsValue::from_str("expected object")),
+    };
+
+    match obj.get("formatted") {
+        Some(serde_json::Value::String(s)) => Ok(s.into()),
+        _ => Err(JsValue::from_str("expected `formatted` to be a string")),
+    }
 }

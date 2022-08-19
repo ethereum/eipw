@@ -28,6 +28,7 @@ async fn lint_one() {
     let expected = json! {
     [
        {
+          "formatted": "error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`\n  --> tests/eips/eip-1000.md:12:10\n   |\n12 | requires: 20\n   |          ^^^ has a less advanced status\n   |\n   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`",
           "footer": [
              {
                 "annotation_type": "Help",

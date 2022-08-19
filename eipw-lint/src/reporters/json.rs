@@ -6,6 +6,7 @@
 
 pub mod snippet;
 
+use annotate_snippets::display_list::DisplayList;
 use annotate_snippets::snippet::Snippet;
 
 use self::snippet::SnippetDef;
@@ -27,7 +28,16 @@ pub struct Json {
 impl Reporter for Json {
     fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
         let def = SnippetDef::from(snippet);
-        let value = serde_json::to_value(def).map_err(Error::new)?;
+
+        let mut value = serde_json::to_value(&def).map_err(Error::new)?;
+        let obj = value.as_object_mut().unwrap();
+
+        // Because `SnippetDef` borrows while deserializing, it breaks with
+        // escaped characters, so we pre-format the errors here.
+        let snippet = Snippet::from(def);
+        let formatted = format!("{}", DisplayList::from(snippet));
+        obj.insert("formatted".into(), Value::String(formatted));
+
         self.reports.borrow_mut().push(value);
         Ok(())
     }

@@ -9,6 +9,60 @@ use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 
 #[tokio::test]
+async fn single_digit_month() {
+    let src = r#"---
+header: 2022-1-01
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .add_lint("preamble-date", Date("header"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-date]: preamble header `header` is not a date in the `YYYY-MM-DD` format
+  |
+2 | header: 2022-1-01
+  |        ^^^^^^^^^^ invalid length
+  |
+"#,
+    );
+}
+
+#[tokio::test]
+async fn single_digit_day() {
+    let src = r#"---
+header: 2022-01-1
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .add_lint("preamble-date", Date("header"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-date]: preamble header `header` is not a date in the `YYYY-MM-DD` format
+  |
+2 | header: 2022-01-1
+  |        ^^^^^^^^^^ invalid length
+  |
+"#,
+    );
+}
+
+#[tokio::test]
 async fn invalid() {
     let src = r#"---
 header: 12-13-2022

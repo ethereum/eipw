@@ -247,7 +247,7 @@ dependencies = [
 
 [[package]]
 name = "eipw-lint-js"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "annotate-snippets",
  "console_error_panic_hook",

@@ -22,16 +22,26 @@ impl<'n> Lint for Date<'n> {
 
         let value = field.value().trim();
 
-        let e = match NaiveDate::parse_from_str(value, "%Y-%m-%d") {
-            Ok(_) => return Ok(()),
-            Err(e) => e,
+        let mut error = None;
+
+        let lengths: Vec<_> = value.split('-').map(str::len).collect();
+        if lengths != [4, 2, 2] {
+            error = Some("invalid length".to_string());
+        }
+
+        if let Err(e) = NaiveDate::parse_from_str(value, "%Y-%m-%d") {
+            error = Some(e.to_string());
+        }
+
+        let slice_label = match error {
+            Some(e) => e,
+            None => return Ok(()),
         };
 
         let label = format!(
             "preamble header `{}` is not a date in the `YYYY-MM-DD` format",
             self.0
         );
-        let slice_label = e.to_string();
 
         ctx.report(Snippet {
             title: Some(Annotation {

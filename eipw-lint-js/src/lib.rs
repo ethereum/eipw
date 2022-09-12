@@ -6,10 +6,13 @@
 
 use eipw_lint::fetch::Fetch;
 use eipw_lint::reporters::json::Json;
-use eipw_lint::Linter;
+use eipw_lint::{default_lints, Linter};
 
-use js_sys::JsString;
+use js_sys::{JsString, Object};
 
+use serde::Deserialize;
+
+use std::collections::HashMap;
 use std::fmt;
 use std::future::Future;
 use std::path::PathBuf;
@@ -62,8 +65,46 @@ impl Fetch for NodeFetch {
     }
 }
 
+#[derive(Debug, Deserialize)]
+struct Opts {
+    #[serde(default)]
+    allow: Vec<String>,
+
+    #[serde(default)]
+    warn: Vec<String>,
+
+    #[serde(default)]
+    deny: Vec<String>,
+}
+
+impl Opts {
+    fn apply<R>(self, mut linter: Linter<R>) -> Linter<R> {
+        for allow in self.allow {
+            linter = linter.allow(&allow);
+        }
+
+        if !self.warn.is_empty() {
+            let mut lints: HashMap<_, _> = default_lints().collect();
+            for warn in self.warn {
+                let (k, v) = lints.remove_entry(warn.as_str()).unwrap();
+                linter = linter.warn(k, v);
+            }
+        }
+
+        if !self.deny.is_empty() {
+            let mut lints: HashMap<_, _> = default_lints().collect();
+            for deny in self.deny {
+                let (k, v) = lints.remove_entry(deny.as_str()).unwrap();
+                linter = linter.deny(k, v);
+            }
+        }
+
+        linter
+    }
+}
+
 #[wasm_bindgen]
-pub async fn lint(sources: Vec<JsValue>) -> Result<JsValue, JsValue> {
+pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsValue, JsError> {
     let sources: Vec<_> = sources
         .into_iter()
         .map(|v| v.as_string().unwrap())
@@ -72,31 +113,31 @@ pub async fn lint(sources: Vec<JsValue>) -> Result<JsValue, JsValue> {
 
     let mut linter = Linter::new(Json::default()).set_fetch(NodeFetch);
 
+    if let Some(options) = options {
+        let opts: Opts = options.into_serde()?;
+        linter = opts.apply(linter);
+    }
+
     for source in &sources {
         linter = linter.check_file(source);
     }
 
-    let reporter = match linter.run().await {
-        Ok(r) => r,
-        Err(e) => return Err(JsValue::from_str(&e.to_string())),
-    };
+    let reporter = linter.run().await?;
 
     Ok(JsValue::from_serde(&reporter.into_reports()).unwrap())
 }
 
 #[wasm_bindgen]
-pub fn format(snippet: &JsValue) -> Result<String, JsValue> {
-    let value: serde_json::Value = snippet
-        .into_serde()
-        .map_err(|e| JsValue::from_str(&e.to_string()))?;
+pub fn format(snippet: &JsValue) -> Result<String, JsError> {
+    let value: serde_json::Value = snippet.into_serde()?;
 
     let obj = match value {
         serde_json::Value::Object(o) => o,
-        _ => return Err(JsValue::from_str("expected object")),
+        _ => return Err(JsError::new("expected object")),
     };
 
     match obj.get("formatted") {
         Some(serde_json::Value::String(s)) => Ok(s.into()),
-        _ => Err(JsValue::from_str("expected `formatted` to be a string")),
+        _ => Err(JsError::new("expected `formatted` to be a string")),
     }
 }

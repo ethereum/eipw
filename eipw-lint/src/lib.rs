@@ -653,6 +653,7 @@ fn process<'r, 'a>(
     let options = ComrakOptions {
         extension: ComrakExtensionOptions {
             table: true,
+            autolink: true,
             ..Default::default()
         },
         ..Default::default()

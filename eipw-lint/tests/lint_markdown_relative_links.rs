@@ -165,3 +165,31 @@ Hello [hi][hello]!
 
     assert_eq!(reports, "");
 }
+
+#[tokio::test]
+async fn inline_autolink() {
+    let src = r#"---
+header: value1
+---
+
+https://example.com/
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .add_lint("markdown-rel", RelativeLinks)
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | https://example.com/
+  |
+"#
+    );
+}

@@ -219,7 +219,7 @@ dependencies = [
 
 [[package]]
 name = "eipw"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "annotate-snippets",
  "clap",
@@ -230,7 +230,7 @@ dependencies = [
 
 [[package]]
 name = "eipw-lint"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "annotate-snippets",
  "assert_matches",
@@ -247,12 +247,13 @@ dependencies = [
 
 [[package]]
 name = "eipw-lint-js"
-version = "0.1.7"
+version = "0.2.0"
 dependencies = [
  "annotate-snippets",
  "console_error_panic_hook",
  "eipw-lint",
  "js-sys",
+ "serde",
  "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-futures",

@@ -18,7 +18,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-req-ref",
             RequireReferenced {
                 name: "header",
@@ -44,7 +44,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-req-ref",
             RequireReferenced {
                 name: "header",
@@ -78,7 +78,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-req-ref",
             RequireReferenced {
                 name: "header",

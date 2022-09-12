@@ -17,7 +17,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-regex",
             Regex {
                 mode: Mode::Excludes,
@@ -53,7 +53,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-regex",
             Regex {
                 mode: Mode::Excludes,
@@ -80,7 +80,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-regex",
             Regex {
                 mode: Mode::Includes,
@@ -116,7 +116,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-regex",
             Regex {
                 mode: Mode::Includes,

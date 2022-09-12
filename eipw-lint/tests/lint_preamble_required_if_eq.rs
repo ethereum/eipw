@@ -17,7 +17,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "req-if-eq",
             RequiredIfEq {
                 when: "when",
@@ -44,7 +44,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "req-if-eq",
             RequiredIfEq {
                 when: "when",
@@ -80,7 +80,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "req-if-eq",
             RequiredIfEq {
                 when: "when",
@@ -119,7 +119,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "req-if-eq",
             RequiredIfEq {
                 when: "when",
@@ -146,7 +146,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "req-if-eq",
             RequiredIfEq {
                 when: "when",

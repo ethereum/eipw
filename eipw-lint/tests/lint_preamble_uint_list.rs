@@ -17,7 +17,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-uint-list", UintList("header"))
+        .deny("preamble-uint-list", UintList("header"))
         .check_slice(None, src)
         .run()
         .await
@@ -49,7 +49,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-uint-list", UintList("header"))
+        .deny("preamble-uint-list", UintList("header"))
         .check_slice(None, src)
         .run()
         .await

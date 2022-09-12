@@ -19,7 +19,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "markdown-re",
             Regex {
                 message: "boop",
@@ -55,7 +55,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "markdown-re",
             Regex {
                 message: "boop",
@@ -84,7 +84,7 @@ hello
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "markdown-re",
             Regex {
                 message: "boop",

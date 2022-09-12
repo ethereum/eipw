@@ -17,7 +17,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-len-title",
             Length {
                 name: "title",
@@ -51,7 +51,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-len-title",
             Length {
                 name: "title",

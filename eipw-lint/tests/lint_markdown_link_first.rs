@@ -20,7 +20,7 @@ hello
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("markdown-link-first", LinkFirst("ello"))
+        .deny("markdown-link-first", LinkFirst("ello"))
         .check_slice(None, src)
         .run()
         .await
@@ -50,7 +50,7 @@ hello
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("markdown-link-first", LinkFirst("ello"))
+        .deny("markdown-link-first", LinkFirst("ello"))
         .check_slice(None, src)
         .run()
         .await

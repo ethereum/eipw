@@ -20,7 +20,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-no-dup", NoDuplicates)
+        .deny("preamble-no-dup", NoDuplicates)
         .check_slice(None, src)
         .run()
         .await
@@ -53,7 +53,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-no-dup", NoDuplicates)
+        .deny("preamble-no-dup", NoDuplicates)
         .check_slice(None, src)
         .run()
         .await
@@ -92,7 +92,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-no-dup", NoDuplicates)
+        .deny("preamble-no-dup", NoDuplicates)
         .check_slice(None, src)
         .run()
         .await

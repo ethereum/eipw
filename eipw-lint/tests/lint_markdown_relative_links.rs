@@ -19,7 +19,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks)
         .check_slice(None, src)
         .run()
         .await
@@ -47,7 +47,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks)
         .check_slice(None, src)
         .run()
         .await
@@ -75,7 +75,7 @@ Hello [hi](/foo)!
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks)
         .check_slice(None, src)
         .run()
         .await
@@ -103,7 +103,7 @@ Hello [hi](./foo/bar)!
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks)
         .check_slice(None, src)
         .run()
         .await
@@ -126,7 +126,7 @@ Hello [hi][hello]!
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks)
         .check_slice(None, src)
         .run()
         .await
@@ -156,7 +156,7 @@ Hello [hi][hello]!
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks)
         .check_slice(None, src)
         .run()
         .await
@@ -177,7 +177,7 @@ https://example.com/
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks)
         .check_slice(None, src)
         .run()
         .await

@@ -19,7 +19,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-one-of",
             OneOf {
                 name: "a1",
@@ -54,7 +54,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-one-of",
             OneOf {
                 name: "a1",
@@ -89,7 +89,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-one-of",
             OneOf {
                 name: "a1",
@@ -115,7 +115,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-one-of",
             OneOf {
                 name: "a1",

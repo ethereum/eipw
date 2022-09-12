@@ -50,7 +50,7 @@ impl<'n> Lint for Regex<'n> {
 
         ctx.report(Snippet {
             title: Some(Annotation {
-                annotation_type: AnnotationType::Error,
+                annotation_type: ctx.annotation_type(),
                 id: Some(slug),
                 label: Some(self.message),
             }),
@@ -60,7 +60,7 @@ impl<'n> Lint for Regex<'n> {
                 origin: ctx.origin(),
                 source: field.source(),
                 annotations: vec![SourceAnnotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     label: slice_label,
                     range: (
                         field.name().len() + 1,

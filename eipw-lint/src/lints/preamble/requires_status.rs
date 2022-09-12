@@ -87,7 +87,7 @@ impl<'n> Lint for RequiresStatus<'n> {
                         title: Some(Annotation {
                             id: Some(slug),
                             label: Some(&label),
-                            annotation_type: AnnotationType::Error,
+                            annotation_type: ctx.annotation_type(),
                         }),
                         slices: vec![Slice {
                             fold: false,
@@ -95,7 +95,7 @@ impl<'n> Lint for RequiresStatus<'n> {
                             origin: ctx.origin(),
                             source: field.source(),
                             annotations: vec![SourceAnnotation {
-                                annotation_type: AnnotationType::Error,
+                                annotation_type: ctx.annotation_type(),
                                 label: "required from here",
                                 range: (
                                     field.name().len() + current + 1,
@@ -120,7 +120,7 @@ impl<'n> Lint for RequiresStatus<'n> {
             }
 
             too_unstable.push(SourceAnnotation {
-                annotation_type: AnnotationType::Error,
+                annotation_type: ctx.annotation_type(),
                 label: "has a less advanced status",
                 range: (
                     field.name().len() + current + 1,
@@ -166,7 +166,7 @@ impl<'n> Lint for RequiresStatus<'n> {
 
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some(&label),
                 }),

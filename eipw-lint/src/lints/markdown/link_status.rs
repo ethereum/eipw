@@ -93,7 +93,7 @@ impl<'n> Lint for LinkStatus<'n> {
                         title: Some(Annotation {
                             id: Some(slug),
                             label: Some(&label),
-                            annotation_type: AnnotationType::Error,
+                            annotation_type: ctx.annotation_type(),
                         }),
                         slices: vec![Slice {
                             fold: false,
@@ -154,7 +154,7 @@ impl<'n> Lint for LinkStatus<'n> {
 
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some(&label),
                 }),

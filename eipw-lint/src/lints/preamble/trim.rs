@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
 
 use crate::lints::{Context, Error, Lint};
 
@@ -34,7 +34,7 @@ impl Lint for Trim {
             let label = format!("preamble header `{}` has extra whitespace", field.name());
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some(&label),
                 }),
@@ -44,7 +44,7 @@ impl Lint for Trim {
                     origin: ctx.origin(),
                     source: field.source(),
                     annotations: vec![SourceAnnotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         label: "value has extra whitespace",
                         range: (
                             field.name().len() + 1,
@@ -66,7 +66,7 @@ impl Lint for Trim {
                     origin: ctx.origin(),
                     source: n.source(),
                     annotations: vec![SourceAnnotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         label: "space required here",
                         range: (n.name().len() + 1, n.name().len() + 2),
                     }],
@@ -75,7 +75,7 @@ impl Lint for Trim {
 
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some("preamble header values must begin with a space"),
                 }),

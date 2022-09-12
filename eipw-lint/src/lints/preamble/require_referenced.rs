@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
 
 use crate::lints::{Context, Error, Lint};
 
@@ -67,13 +67,13 @@ impl<'n> Lint for RequireReferenced<'n> {
                     m.end() + field.name().len() + 1,
                 ),
                 label: "mentioned here",
-                annotation_type: AnnotationType::Error,
+                annotation_type: ctx.annotation_type(),
             })
             .collect();
 
         ctx.report(Snippet {
             title: Some(Annotation {
-                annotation_type: AnnotationType::Error,
+                annotation_type: ctx.annotation_type(),
                 id: Some(slug),
                 label: Some(&label),
             }),

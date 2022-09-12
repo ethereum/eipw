@@ -561,6 +561,7 @@ where
                 inner,
                 reporter: &self.reporter,
                 eips: &parsed_eips,
+                annotation_type: AnnotationType::Error,
             };
 
             for (slug, lint) in &lints {

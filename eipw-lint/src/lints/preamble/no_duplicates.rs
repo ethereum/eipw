@@ -31,7 +31,7 @@ impl Lint for NoDuplicates {
                     ctx.report(Snippet {
                         title: Some(Annotation {
                             id: Some(slug),
-                            annotation_type: AnnotationType::Error,
+                            annotation_type: ctx.annotation_type(),
                             label: Some(&label),
                         }),
                         footer: vec![],
@@ -53,7 +53,7 @@ impl Lint for NoDuplicates {
                                 origin: ctx.origin(),
                                 source: field.source(),
                                 annotations: vec![SourceAnnotation {
-                                    annotation_type: AnnotationType::Error,
+                                    annotation_type: ctx.annotation_type(),
                                     label: "redefined here",
                                     range: (0, field.source().len()),
                                 }],

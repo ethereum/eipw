@@ -70,7 +70,7 @@ impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
         let source = self.ctx.source_for_text(ast.start_line, buf);
         self.ctx.report(Snippet {
             title: Some(Annotation {
-                annotation_type: AnnotationType::Error,
+                annotation_type: self.ctx.annotation_type(),
                 id: Some(self.slug),
                 label: Some(self.message),
             }),

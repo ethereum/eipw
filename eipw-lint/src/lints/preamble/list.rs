@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
 
 use crate::lints::{Context, Error, Lint};
 
@@ -33,7 +33,7 @@ impl<'n> Lint for List<'n> {
                 let label = format!("preamble header `{}` cannot have empty items", self.0);
                 ctx.report(Snippet {
                     title: Some(Annotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         id: Some(slug),
                         label: Some(&label),
                     }),
@@ -44,7 +44,7 @@ impl<'n> Lint for List<'n> {
                         origin: ctx.origin(),
                         source: field.source(),
                         annotations: vec![SourceAnnotation {
-                            annotation_type: AnnotationType::Error,
+                            annotation_type: ctx.annotation_type(),
                             label: "this item is empty",
                             range: (
                                 field.name().len() + current + 1,
@@ -62,7 +62,7 @@ impl<'n> Lint for List<'n> {
                 None if current == 0 => matched,
                 None => {
                     missing_space.push(SourceAnnotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         label: "missing space",
                         range: (
                             field.name().len() + current + 1,
@@ -78,7 +78,7 @@ impl<'n> Lint for List<'n> {
             }
 
             extra_space.push(SourceAnnotation {
-                annotation_type: AnnotationType::Error,
+                annotation_type: ctx.annotation_type(),
                 label: "extra space",
                 range: (
                     field.name().len() + current + 2,
@@ -90,7 +90,7 @@ impl<'n> Lint for List<'n> {
         if !missing_space.is_empty() {
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some("preamble header list items must begin with a space"),
                 }),
@@ -109,7 +109,7 @@ impl<'n> Lint for List<'n> {
         if !extra_space.is_empty() {
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some("preamble header list items have extra whitespace"),
                 }),

@@ -33,12 +33,20 @@ struct Opts {
     format: Format,
 
     /// Do not enable the default lints.
-    #[clap(long, requires_all(&["lints"]))]
+    #[clap(long)]
     no_default_lints: bool,
 
-    /// Additional lints to enable.
-    #[clap(long, value_delimiter(','))]
-    lints: Vec<String>,
+    /// Lints to enable as errors.
+    #[clap(long, short('D'))]
+    deny: Vec<String>,
+
+    /// Lints to enable as warnings.
+    #[clap(long, short('W'))]
+    warn: Vec<String>,
+
+    /// Lints to disable.
+    #[clap(long, short('A'))]
+    allow: Vec<String>,
 }
 
 #[derive(ValueEnum, Clone, Debug)]
@@ -137,10 +145,23 @@ async fn run() -> Result<(), usize> {
         linter = linter.clear_lints();
     }
 
-    if !opts.lints.is_empty() {
+    for allow in opts.allow {
+        linter = linter.allow(&allow);
+    }
+
+    if !opts.warn.is_empty() {
         let mut lints: HashMap<_, _> = default_lints().collect();
-        for slug in &opts.lints {
-            linter = linter.deny(slug, lints.remove(slug.as_str()).unwrap());
+        for warn in opts.warn {
+            let (k, v) = lints.remove_entry(warn.as_str()).unwrap();
+            linter = linter.warn(k, v);
+        }
+    }
+
+    if !opts.deny.is_empty() {
+        let mut lints: HashMap<_, _> = default_lints().collect();
+        for deny in opts.deny {
+            let (k, v) = lints.remove_entry(deny.as_str()).unwrap();
+            linter = linter.deny(k, v);
         }
     }
 

@@ -426,10 +426,7 @@ impl<'a, R> Linter<'a, R> {
     where
         T: 'static + Lint,
     {
-        if self.lints.insert(slug, (level, lint.boxed())).is_some() {
-            panic!("duplicate slug: {}", slug);
-        }
-
+        self.lints.insert(slug, (level, lint.boxed()));
         self
     }
 

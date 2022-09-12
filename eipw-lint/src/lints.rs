@@ -7,7 +7,7 @@
 pub mod markdown;
 pub mod preamble;
 
-use annotate_snippets::snippet::Snippet;
+use annotate_snippets::snippet::{AnnotationType, Snippet};
 
 use comrak::nodes::AstNode;
 
@@ -76,6 +76,7 @@ where
     pub(crate) eips: &'b HashMap<&'b Path, Result<InnerContext<'b>, &'b crate::Error>>,
     #[educe(Debug(ignore))]
     pub(crate) reporter: &'b dyn Reporter,
+    pub(crate) annotation_type: AnnotationType,
 }
 
 impl<'a, 'b> Context<'a, 'b>
@@ -127,6 +128,10 @@ where
         self.inner.origin
     }
 
+    pub fn annotation_type(&self) -> AnnotationType {
+        self.annotation_type
+    }
+
     pub fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
         self.reporter.report(snippet)?;
         Ok(())
@@ -152,6 +157,7 @@ where
             inner: inner.clone(),
             eips: self.eips,
             reporter: self.reporter,
+            annotation_type: self.annotation_type,
         })
     }
 }

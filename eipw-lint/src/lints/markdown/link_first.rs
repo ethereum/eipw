@@ -60,7 +60,7 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
             let source = self.ctx.source_for_text(ast.start_line, buf);
             self.ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: self.ctx.annotation_type(),
                     id: Some(self.slug),
                     label: Some("the first match of the given pattern must be a link"),
                 }),

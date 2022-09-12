@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
 
 use chrono::NaiveDate;
 
@@ -45,7 +45,7 @@ impl<'n> Lint for Date<'n> {
 
         ctx.report(Snippet {
             title: Some(Annotation {
-                annotation_type: AnnotationType::Error,
+                annotation_type: ctx.annotation_type(),
                 id: Some(slug),
                 label: Some(&label),
             }),
@@ -56,7 +56,7 @@ impl<'n> Lint for Date<'n> {
                 origin: ctx.origin(),
                 source: field.source(),
                 annotations: vec![SourceAnnotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     label: &slice_label,
                     range: (
                         field.name().len() + 1,

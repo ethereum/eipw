@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use annotate_snippets::snippet::{Annotation, Slice, Snippet};
 
 use crate::lints::{Context, Error, Lint};
 
@@ -26,7 +26,7 @@ impl<'n> Lint for Required<'n> {
             ctx.report(Snippet {
                 title: Some(Annotation {
                     id: Some(slug),
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     label: Some(&label),
                 }),
                 footer: vec![],

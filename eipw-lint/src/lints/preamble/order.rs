@@ -43,7 +43,7 @@ impl<'n> Lint for Order<'n> {
                 origin: ctx.origin(),
                 source: f.source(),
                 annotations: vec![SourceAnnotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     label: "unrecognized header",
                     range: (0, f.name().len()),
                 }],
@@ -54,7 +54,7 @@ impl<'n> Lint for Order<'n> {
             ctx.report(Snippet {
                 title: Some(Annotation {
                     id: Some(slug),
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     label: Some("preamble has extra header(s)"),
                 }),
                 footer: vec![],
@@ -99,7 +99,7 @@ impl<'n> Lint for Order<'n> {
                 ctx.report(Snippet {
                     title: Some(Annotation {
                         id: Some(slug),
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         label: Some(&label),
                     }),
                     footer,

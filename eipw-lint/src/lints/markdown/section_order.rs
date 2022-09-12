@@ -88,7 +88,7 @@ impl<'n> Lint for SectionOrder<'n> {
             ctx.report(Snippet {
                 title: Some(Annotation {
                     id: Some(slug),
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     label: Some("body has extra section(s)"),
                 }),
                 footer: vec![],
@@ -128,7 +128,7 @@ impl<'n> Lint for SectionOrder<'n> {
                 ctx.report(Snippet {
                     title: Some(Annotation {
                         id: Some(slug),
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         label: Some(&label),
                     }),
                     footer,

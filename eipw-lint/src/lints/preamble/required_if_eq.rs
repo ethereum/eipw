@@ -38,7 +38,7 @@ impl<'n> Lint for RequiredIfEq<'n> {
                 );
                 ctx.report(Snippet {
                     title: Some(Annotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         id: Some(slug),
                         label: Some(&label),
                     }),
@@ -85,7 +85,7 @@ impl<'n> Lint for RequiredIfEq<'n> {
                         origin: ctx.origin(),
                         source: then.source(),
                         annotations: vec![SourceAnnotation {
-                            annotation_type: AnnotationType::Error,
+                            annotation_type: ctx.annotation_type(),
                             label: "remove this",
                             range: (0, then.source().len()),
                         }],
@@ -96,7 +96,7 @@ impl<'n> Lint for RequiredIfEq<'n> {
 
                 ctx.report(Snippet {
                     title: Some(Annotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         id: Some(slug),
                         label: Some(&label),
                     }),
@@ -115,7 +115,7 @@ impl<'n> Lint for RequiredIfEq<'n> {
 
                 ctx.report(Snippet {
                     title: Some(Annotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         id: Some(slug),
                         label: Some(&label),
                     }),
@@ -126,7 +126,7 @@ impl<'n> Lint for RequiredIfEq<'n> {
                         origin: ctx.origin(),
                         source: then.source(),
                         annotations: vec![SourceAnnotation {
-                            annotation_type: AnnotationType::Error,
+                            annotation_type: ctx.annotation_type(),
                             label: "defined here",
                             range: (0, then.source().len()),
                         }],

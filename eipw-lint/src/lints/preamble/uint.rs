@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
 
 use crate::lints::{Context, Error, Lint};
 
@@ -23,7 +23,7 @@ impl<'n> Lint for Uint<'n> {
 
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some(&label),
                 }),
@@ -33,7 +33,7 @@ impl<'n> Lint for Uint<'n> {
                     origin: ctx.origin(),
                     source: field.source(),
                     annotations: vec![SourceAnnotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         label: "not a non-negative integer",
                         range: (
                             field.name().len() + 1,
@@ -75,7 +75,7 @@ impl<'n> Lint for UintList<'n> {
                 Ok(v) => values.push(v),
                 Err(_) => {
                     not_uint.push(SourceAnnotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         label: "not a non-negative integer",
                         range: (
                             field.name().len() + current + 1,
@@ -95,7 +95,7 @@ impl<'n> Lint for UintList<'n> {
 
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some(&label),
                 }),
@@ -123,7 +123,7 @@ impl<'n> Lint for UintList<'n> {
 
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some(&label),
                 }),

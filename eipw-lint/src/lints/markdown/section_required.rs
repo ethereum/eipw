@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use annotate_snippets::snippet::{Annotation, Slice, Snippet};
 
 use comrak::nodes::{Ast, NodeHeading, NodeValue};
 
@@ -69,7 +69,7 @@ impl<'n> Lint for SectionRequired<'n> {
         let label = format!("body is missing section(s): `{}`", missing.join("`, `"));
         ctx.report(Snippet {
             title: Some(Annotation {
-                annotation_type: AnnotationType::Error,
+                annotation_type: ctx.annotation_type(),
                 id: Some(slug),
                 label: Some(&label),
             }),

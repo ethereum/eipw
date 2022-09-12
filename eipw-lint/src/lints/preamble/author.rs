@@ -69,7 +69,7 @@ impl<'n> Lint for Author<'n> {
 
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some("authors in the preamble must match the expected format"),
                 }),
@@ -79,7 +79,7 @@ impl<'n> Lint for Author<'n> {
                     origin: ctx.origin(),
                     source: field.source(),
                     annotations: vec![SourceAnnotation {
-                        annotation_type: AnnotationType::Error,
+                        annotation_type: ctx.annotation_type(),
                         label: "unrecognized author",
                         range: (
                             field.name().len() + current + 1,
@@ -99,7 +99,7 @@ impl<'n> Lint for Author<'n> {
             );
             ctx.report(Snippet {
                 title: Some(Annotation {
-                    annotation_type: AnnotationType::Error,
+                    annotation_type: ctx.annotation_type(),
                     id: Some(slug),
                     label: Some(&label),
                 }),

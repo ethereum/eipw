@@ -17,7 +17,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-url", Url("header"))
+        .deny("preamble-url", Url("header"))
         .check_slice(None, src)
         .run()
         .await
@@ -44,7 +44,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-url", Url("header"))
+        .deny("preamble-url", Url("header"))
         .check_slice(None, src)
         .run()
         .await

@@ -17,7 +17,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-order", Order(&["a1", "b2"]))
+        .deny("preamble-order", Order(&["a1", "b2"]))
         .check_slice(None, src)
         .run()
         .await
@@ -46,7 +46,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-order", Order(&["a1", "b2"]))
+        .deny("preamble-order", Order(&["a1", "b2"]))
         .check_slice(None, src)
         .run()
         .await
@@ -77,7 +77,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-order", Order(&["a1", "b2"]))
+        .deny("preamble-order", Order(&["a1", "b2"]))
         .check_slice(None, src)
         .run()
         .await
@@ -105,7 +105,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-order", Order(&["a1", "a2", "b2"]))
+        .deny("preamble-order", Order(&["a1", "a2", "b2"]))
         .check_slice(None, src)
         .run()
         .await

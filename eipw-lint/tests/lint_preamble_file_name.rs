@@ -17,7 +17,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-file-name",
             FileName {
                 name: "a1",
@@ -53,7 +53,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-file-name",
             FileName {
                 name: "a1",
@@ -79,7 +79,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "preamble-file-name",
             FileName {
                 name: "a1",

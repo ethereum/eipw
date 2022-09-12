@@ -21,7 +21,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-eip", Uint("eip"))
+        .deny("preamble-eip", Uint("eip"))
         .check_slice(None, src)
         .run()
         .await
@@ -44,7 +44,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-eip", Uint("eip"))
+        .deny("preamble-eip", Uint("eip"))
         .check_slice(None, src)
         .run()
         .await

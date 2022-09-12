@@ -19,7 +19,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-required", Required(&["a1", "b2"]))
+        .deny("preamble-required", Required(&["a1", "b2"]))
         .check_slice(None, src)
         .run()
         .await
@@ -43,7 +43,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-required", Required(&["a1", "b2"]))
+        .deny("preamble-required", Required(&["a1", "b2"]))
         .check_slice(None, src)
         .run()
         .await
@@ -71,7 +71,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-required", Required(&["a1", "b2"]))
+        .deny("preamble-required", Required(&["a1", "b2"]))
         .check_slice(None, src)
         .run()
         .await

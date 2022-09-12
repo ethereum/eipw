@@ -377,7 +377,7 @@ impl<'a> Source<'a> {
 #[educe(Debug)]
 #[must_use]
 pub struct Linter<'a, R> {
-    lints: HashMap<&'a str, Box<dyn Lint>>,
+    lints: HashMap<&'a str, (AnnotationType, Box<dyn Lint>)>,
     sources: Vec<Source<'a>>,
 
     #[educe(Debug(ignore))]
@@ -401,23 +401,39 @@ impl<'a, R> Linter<'a, R> {
         Self {
             reporter,
             sources: Default::default(),
-            lints: default_lints().collect(),
             fetch: Box::new(fetch::DefaultFetch::default()),
+            lints: default_lints()
+                .map(|(slug, lint)| (slug, (AnnotationType::Error, lint)))
+                .collect(),
         }
     }
 
-    pub fn add_lint<T>(mut self, slug: &'a str, lint: T) -> Self
+    pub fn warn<T>(self, slug: &'a str, lint: T) -> Self
     where
         T: 'static + Lint,
     {
-        if self.lints.insert(slug, lint.boxed()).is_some() {
+        self.add_lint(AnnotationType::Warning, slug, lint)
+    }
+
+    pub fn deny<T>(self, slug: &'a str, lint: T) -> Self
+    where
+        T: 'static + Lint,
+    {
+        self.add_lint(AnnotationType::Error, slug, lint)
+    }
+
+    fn add_lint<T>(mut self, level: AnnotationType, slug: &'a str, lint: T) -> Self
+    where
+        T: 'static + Lint,
+    {
+        if self.lints.insert(slug, (level, lint.boxed())).is_some() {
             panic!("duplicate slug: {}", slug);
         }
 
         self
     }
 
-    pub fn remove_lint(mut self, slug: &str) -> Self {
+    pub fn allow(mut self, slug: &str) -> Self {
         if self.lints.remove(slug).is_none() {
             panic!("no lint with the slug: {}", slug);
         }
@@ -488,9 +504,11 @@ where
                     eips: Default::default(),
                 };
 
-                lint.find_resources(&context).with_context(|_| LintSnafu {
-                    origin: source_origin.clone(),
-                })?;
+                lint.1
+                    .find_resources(&context)
+                    .with_context(|_| LintSnafu {
+                        origin: source_origin.clone(),
+                    })?;
 
                 let eips = context.eips.into_inner();
 
@@ -557,14 +575,14 @@ where
                 None => continue,
             };
 
-            let context = Context {
-                inner,
-                reporter: &self.reporter,
-                eips: &parsed_eips,
-                annotation_type: AnnotationType::Error,
-            };
+            for (slug, (annotation_type, lint)) in &lints {
+                let context = Context {
+                    inner: inner.clone(),
+                    reporter: &self.reporter,
+                    eips: &parsed_eips,
+                    annotation_type: *annotation_type,
+                };
 
-            for (slug, lint) in &lints {
                 lint.lint(slug, &context).with_context(|_| LintSnafu {
                     origin: origin.clone(),
                 })?;

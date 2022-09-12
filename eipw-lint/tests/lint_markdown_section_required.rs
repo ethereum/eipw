@@ -19,7 +19,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "markdown-section-req",
             SectionRequired(&["Banana", "Orange"]),
         )
@@ -47,7 +47,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "markdown-section-req",
             SectionRequired(&["Banana", "Orange"]),
         )
@@ -79,7 +79,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint(
+        .deny(
             "markdown-section-req",
             SectionRequired(&["Banana", "Orange"]),
         )

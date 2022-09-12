@@ -17,7 +17,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-author", Author("header"))
+        .deny("preamble-author", Author("header"))
         .check_slice(None, src)
         .run()
         .await
@@ -51,7 +51,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-author", Author("header"))
+        .deny("preamble-author", Author("header"))
         .check_slice(None, src)
         .run()
         .await
@@ -81,7 +81,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-author", Author("header"))
+        .deny("preamble-author", Author("header"))
         .check_slice(None, src)
         .run()
         .await
@@ -111,7 +111,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-author", Author("header"))
+        .deny("preamble-author", Author("header"))
         .check_slice(None, src)
         .run()
         .await
@@ -137,7 +137,7 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .add_lint("preamble-author", Author("header"))
+        .deny("preamble-author", Author("header"))
         .check_slice(None, src)
         .run()
         .await

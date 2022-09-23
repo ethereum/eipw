@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet};
+use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
 
 use comrak::nodes::{Ast, NodeHeading, NodeValue};
 
@@ -80,7 +80,11 @@ impl<'n> Lint for SectionRequired<'n> {
                 source: ctx.body_source(),
                 line_start: ctx.body().data.borrow().start_line.try_into().unwrap(),
             }],
-            footer: vec![],
+            footer: vec![Annotation {
+                id: None,
+                label: Some("must be at the second level (`## Heading`)"),
+                annotation_type: AnnotationType::Help,
+            }],
             opt: Default::default(),
         })?;
 

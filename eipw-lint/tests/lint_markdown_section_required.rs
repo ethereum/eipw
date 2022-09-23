@@ -34,6 +34,7 @@ header: value1
         r#"error[markdown-section-req]: body is missing section(s): `Orange`
  |
  |
+ = help: must be at the second level (`## Heading`)
 "#
     );
 }
@@ -62,6 +63,7 @@ header: value1
         r#"error[markdown-section-req]: body is missing section(s): `Banana`, `Orange`
  |
  |
+ = help: must be at the second level (`## Heading`)
 "#
     );
 }

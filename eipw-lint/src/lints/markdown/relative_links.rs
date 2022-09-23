@@ -17,7 +17,7 @@ pub struct RelativeLinks;
 
 impl Lint for RelativeLinks {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let re = Regex::new("(^/)|(://)").unwrap();
+        let re = Regex::new("(//)|(^/)|(://)").unwrap();
 
         let links = ctx
             .body()
@@ -34,6 +34,16 @@ impl Lint for RelativeLinks {
                     start_line,
                     ..
                 } => Some((*start_line, link.url.clone())),
+                Ast {
+                    value: NodeValue::HtmlInline(link),
+                    start_line,
+                    ..
+                } => Some((*start_line, link.clone())),
+                Ast {
+                    value: NodeValue::HtmlBlock(link),
+                    start_line,
+                    ..
+                } => Some((*start_line, link.literal.clone())),
                 _ => None,
             })
             .filter(|(_, url)| re.is_match(url));

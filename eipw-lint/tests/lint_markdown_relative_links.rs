@@ -193,3 +193,59 @@ https://example.com/
 "#
     );
 }
+
+#[tokio::test]
+async fn anchor_link() {
+    let src = r#"---
+header: value1
+---
+
+<a href="https://example.com/">example</a>
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks)
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <a href="https://example.com/">example</a>
+  |
+"#
+    );
+}
+
+#[tokio::test]
+async fn anchor_link_protocol_relative() {
+    let src = r#"---
+header: value1
+---
+
+<a href="//example.com/">example</a>
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks)
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <a href="//example.com/">example</a>
+  |
+"#
+    );
+}

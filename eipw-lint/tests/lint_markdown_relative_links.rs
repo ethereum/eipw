@@ -249,3 +249,73 @@ header: value1
 "#
     );
 }
+
+#[tokio::test]
+async fn anchor_link_relative_double_slash() {
+    let src = r#"---
+header: value1
+---
+
+<a href="foo//example">example</a>
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks)
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}
+
+#[tokio::test]
+async fn img_relative_double_slash() {
+    let src = r#"---
+header: value1
+---
+
+<img src="foo//example">
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks)
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}
+
+#[tokio::test]
+async fn img_protocol_relative() {
+    let src = r#"---
+header: value1
+---
+
+<img src="//example.com/foo.jpg">
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks)
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <img src="//example.com/foo.jpg">
+  |
+"#
+    );
+}

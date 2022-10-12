@@ -19,6 +19,7 @@ url = "2.2.2"
 chrono = { version = "0.4.19", default-features = false }
 educe = { version = "0.4.19", default-features = false, features = [ "Debug" ] }
 tokio = { optional = true, version = "1.19.2", features = [ "macros", "fs" ] }
+scraper = { version = "0.13.0", default-features = false }
 
 [dev-dependencies]
 assert_matches = "1.5.0"

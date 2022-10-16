@@ -87,10 +87,12 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-no-dup`                   | There are no duplicate headers.                                                               |
 | `preamble-order`                    | The preamble headers are in the correct order.                                                |
 | `preamble-re-description`           | The description doesn't contain "standard" or similar words.                                  |
+| `preamble-re-description-colon`     | The description doesn't contain any ":" characters.                                           |
 | `preamble-re-description-eip-dash`  | EIPs referenced in the `description` header use a dash.                                       |
 | `preamble-re-description-erc`       | ERCs referenced in the `description` header use the `EIP-X` format.                           |
 | `preamble-re-discussions-to`        | The `discussions-to` header points to Ethereum Magicians                                      |
 | `preamble-re-title`                 | The title doesn't contain "standard" or similar words.                                        |
+| `preamble-re-title-colon`           | The title doesn't contain any ":" characters.                                                 |
 | `preamble-re-title-eip-dash`        | EIPs referenced in the `title` header use a dash.                                             |
 | `preamble-re-title-erc`             | ERCs referenced in the `title` header use the `EIP-X` format.                                 |
 | `preamble-req`                      | All required preamble headers are present.                                                    |

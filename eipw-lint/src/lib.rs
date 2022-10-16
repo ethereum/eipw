@@ -64,6 +64,12 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             pattern: r"(?i)standar\w*\b",
             message: "preamble header `title` should not contain `standard` (or similar words.)",
         }.boxed()),
+        ("preamble-re-title-colon", preamble::Regex {
+            name: "title",
+            mode: regex::Mode::Excludes,
+            pattern: r":",
+            message: "preamble header `title` should not contain `:`",
+        }.boxed()),
         ("preamble-re-title-erc", preamble::Regex {
             name: "title",
             mode: regex::Mode::Excludes,
@@ -99,6 +105,12 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             mode: regex::Mode::Excludes,
             pattern: r"(?i)standar\w*\b",
             message: "preamble header `description` should not contain `standard` (or similar words.)",
+        }.boxed()),
+        ("preamble-re-description-colon", preamble::Regex {
+            name: "description",
+            mode: regex::Mode::Excludes,
+            pattern: r":",
+            message: "preamble header `description` should not contain `:`",
         }.boxed()),
         (
             "preamble-discussions-to",

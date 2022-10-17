@@ -7,6 +7,9 @@
 use eipw_lint_js::{format, lint};
 
 use js_sys::Object;
+
+use serde::Serialize;
+
 use serde_json::json;
 
 use std::path::PathBuf;
@@ -28,7 +31,7 @@ async fn lint_one() {
         .ok()
         .unwrap();
 
-    let actual: serde_json::Value = result.into_serde().unwrap();
+    let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
     let expected = json! {
     [
        {
@@ -90,16 +93,17 @@ async fn lint_one_with_options() {
        }
     );
 
-    let opts = Object::try_from(&JsValue::from_serde(&opts).unwrap())
-        .unwrap()
-        .to_owned();
+    let opts_js = opts
+        .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
+        .unwrap();
+    let opts = Object::try_from(&opts_js).unwrap().to_owned();
 
     let result = lint(vec![JsValue::from_str(path)], Some(opts))
         .await
         .ok()
         .unwrap();
 
-    let actual: serde_json::Value = result.into_serde().unwrap();
+    let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
     let expected = json! {
     [
        {
@@ -158,8 +162,10 @@ async fn format_one() {
         .ok()
         .unwrap();
 
-    let snippets: Vec<serde_json::Value> = result.into_serde().unwrap();
-    let snippet = JsValue::from_serde(&snippets[0]).unwrap();
+    let snippets: Vec<serde_json::Value> = serde_wasm_bindgen::from_value(result).unwrap();
+    let snippet = snippets[0]
+        .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
+        .unwrap();
     let actual = format(&snippet).ok().unwrap();
 
     let expected = r#"error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`

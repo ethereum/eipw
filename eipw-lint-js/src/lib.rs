@@ -10,11 +10,12 @@ use eipw_lint::{default_lints, Linter};
 
 use js_sys::{JsString, Object};
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use std::collections::HashMap;
 use std::fmt;
 use std::future::Future;
+use std::ops::Deref;
 use std::path::PathBuf;
 use std::pin::Pin;
 
@@ -114,7 +115,7 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     let mut linter = Linter::new(Json::default()).set_fetch(NodeFetch);
 
     if let Some(options) = options {
-        let opts: Opts = options.into_serde()?;
+        let opts: Opts = serde_wasm_bindgen::from_value(options.deref().clone())?;
         linter = opts.apply(linter);
     }
 
@@ -124,12 +125,15 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
 
     let reporter = linter.run().await?;
 
-    Ok(JsValue::from_serde(&reporter.into_reports()).unwrap())
+    let serializer = serde_wasm_bindgen::Serializer::json_compatible();
+    let js_value = reporter.into_reports().serialize(&serializer).unwrap();
+
+    Ok(js_value)
 }
 
 #[wasm_bindgen]
 pub fn format(snippet: &JsValue) -> Result<String, JsError> {
-    let value: serde_json::Value = snippet.into_serde()?;
+    let value: serde_json::Value = serde_wasm_bindgen::from_value(snippet.deref().clone())?;
 
     let obj = match value {
         serde_json::Value::Object(o) => o,

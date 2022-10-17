@@ -5,6 +5,7 @@
  */
 
 #![cfg(feature = "tokio")]
+#![cfg(not(target_arch = "wasm32"))]
 
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;

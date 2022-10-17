@@ -13,10 +13,7 @@ use eipw_lint::reporters::{Json, Reporter, Text};
 use eipw_lint::{default_lints, Linter};
 
 use std::collections::HashMap;
-use std::ffi::OsStr;
 use std::path::PathBuf;
-
-use tokio::fs;
 
 #[derive(Debug, Parser)]
 struct Opts {
@@ -86,7 +83,16 @@ fn list_lints() {
     println!();
 }
 
+#[cfg(target_arch = "wasm32")]
+async fn collect_sources(_sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io::Error> {
+    todo!()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io::Error> {
+    use std::ffi::OsStr;
+    use tokio::fs;
+
     let mut output = Vec::with_capacity(sources.len());
 
     for source in sources.into_iter() {
@@ -119,7 +125,8 @@ async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io:
     Ok(output)
 }
 
-#[tokio::main]
+#[cfg_attr(target_arch = "wasm32", tokio::main(flavor = "current_thread"))]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::main)]
 async fn run(opts: Opts) -> Result<(), usize> {
     if opts.list_lints {
         list_lints();

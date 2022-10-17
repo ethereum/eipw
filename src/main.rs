@@ -25,7 +25,7 @@ struct Opts {
     list_lints: bool,
 
     /// Files and/or directories to check.
-    #[clap(required_unless_present("list-lints"))]
+    #[clap(required_unless_present("list_lints"))]
     sources: Vec<PathBuf>,
 
     /// Output format.
@@ -120,9 +120,7 @@ async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io:
 }
 
 #[tokio::main]
-async fn run() -> Result<(), usize> {
-    let opts = Opts::parse();
-
+async fn run(opts: Opts) -> Result<(), usize> {
     if opts.list_lints {
         list_lints();
         return Ok(());
@@ -186,7 +184,9 @@ async fn run() -> Result<(), usize> {
 }
 
 fn main() {
-    if let Err(n_errors) = run() {
+    let opts = Opts::parse();
+
+    if let Err(n_errors) = run(opts) {
         eprintln!("validation failed with {} errors :(", n_errors);
         std::process::exit(1);
     }

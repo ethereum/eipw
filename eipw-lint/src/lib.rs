@@ -85,12 +85,15 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             pattern: r":",
             message: "preamble header `title` should not contain `:`",
         }.boxed()),
-        ("preamble-re-title-erc", preamble::Regex {
-            name: "title",
-            mode: regex::Mode::Excludes,
-            pattern: r"(?i)erc[\s-]*[0-9]+",
-            message: "proposals must be referenced with the form `EIP-N` (not `ERC-N`)",
-        }.boxed()),
+        (
+            "preamble-re-title-erc-dash",
+            preamble::Regex {
+                name: "title",
+                mode: regex::Mode::Excludes,
+                pattern: r"(?i)erc[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
+            }.boxed(),
+        ),
         (
             "preamble-re-title-eip-dash",
             preamble::Regex {
@@ -98,6 +101,15 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                 mode: regex::Mode::Excludes,
                 pattern: r"(?i)eip[\s]*[0-9]+",
                 message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
+            }.boxed(),
+        ),
+        (
+            "preamble-re-description-erc-dash",
+            preamble::Regex {
+                name: "description",
+                mode: regex::Mode::Excludes,
+                pattern: r"(?i)erc[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
             }.boxed(),
         ),
         (
@@ -109,12 +121,6 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                 message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
             }.boxed(),
         ),
-        ("preamble-re-description-erc", preamble::Regex {
-            name: "description",
-            mode: regex::Mode::Excludes,
-            pattern: r"(?i)erc[\s-]*[0-9]+",
-            message: "proposals must be referenced with the form `EIP-N` (not `ERC-N`)",
-        }.boxed()),
         ("preamble-re-description", preamble::Regex {
             name: "description",
             mode: regex::Mode::Excludes,
@@ -337,11 +343,11 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             .boxed(),
         ),
         (
-            "markdown-re-eip-not-erc",
+            "markdown-re-erc-dash",
             markdown::Regex {
                 mode: markdown::regex::Mode::Excludes,
-                pattern: r"(?i)erc[\s-]*[0-9]+",
-                message: "proposals must be referenced with the form `EIP-N` (not `ERC-N`)",
+                pattern: r"(?i)erc[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
             }.boxed(),
         ),
         (
@@ -354,7 +360,7 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
         ),
         (
             "markdown-link-first",
-            markdown::LinkFirst(r"(?i)eip-[0-9]+").boxed(),
+            markdown::LinkFirst(r"(?i)(?:eip|erc)-[0-9]+").boxed(),
         ),
         ("markdown-rel-links", markdown::RelativeLinks {
             exceptions: &[

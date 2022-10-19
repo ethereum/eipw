@@ -15,7 +15,7 @@ created: 2020-01-01
 This is the abstract for the EIP, which extends ERC721.
 
 ## Motivation
-This is the motivation for the EIP, which extends ERC-721.
+This is the motivation for the EIP, which extends `ERC-721`.
 
 ## Specification
 This is the specification for the EIP.

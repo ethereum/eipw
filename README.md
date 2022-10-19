@@ -69,7 +69,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `markdown-link-status`              | EIPs linked in the body have statuses further along than the current proposal.                |
 | `markdown-order-section`            | There are no extra sections and the sections are in the correct order.                        |
 | `markdown-re-eip-dash`              | Other EIPs are referenced using EIP-X, not EIPX or EIP X.                                     |
-| `markdown-re-eip-not-erc`           | Other EIPs are referenced using EIP-X, not ERC-X.                                             |
+| `markdown-re-erc-dash`              | Other ERCs are referenced using ERC-X, not ERCX or ERC X.                                     |
 | `markdown-rel-links`                | All URLs in the page are relative.                                                            |
 | `markdown-req-section`              | Required sections are present in the body of the proposal.                                    |
 | `preamble-author`                   | The author header is correctly formatted, and there is at least one GitHub user listed.       |
@@ -91,12 +91,12 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-re-description`           | The description doesn't contain "standard" or similar words.                                  |
 | `preamble-re-description-colon`     | The description doesn't contain any ":" characters.                                           |
 | `preamble-re-description-eip-dash`  | EIPs referenced in the `description` header use a dash.                                       |
-| `preamble-re-description-erc`       | ERCs referenced in the `description` header use the `EIP-X` format.                           |
+| `preamble-re-description-erc-dash`  | ERCs referenced in the `description` header use a dash.                                       |
 | `preamble-re-discussions-to`        | The `discussions-to` header points to Ethereum Magicians                                      |
 | `preamble-re-title`                 | The title doesn't contain "standard" or similar words.                                        |
 | `preamble-re-title-colon`           | The title doesn't contain any ":" characters.                                                 |
 | `preamble-re-title-eip-dash`        | EIPs referenced in the `title` header use a dash.                                             |
-| `preamble-re-title-erc`             | ERCs referenced in the `title` header use the `EIP-X` format.                                 |
+| `preamble-re-title-erc-dash`        | ERCs referenced in the `title` header use a dash.                                             |
 | `preamble-req`                      | All required preamble headers are present.                                                    |
 | `preamble-req-category`             | The `category` header is present only when required.                                          |
 | `preamble-req-last-call-deadline`   | The `last-call-deadline` header is present only when required.                                |

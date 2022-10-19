@@ -5,13 +5,13 @@ error[preamble-re-description-eip-dash]: proposals must be referenced with the f
   |             ^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
   |
   = info: the pattern in question: `(?i)eip[\s]*[0-9]+`
-error[preamble-re-description-erc]: proposals must be referenced with the form `EIP-N` (not `ERC-N`)
+error[preamble-re-description-erc-dash]: proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)
  --> input.md:4:13
   |
 4 | description: Floop ERC55 and EIP99
   |             ^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
   |
-  = info: the pattern in question: `(?i)erc[\s-]*[0-9]+`
+  = info: the pattern in question: `(?i)erc[\s]*[0-9]+`
 error[preamble-re-title-eip-dash]: proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)
  --> input.md:3:7
   |
@@ -19,10 +19,3 @@ error[preamble-re-title-eip-dash]: proposals must be referenced with the form `E
   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
   |
   = info: the pattern in question: `(?i)eip[\s]*[0-9]+`
-error[preamble-re-title-erc]: proposals must be referenced with the form `EIP-N` (not `ERC-N`)
- --> input.md:3:7
-  |
-3 | title: A sample extension for EIP 1 and ERC-5
-  |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
-  |
-  = info: the pattern in question: `(?i)erc[\s-]*[0-9]+`

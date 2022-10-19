@@ -14,14 +14,19 @@ created: 2020-01-01
 ## Abstract
 This is the abstract for the EIP, which extends EIP-1234.
 
+This is also the abstract for the EIP, which extends ERC-1236.
+
 ## Motivation
 This is the motivation for the EIP, which is separate from [EIP-1235](./eip-1235.md).
 
+This is also the abstract for the EIP, which extends [ERC-1237](./eip-1236.md).
+
 ## Specification
-This is the specification for the EIP, mentioning EIP-1235 again.
+This is the specification for the EIP, mentioning EIP-1235 and ERC-1237 again.
 
 ## Rationale
-This is the rationale for the EIP, which extends [EIP-1234](./eip-1234.md)
+This is the rationale for the EIP, which extends [EIP-1234](./eip-1234.md) and
+[ERC-1236](./eip-1236.md).
 
 ## Backwards Compatibility
 These are the backwards compatibility concerns.

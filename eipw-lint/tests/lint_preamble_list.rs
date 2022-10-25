@@ -147,6 +147,25 @@ hello world"#;
 }
 
 #[tokio::test]
+async fn empty() {
+    let src = r#"---
+header:
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-list", List("header"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}
+
+#[tokio::test]
 async fn valid() {
     let src = r#"---
 header: foo, bar, example.com/foo?bar

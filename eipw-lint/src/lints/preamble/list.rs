@@ -22,6 +22,9 @@ impl<'n> Lint for List<'n> {
         let mut extra_space = Vec::new();
 
         let value = field.value().trim();
+        if value.is_empty() {
+            return Ok(());
+        }
 
         let mut offset = 0;
         for matched in value.split(',') {

@@ -280,6 +280,12 @@ mod tests {
     }
 
     #[test]
+    fn parse_missing_value() {
+        let input = "foo:\n";
+        Preamble::parse(None, input).unwrap_err();
+    }
+
+    #[test]
     fn parse() {
         let input = "foo: bar\nbanana: split";
         let result = Preamble::parse(None, input).unwrap();

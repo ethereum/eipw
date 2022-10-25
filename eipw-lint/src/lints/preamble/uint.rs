@@ -60,7 +60,11 @@ impl<'n> Lint for UintList<'n> {
             Some(s) => s,
         };
 
-        let items = field.value().split(',');
+        if field.value().trim().is_empty() {
+            return Ok(());
+        }
+
+        let items = field.value().split(','); // Don't trim here so the offsets line up later.
         let mut values: Vec<u64> = Vec::new();
         let mut not_uint = Vec::new();
 

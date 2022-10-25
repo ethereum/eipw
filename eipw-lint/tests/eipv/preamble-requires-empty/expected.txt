@@ -1,0 +1,6 @@
+error[preamble-len-requires]: preamble header `requires` value is too short (min 1)
+  --> input.md:10:10
+   |
+10 | requires:
+   |           too short
+   |

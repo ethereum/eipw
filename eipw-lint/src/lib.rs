@@ -131,6 +131,15 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
         ("preamble-list-author", preamble::List("author").boxed()),
         ("preamble-list-requires", preamble::List("requires").boxed()),
         (
+            "preamble-len-requires",
+            preamble::Length {
+                name: "requires",
+                min: Some(1),
+                max: None,
+            }
+            .boxed(),
+        ),
+        (
             "preamble-uint-requires",
             preamble::UintList("requires").boxed(),
         ),

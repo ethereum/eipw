@@ -82,6 +82,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-file-name`                | The file name reflects the EIP number.                                                        |
 | `preamble-len-description`          | The `description` header isn't too long.                                                      |
 | `preamble-len-title`                | The `title` header isn't too long.                                                            |
+| `preamble-len-requires`             | The `requires` header has at least one item.                                                  |
 | `preamble-list-author`              | The `author` header is a correctly formatted comma-separated list.                            |
 | `preamble-list-requires`            | The `requires` header is a correctly formatted comma-separated list.                          |
 | `preamble-no-dup`                   | There are no duplicate headers.                                                               |

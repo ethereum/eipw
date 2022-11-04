@@ -25,13 +25,15 @@ impl Lint for RelativeLinks {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
 
+        let cs_re = Regex::new(r"^https://(www\.)?github\.com/ethereum/consensus-specs(/|$)").unwrap();
+        
         let mut visitor = Visitor::default();
         ctx.body().traverse().visit(&mut visitor)?;
 
         let links = visitor
             .links
             .into_iter()
-            .filter(|l| re.is_match(&l.address));
+            .filter(|l| re.is_match(&l.address) && !cs_re.is_match(&l.address));
 
         for Link { line_start, .. } in links {
             ctx.report(Snippet {

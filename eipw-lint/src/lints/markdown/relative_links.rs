@@ -24,8 +24,11 @@ pub struct RelativeLinks;
 impl Lint for RelativeLinks {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new(r"(^/)|(://)|(^www)|^(\w)+\.(\w)+").unwrap();
-        let cs_re = Regex::new("^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$").unwrap();
-        
+        let cs_re = Regex::new(
+            "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",
+        )
+        .unwrap();
+
         let mut visitor = Visitor::default();
         ctx.body().traverse().visit(&mut visitor)?;
 

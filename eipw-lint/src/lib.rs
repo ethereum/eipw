@@ -6,6 +6,7 @@
 
 pub mod fetch;
 pub mod lints;
+pub mod modifiers;
 pub mod preamble;
 pub mod reporters;
 pub mod tree;
@@ -17,6 +18,7 @@ use comrak::nodes::Ast;
 use comrak::{Arena, ComrakExtensionOptions, ComrakOptions};
 
 use crate::lints::{Context, Error as LintError, FetchContext, InnerContext, Lint, LintExt as _};
+use crate::modifiers::Modifier;
 use crate::preamble::Preamble;
 use crate::reporters::Reporter;
 
@@ -36,6 +38,11 @@ pub enum Error {
         source: LintError,
         origin: Option<PathBuf>,
     },
+    #[snafu(context(false))]
+    Modifier {
+        #[snafu(backtrace)]
+        source: crate::modifiers::Error,
+    },
     Io {
         path: PathBuf,
         source: std::io::Error,
@@ -44,6 +51,14 @@ pub enum Error {
         lint: String,
         origin: Option<PathBuf>,
     },
+}
+
+fn default_modifiers() -> Vec<Box<dyn Modifier>> {
+    vec![Box::new(modifiers::SetDefaultAnnotation {
+        name: "status",
+        value: "Stagnant",
+        annotation_type: AnnotationType::Warning,
+    })]
 }
 
 pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
@@ -394,11 +409,19 @@ impl<'a> Source<'a> {
     }
 }
 
+#[derive(Debug, Clone)]
+#[non_exhaustive]
+pub struct Settings<'a> {
+    _p: std::marker::PhantomData<&'a dyn Lint>,
+    pub default_annotation_type: AnnotationType,
+}
+
 #[derive(Educe)]
 #[educe(Debug)]
 #[must_use]
 pub struct Linter<'a, R> {
-    lints: HashMap<&'a str, (AnnotationType, Box<dyn Lint>)>,
+    lints: HashMap<&'a str, (Option<AnnotationType>, Box<dyn Lint>)>,
+    modifiers: Vec<Box<dyn Modifier>>,
     sources: Vec<Source<'a>>,
 
     #[educe(Debug(ignore))]
@@ -423,8 +446,9 @@ impl<'a, R> Linter<'a, R> {
             reporter,
             sources: Default::default(),
             fetch: Box::new(fetch::DefaultFetch::default()),
+            modifiers: default_modifiers(),
             lints: default_lints()
-                .map(|(slug, lint)| (slug, (AnnotationType::Error, lint)))
+                .map(|(slug, lint)| (slug, (None, lint)))
                 .collect(),
         }
     }
@@ -433,17 +457,25 @@ impl<'a, R> Linter<'a, R> {
     where
         T: 'static + Lint,
     {
-        self.add_lint(AnnotationType::Warning, slug, lint)
+        self.add_lint(Some(AnnotationType::Warning), slug, lint)
     }
 
     pub fn deny<T>(self, slug: &'a str, lint: T) -> Self
     where
         T: 'static + Lint,
     {
-        self.add_lint(AnnotationType::Error, slug, lint)
+        self.add_lint(Some(AnnotationType::Error), slug, lint)
     }
 
-    fn add_lint<T>(mut self, level: AnnotationType, slug: &'a str, lint: T) -> Self
+    pub fn modify<T>(mut self, modifier: T) -> Self
+    where
+        T: 'static + Modifier,
+    {
+        self.modifiers.push(Box::new(modifier));
+        self
+    }
+
+    fn add_lint<T>(mut self, level: Option<AnnotationType>, slug: &'a str, lint: T) -> Self
     where
         T: 'static + Lint,
     {
@@ -593,12 +625,29 @@ where
                 None => continue,
             };
 
-            for (slug, (annotation_type, lint)) in &lints {
+            let mut settings = Settings {
+                _p: std::marker::PhantomData,
+                default_annotation_type: AnnotationType::Error,
+            };
+
+            for modifier in &self.modifiers {
                 let context = Context {
                     inner: inner.clone(),
                     reporter: &self.reporter,
                     eips: &parsed_eips,
-                    annotation_type: *annotation_type,
+                    annotation_type: settings.default_annotation_type,
+                };
+
+                modifier.modify(&context, &mut settings)?;
+            }
+
+            for (slug, (annotation_type, lint)) in &lints {
+                let annotation_type = annotation_type.unwrap_or(settings.default_annotation_type);
+                let context = Context {
+                    inner: inner.clone(),
+                    reporter: &self.reporter,
+                    eips: &parsed_eips,
+                    annotation_type,
                 };
 
                 lint.lint(slug, &context).with_context(|_| LintSnafu {

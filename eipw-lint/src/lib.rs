@@ -356,7 +356,12 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             "markdown-link-first",
             markdown::LinkFirst(r"(?i)eip-[0-9]+").boxed(),
         ),
-        ("markdown-rel-links", markdown::RelativeLinks.boxed()),
+        ("markdown-rel-links", markdown::RelativeLinks {
+            exceptions: &[
+                "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",
+                "^https://(www\\.)?github\\.com/ethereum/devp2p/blob/[0-9a-f]{40}/.+$"
+            ]
+        }.boxed()),
         (
             "markdown-link-status",
             markdown::LinkStatus {

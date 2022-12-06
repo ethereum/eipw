@@ -11,7 +11,7 @@ use comrak::nodes::Ast;
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
-use regex::bytes::Regex;
+use regex::bytes::{Regex, RegexSet};
 
 use scraper::node::Node as HtmlNode;
 use scraper::Html;
@@ -19,15 +19,15 @@ use scraper::Html;
 use snafu::Snafu;
 
 #[derive(Debug)]
-pub struct RelativeLinks;
+pub struct RelativeLinks<'e> {
+    pub exceptions: &'e [&'e str],
+}
 
-impl Lint for RelativeLinks {
+impl<'e> Lint for RelativeLinks<'e> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
-        let cs_re = Regex::new(
-            "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",
-        )
-        .unwrap();
+
+        let exceptions = RegexSet::new(self.exceptions).map_err(Error::custom)?;
 
         let mut visitor = Visitor::default();
         ctx.body().traverse().visit(&mut visitor)?;
@@ -35,7 +35,7 @@ impl Lint for RelativeLinks {
         let links = visitor
             .links
             .into_iter()
-            .filter(|l| re.is_match(&l.address) && !cs_re.is_match(&l.address));
+            .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
         for Link { line_start, .. } in links {
             ctx.report(Snippet {

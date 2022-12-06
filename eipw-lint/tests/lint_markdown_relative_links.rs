@@ -19,7 +19,14 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: &[
+                    "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",
+                ],
+            },
+        )
         .check_slice(None, src)
         .run()
         .await
@@ -40,7 +47,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -68,7 +75,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -96,7 +103,7 @@ Hello [hi](/foo)!
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -124,7 +131,7 @@ Hello [hi](./foo/bar)!
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -147,7 +154,7 @@ Hello [hi][hello]!
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -177,7 +184,7 @@ Hello [hi][hello]!
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -198,7 +205,7 @@ https://example.com/
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -226,7 +233,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -254,7 +261,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -282,7 +289,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -303,7 +310,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await
@@ -324,7 +331,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks)
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
         .check_slice(None, src)
         .run()
         .await

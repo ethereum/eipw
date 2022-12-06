@@ -368,7 +368,25 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                     &["Final", "Withdrawn", "Living"],
                 ]
             }.boxed(),
-        )
+        ),
+        (
+            "markdown-json-cite",
+            markdown::JsonSchema {
+                additional_schemas: &[
+                    (
+                        "https://resource.citationstyles.org/schema/v1.0/input/json/csl-data.json",
+                        include_str!("lints/markdown/json_schema/csl-data.json"),
+                    ),
+                ],
+                schema: include_str!("lints/markdown/json_schema/citation.json"),
+                language: "csl-json",
+                help: concat!(
+                    "see https://github.com/ethereum/eipw/blob/",
+                    "master/eipw-lint/src/lints/markdown/",
+                    "json_schema/citation.json",
+                ),
+            }.boxed(),
+        ),
     ]
     .into_iter()
 }
@@ -740,6 +758,7 @@ fn process<'r, 'a>(
         extension: ComrakExtensionOptions {
             table: true,
             autolink: true,
+            footnotes: true,
             ..Default::default()
         },
         ..Default::default()

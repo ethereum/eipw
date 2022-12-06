@@ -64,6 +64,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 
 | id                                  | Description                                                                                   |
 |-------------------------------------|-----------------------------------------------------------------------------------------------|
+| `markdown-json-cite`                | All `csl-json` code blocks adhere to the correct schema.                                      |
 | `markdown-link-first`               | First mention of an EIP must be a link.                                                       |
 | `markdown-link-status`              | EIPs linked in the body have statuses further along than the current proposal.                |
 | `markdown-order-section`            | There are no extra sections and the sections are in the correct order.                        |

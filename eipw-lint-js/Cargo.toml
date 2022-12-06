@@ -1,6 +1,6 @@
 [package]
 name = "eipw-lint-js"
-version = "0.2.6"
+version = "0.3.0"
 edition = "2021"
 license = "MPL-2.0"
 rust-version = "1.65"
@@ -23,7 +23,7 @@ wasm-bindgen = { version = "0.2.83", features = [ "serde-serialize" ] }
 serde-wasm-bindgen = "0.4.5"
 wasm-bindgen-futures = "0.4.33"
 console_error_panic_hook = { version = "0.1.7", optional = true }
-eipw-lint = { version = "0.2.0", path = "../eipw-lint" }
+eipw-lint = { version = "0.3.0", path = "../eipw-lint" }
 js-sys = "0.3.60"
 serde_json = "1.0.86"
 serde = { version = "1.0", features = [ "derive" ] }

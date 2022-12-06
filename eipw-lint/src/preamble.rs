@@ -119,6 +119,7 @@ impl<'a> Preamble<'a> {
         }
     }
 
+    #[allow(clippy::result_large_err)]
     fn parse_line(
         origin: Option<&'a str>,
         line_start: usize,
@@ -135,7 +136,6 @@ impl<'a> Preamble<'a> {
                         id: None,
                         annotation_type: AnnotationType::Error,
                     }),
-                    footer: vec![],
                     slices: vec![Slice {
                         source: line,
                         line_start,
@@ -143,7 +143,7 @@ impl<'a> Preamble<'a> {
                         annotations: vec![],
                         fold: false,
                     }],
-                    opt: Default::default(),
+                    ..Default::default()
                 });
             }
         };

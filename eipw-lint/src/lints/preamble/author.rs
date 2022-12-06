@@ -45,7 +45,7 @@ impl<'n> Lint for Author<'n> {
 
         let items = field.value().split(',');
 
-        let set = RegexSet::new(&[
+        let set = RegexSet::new([
             r"^[^()<>,@]+ \(@[a-zA-Z\d-]+\)$", // Match a GitHub username.
             r"^[^()<>,@]+ <[^@][^>]*@[^>]+\.[^>]+>$", // Match an email address.
             r"^[^()<>,@]+$",                   // Match just a name.

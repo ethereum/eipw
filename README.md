@@ -1,7 +1,7 @@
 eipw
 ====
 
-The [EIP] validator that's one more than `eipv`.
+The [EIP] validator that's one more than [`eipv`](https://github.com/ethereum/eipv).
 
 ```
 USAGE:

@@ -29,3 +29,7 @@ tokio = { version = "1.21.2", features = [ "fs", "macros", "rt-multi-thread" ] }
 [patch.crates-io.comrak]
 git = "https://github.com/SamWilsn/comrak.git"
 branch = "inline-line-numbers"
+
+[patch.crates-io.jsonschema]
+git = "https://github.com/SamWilsn/jsonschema-rs.git"
+branch = "ahash-on-wasm"

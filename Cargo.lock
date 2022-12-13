@@ -9,7 +9,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf6ccdb167abbf410dcb915cabd428929d7f6a04980b54a11f26a39f1c7f7107"
 dependencies = [
  "cfg-if",
- "getrandom 0.2.8",
  "once_cell",
  "serde",
  "version_check",
@@ -363,7 +362,7 @@ dependencies = [
 
 [[package]]
 name = "eipw-lint-js"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "annotate-snippets",
  "console_error_panic_hook",
@@ -552,8 +551,7 @@ dependencies = [
 [[package]]
 name = "jsonschema"
 version = "0.16.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ca9e2b45609132ae2214d50482c03aeee78826cd6fd53a8940915b81acedf16"
+source = "git+https://github.com/SamWilsn/jsonschema-rs.git?branch=ahash-on-wasm#91c2c29e2634aef49fa9e0e8f5994a17de7b3e04"
 dependencies = [
  "ahash",
  "anyhow",

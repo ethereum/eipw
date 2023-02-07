@@ -468,7 +468,7 @@ impl<'a, R> Linter<'a, R> {
         Self {
             reporter,
             sources: Default::default(),
-            fetch: Box::new(fetch::DefaultFetch::default()),
+            fetch: Box::<fetch::DefaultFetch>::default(),
             modifiers: default_modifiers(),
             lints: default_lints()
                 .map(|(slug, lint)| (slug, (None, lint)))

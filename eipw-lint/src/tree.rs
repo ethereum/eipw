@@ -43,7 +43,9 @@ pub trait Visitor {
             NodeValue::TableRow(r) => self.enter_table_row(&data, *r),
             NodeValue::TableCell => self.enter_table_cell(&data),
             NodeValue::Text(txt) => self.enter_text(&data, txt),
-            NodeValue::TaskItem(ti) => self.enter_task_item(&data, *ti),
+            NodeValue::TaskItem { checked, symbol } => {
+                self.enter_task_item(&data, *checked, *symbol)
+            }
             NodeValue::SoftBreak => self.enter_soft_break(&data),
             NodeValue::LineBreak => self.enter_line_break(&data),
             NodeValue::Code(nc) => self.enter_code(&data, nc),
@@ -154,7 +156,12 @@ pub trait Visitor {
         Ok(Next::TraverseChildren)
     }
 
-    fn enter_task_item(&mut self, _ast: &Ast, _checked: bool) -> Result<Next, Self::Error> {
+    fn enter_task_item(
+        &mut self,
+        _ast: &Ast,
+        _checked: bool,
+        _symbol: u8,
+    ) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
 
@@ -224,7 +231,9 @@ pub trait Visitor {
             NodeValue::TableRow(r) => self.depart_table_row(&data, *r),
             NodeValue::TableCell => self.depart_table_cell(&data),
             NodeValue::Text(txt) => self.depart_text(&data, txt),
-            NodeValue::TaskItem(ti) => self.depart_task_item(&data, *ti),
+            NodeValue::TaskItem { checked, symbol } => {
+                self.depart_task_item(&data, *checked, *symbol)
+            }
             NodeValue::SoftBreak => self.depart_soft_break(&data),
             NodeValue::LineBreak => self.depart_line_break(&data),
             NodeValue::Code(nc) => self.depart_code(&data, nc),
@@ -331,7 +340,12 @@ pub trait Visitor {
         Ok(())
     }
 
-    fn depart_task_item(&mut self, _ast: &Ast, _checked: bool) -> Result<(), Self::Error> {
+    fn depart_task_item(
+        &mut self,
+        _ast: &Ast,
+        _checked: bool,
+        _symbol: u8,
+    ) -> Result<(), Self::Error> {
         Ok(())
     }
 

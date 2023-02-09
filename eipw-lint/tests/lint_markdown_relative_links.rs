@@ -201,6 +201,8 @@ header: value1
 ---
 
 https://example.com/
+
+hello world
 "#;
 
     let reports = Linter::<Text<String>>::default()

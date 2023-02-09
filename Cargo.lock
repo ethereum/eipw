@@ -166,7 +166,7 @@ dependencies = [
 [[package]]
 name = "comrak"
 version = "0.16.0"
-source = "git+https://github.com/SamWilsn/comrak.git?branch=inline-line-numbers-0.16#4d533890dac91fc63b236f870961eb451a085f3b"
+source = "git+https://github.com/SamWilsn/comrak.git?branch=inline-line-numbers-0.16#7a2f213f8df7eecdbec7108578de3a117a98d100"
 dependencies = [
  "entities",
  "memchr",

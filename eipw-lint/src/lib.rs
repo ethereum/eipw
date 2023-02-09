@@ -329,6 +329,17 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             markdown::ProposalRef.boxed(),
         ),
         (
+            "markdown-html-comments",
+            markdown::HtmlComments {
+                name: "status",
+                warn_for: &[
+                    "Draft",
+                    "Withdrawn",
+                ],
+            }
+            .boxed(),
+        ),
+        (
             "markdown-req-section",
             markdown::SectionRequired(&[
                 "Abstract",

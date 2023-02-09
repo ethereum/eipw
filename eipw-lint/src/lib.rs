@@ -86,6 +86,14 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             message: "preamble header `title` should not contain `:`",
         }.boxed()),
         (
+            "preamble-refs-title",
+            preamble::ProposalRef("title").boxed(),
+        ),
+        (
+            "preamble-refs-description",
+            preamble::ProposalRef("description").boxed(),
+        ),
+        (
             "preamble-re-title-erc-dash",
             preamble::Regex {
                 name: "title",

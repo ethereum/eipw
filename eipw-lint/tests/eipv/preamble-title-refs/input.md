@@ -1,15 +1,14 @@
 ---
 eip: 1
-title: A sample extension for EIP 1 and ERC-5
-description: Floop ERC55 and EIP99
+title: A sample extension to ERC-9, and EIP-10
+description: This proposal is a sample that should be considered
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>
 discussions-to: https://ethereum-magicians.org/
-status: Last Call
-last-call-deadline: 2020-01-01
+status: Final
 type: Standards Track
 category: Core
 created: 2020-01-01
-requires: 5
+requires: 9, 10
 ---
 
 ## Abstract
@@ -31,7 +30,7 @@ These are the backwards compatibility concerns for the EIP.
 These are the test cases for the EIP.
 
 ## Reference Implementation
-This is the implementation for the EIP, but `ERC721` should be allowed.
+This is the implementation for the EIP.
 
 ## Security Considerations
 These are the security considerations for the EIP.

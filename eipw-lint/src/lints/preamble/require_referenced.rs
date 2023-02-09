@@ -36,7 +36,7 @@ impl<'n> Lint for RequireReferenced<'n> {
             .filter_map(Result::ok)
             .collect();
 
-        let re = Regex::new(r"(?i)eip-([0-9]+)").unwrap();
+        let re = Regex::new(r"(?i)(?:eip|erc)-([0-9]+)").unwrap();
 
         let missing: Vec<_> = re
             .captures_iter(field.value())

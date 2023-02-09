@@ -98,6 +98,8 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-re-title-colon`           | The title doesn't contain any ":" characters.                                                 |
 | `preamble-re-title-eip-dash`        | EIPs referenced in the `title` header use a dash.                                             |
 | `preamble-re-title-erc-dash`        | ERCs referenced in the `title` header use a dash.                                             |
+| `preamble-refs-description`         | ERCs referenced in the `description` header use the `ERC-` prefix.                            |
+| `preamble-refs-title`               | ERCs referenced in the `title` header use the `ERC-` prefix.                                  |
 | `preamble-req`                      | All required preamble headers are present.                                                    |
 | `preamble-req-category`             | The `category` header is present only when required.                                          |
 | `preamble-req-last-call-deadline`   | The `last-call-deadline` header is present only when required.                                |

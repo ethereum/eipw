@@ -9,7 +9,7 @@ use annotate_snippets::snippet::Snippet;
 use clap::{Parser, ValueEnum};
 
 use eipw_lint::reporters::count::Count;
-use eipw_lint::reporters::{Json, Reporter, Text};
+use eipw_lint::reporters::{AdditionalHelp, Json, Reporter, Text};
 use eipw_lint::{default_lints, Linter};
 
 use std::collections::HashMap;
@@ -142,6 +142,9 @@ async fn run(opts: Opts) -> Result<(), usize> {
         Format::Text => EitherReporter::Text(Text::default()),
     };
 
+    let reporter = AdditionalHelp::new(reporter, |t: &str| {
+        Ok(format!("see https://ethereum.github.io/eipw/{}/", t))
+    });
     let reporter = Count::new(reporter);
 
     let mut linter = Linter::new(reporter);
@@ -178,7 +181,7 @@ async fn run(opts: Opts) -> Result<(), usize> {
 
     let n_errors = reporter.counts().error;
 
-    match reporter.into_inner() {
+    match reporter.into_inner().into_inner() {
         EitherReporter::Json(j) => serde_json::to_writer_pretty(&stdout, &j).unwrap(),
         EitherReporter::Text(t) => print!("{}", t.into_inner()),
     }

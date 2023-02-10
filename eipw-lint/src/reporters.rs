@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+pub mod additional_help;
 pub mod count;
 pub mod json;
 pub mod null;
@@ -11,6 +12,7 @@ pub mod text;
 
 use annotate_snippets::snippet::Snippet;
 
+pub use self::additional_help::AdditionalHelp;
 pub use self::json::Json;
 pub use self::null::Null;
 pub use self::text::Text;
@@ -28,7 +30,11 @@ impl fmt::Display for Error {
     }
 }
 
-impl std::error::Error for Error {}
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&*self.source)
+    }
+}
 
 impl Error {
     pub fn new<S>(s: S) -> Self

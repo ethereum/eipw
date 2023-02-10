@@ -54,11 +54,18 @@ pub enum Error {
 }
 
 fn default_modifiers() -> Vec<Box<dyn Modifier>> {
-    vec![Box::new(modifiers::SetDefaultAnnotation {
-        name: "status",
-        value: "Stagnant",
-        annotation_type: AnnotationType::Warning,
-    })]
+    vec![
+        Box::new(modifiers::SetDefaultAnnotation {
+            name: "status",
+            value: "Stagnant",
+            annotation_type: AnnotationType::Warning,
+        }),
+        Box::new(modifiers::SetDefaultAnnotation {
+            name: "status",
+            value: "Withdrawn",
+            annotation_type: AnnotationType::Warning,
+        }),
+    ]
 }
 
 pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {

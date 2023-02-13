@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-refs</title>
+		<link rel="stylesheet" href="../main.css">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-refs</code></h1>
+			<p>
+				ERCs are referenced using ERC-X, while other proposals use
+				EIP-X.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-refs]: references to proposals with a `category` of `ERC` must use a prefix of `ERC`
+  --> input.md
+   |
+18 | This is the motivation for the EIP, which extends [EIP-721](./eip-721.md).
+   |</pre>
+
+				<pre>error[markdown-refs]: references to proposals without a `category` must use a prefix of `EIP`
+  --> input.md
+   |
+21 | This is the specification for the EIP, which doesn't extend [EIP-123](./eip-123.md) or [ERC-123](./eip-123.md).
+   |</pre>
+
+				<pre>error[markdown-refs]: references to proposals with a `category` of `Core` must use a prefix of `EIP`
+  --> input.md
+   |
+24 | This is the rationale for the ERC-3074.
+   |</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-refs</code> ensures that any references to
+					proposals in the ERC category use an ERC prefix (ERC-1234),
+					and EIP is used for everything else (EIP-1234).
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

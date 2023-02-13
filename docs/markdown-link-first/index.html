@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-link-first</title>
+		<link rel="stylesheet" href="../main.css">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-link-first</code></h1>
+			<p>
+				First mention of an EIP must be a link.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-link-first]: the first match of the given pattern must be a link
+ --> input.md
+  |
+5 | EIP-3
+  |
+  = info: the pattern in question: `(?i)(?:eip|erc)-[0-9]+`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-link-first</code> ensures that the first time
+					a proposal is mentioned it is a hyperlink to that proposal.
+				</p>
+
+				<p>
+					The first reference to each proposal should be a hyperlink
+					so that it is easy for readers to navigate there.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

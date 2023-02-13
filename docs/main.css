@@ -4,6 +4,7 @@ body {
 
 pre {
 	padding: 1em 0.5em;
+	overflow-x: scroll;
 }
 
 pre,code {

@@ -5,7 +5,7 @@
  */
 
 use eipw_lint::fetch::Fetch;
-use eipw_lint::reporters::json::Json;
+use eipw_lint::reporters::{AdditionalHelp, Json};
 use eipw_lint::{default_lints, Linter};
 
 use js_sys::{JsString, Object};
@@ -112,7 +112,11 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
         .map(PathBuf::from)
         .collect();
 
-    let mut linter = Linter::new(Json::default()).set_fetch(NodeFetch);
+    let reporter = Json::default();
+    let reporter = AdditionalHelp::new(reporter, |t: &str| {
+        Ok(format!("see https://ethereum.github.io/eipw/{}/", t))
+    });
+    let mut linter = Linter::new(reporter).set_fetch(NodeFetch);
 
     if let Some(options) = options {
         let opts: Opts = serde_wasm_bindgen::from_value(options.deref().clone())?;
@@ -126,7 +130,11 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     let reporter = linter.run().await?;
 
     let serializer = serde_wasm_bindgen::Serializer::json_compatible();
-    let js_value = reporter.into_reports().serialize(&serializer).unwrap();
+    let js_value = reporter
+        .into_inner()
+        .into_reports()
+        .serialize(&serializer)
+        .unwrap();
 
     Ok(js_value)
 }

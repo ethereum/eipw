@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-order-section</title>
+		<link rel="stylesheet" href="../main.css">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-order-section</code></h1>
+			<p>
+				There are no extra sections and the sections are in the correct order.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-order-section]: body has extra section(s)
+  |
+5 | ## Banana
+  |</pre>
+
+				<pre>error[markdown-order-section]: section `Motivation` is out of order
+  |
+5 | ## Motivation
+  |
+  = help: `Motivation` should come after `Abstract`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-order-section</code> checks the sections in
+					a proposal against the sections defined in
+					<a href="https://eips.ethereum.org/EIPS/eip-1#what-belongs-in-a-successful-eip">EIP-1</a>,
+					reporting any that are unexpected or out of order.
+				</p>
+
+				<p>
+					To keep proposals consistent, the order and presence of
+					sections is mandatory.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

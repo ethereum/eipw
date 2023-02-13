@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-re-eip-dash</title>
+		<link rel="stylesheet" href="../main.css">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-re-eip-dash</code></h1>
+			<p>
+				Other EIPs are referenced using EIP-X, not EIPX or EIP X.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-re-eip-dash]: proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)
+  --> input.md
+   |
+27 | These are the backwards compatibility concerns for the EIP1234.
+   |
+   = info: the pattern in question: `(?i)eip[\s]*[0-9]+`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					Reports common mistakes when referencing other proposals,
+					like omitting the hyphen (EIP1234), or replacing it with a
+					space (EIP 1234).
+				</p>
+
+				<p>
+					For consistency, all proposals should be referenced in the
+					same way.
+				</p>
+				<p>
+					Interfaces and contract names should be enclosed in
+					backticks to avoid this error: <code>`EIP1234`</code>.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-link-status</title>
+		<link rel="stylesheet" href="../main.css">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-link-status</code></h1>
+			<p>
+				EIPs linked in the body have statuses further along than the current proposal.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-link-status]: proposal `eip-20.md` is not stable enough for a `status` of `Last Call`
+  --> input.md
+   |
+15 | This is the abstract for the EIP which needs [EIP-20](./eip-20.md).
+   |
+   = help: because of this link, this proposal's `status` must be one of: `Draft`, `Stagnant`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-link-status</code> checks the body of a
+					proposal for links to other proposals that are not as far
+					along in the standardization process.
+				</p>
+
+				<p>
+					Final proposals are, for the most part, immutable. A link
+					from a final proposal to a non-final proposal introduces
+					mutability: the non-final proposal could be completely
+					rewritten, changing the meaning of the final proposal.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

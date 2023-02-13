@@ -1,0 +1,17 @@
+body {
+	font-family: sans-serif;
+}
+
+pre {
+	padding: 1em 0.5em;
+}
+
+pre,code {
+	font-family: monospace;
+	background: #f7f7f7;
+}
+
+article {
+	max-width: 960px;
+	margin: auto;
+}

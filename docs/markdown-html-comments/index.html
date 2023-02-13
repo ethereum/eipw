@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-html-comments</title>
+		<link rel="stylesheet" href="../main.css">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-html-comments</code></h1>
+			<p>
+				There are no HTML comments in review-ready EIPs.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-html-comments]: HTML comments are not allowed when `status` is `Last Call`
+  --> input.md
+   |
+16 | &lt;!-- This is an html comment --&gt;
+   |
+</pre>
+
+				<pre>warning[markdown-html-comments]: HTML comments are only allowed while `status` is one of: `Draft`, `Withdrawn`
+  --> input.md
+   |
+16 | &lt;!-- This is an html comment --&gt;
+   |
+</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-html-comments</code> looks through
+					proposals for any HTML-style comments (i.e.
+					<code>&lt;!-- ... --&gt;</code>) and reports if it finds
+					any.
+				</p>
+
+				<p>
+					Final proposals should not contain any HTML comments because
+					they are not visible after rendering. They are allowed in
+					draft proposals (as warnings) to indicate incomplete
+					sections and TODO items.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

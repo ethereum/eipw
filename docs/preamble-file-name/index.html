@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-file-name</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-file-name</code></h1>
+			<p>
+				The file name reflects the EIP number.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-file-name]: file name must reflect the preamble header `eip`
+  |
+2 | eip: 3
+  |     ^^ this value
+  |
+  = help: this file's name should be `eip-3.md`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>preamble-file-name</code> makes sure that the file
+					name matches the <code>eip</code> front matter (or preamble)
+					field's value.
+				</p>
+
+				<p>
+					Before an EIP Editor assigns a number, the file's name
+					should match the <code>title</code> field's value, replacing
+					non-letter characters with underscores, prefixed with
+					<code>eip-</code> and suffixed with <code>.md</code> (eg.
+					<code>eip-the_title_of_my_proposal.md</code>.)
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

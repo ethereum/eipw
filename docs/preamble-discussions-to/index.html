@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-discussions-to</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-discussions-to</code></h1>
+			<p>
+				The <code>discussions-to</code> header is a valid URL.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-discussions-to]: preamble header `discussions-to` is not a valid URL
+ --> input.md:6:16
+  |
+6 | discussions-to: not a website dot com
+  |                ^^^^^^^^^^^^^^^^^^^^^^ relative URL without a base
+  |</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>preamble-discussions-to</code> makes sure that the
+					<code>discussions-to</code> front matter (or preamble)
+					header is a correctly formatted URL.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

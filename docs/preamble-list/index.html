@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-list-...</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-list-...</code></h1>
+			<p>
+				The <code>...</code> header is a correctly formatted
+				comma-separated list.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-list-requires]: preamble header list items must begin with a space
+  --> input.md:11:13
+   |
+11 | requires: 20,1337,2048
+   |             ^ missing space
+   |                  ^ missing space
+   |</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					The <code>preamble-list-...</code> family of lints checks
+					to make sure that front matter (or preamble) fields
+					containing lists are formatted so other tools can understand
+					them.
+				</p>
+
+				<p>
+					List items should be separated with a comma and a single
+					space, for example: <code>this, is, a, list</code>.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

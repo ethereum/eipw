@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-enum-...</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-enum-...</code></h1>
+			<p>
+				The <code>...</code> header is a recognized value.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-enum-category]: preamble header `category` has an unrecognized value
+ --> input.md:9:10
+  |
+9 | category: Unknown
+  |          ^^^^^^^^ must be one of: `Core`, `Networking`, `Interface`, `ERC`
+  |</pre>
+
+				<pre>error[preamble-enum-status]: preamble header `status` has an unrecognized value
+ --> input.md:7:8
+  |
+7 | status: Invalid
+  |        ^^^^^^^^ must be one of: `Draft`, `Review`, `Last Call`, `Final`, `Stagnant`, `Withdrawn`, `Living`
+  |</pre>
+
+				<pre>error[preamble-enum-type]: preamble header `type` has an unrecognized value
+ --> input.md:8:6
+  |
+8 | type: Unknown
+  |      ^^^^^^^^ must be one of: `Standards Track`, `Meta`, `Informational`
+  |</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					The <code>preamble-enum-...</code> family of lints make
+					sure that a front matter (or preamble) field's value is one
+					of the permitted choices.
+				</p>
+
+				<p>
+					For further information about each field, see
+					<a href="https://eips.ethereum.org/EIPS/eip-1#eip-header-preamble">EIP-1</a>.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

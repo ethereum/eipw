@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-req-section</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-req-section</code></h1>
+			<p>
+				Required sections are present in the body of the proposal.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-req-section]: body is missing section(s): `Abstract`, `Specification`, `Rationale`, `Security Considerations`, `Copyright`
+--> input.md
+ |
+ |
+ = help: must be at the second level (`## Heading`)</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-req-section</code> makes sure all the
+					sections required in
+					<a href="https://eips.ethereum.org/EIPS/eip-1#what-belongs-in-a-successful-eip">EIP-1</a>
+					are present.
+				</p>
+
+				<p>
+					The sections required by this lint provide valuable context
+					for readers and editors, and details necessary for
+					implementers. Proposals without these sections would be too
+					incomplete to be used.
+				</p>
+
+				<p>
+					It is convention that no headings in the markdown file use
+					level one (i.e. <code># Some Heading</code>.) All sections
+					should be at level two (<code>## Some Heading</code>) or
+					deeper. Headings required by this lint must be at exactly
+					level two.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

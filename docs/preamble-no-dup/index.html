@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-no-dup</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-no-dup</code></h1>
+			<p>
+				There are no duplicate headers.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-no-dup]: preamble header `header` defined multiple times
+  |
+2 | header: value0
+  | -------------- info: first defined here
+  |
+4 | header: value1
+  | ^^^^^^^^^^^^^^ redefined here
+  |</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>preamble-no-dup</code> makes sure there are no
+					repeated fields in the front matter (or preamble.)
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

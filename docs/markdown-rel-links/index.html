@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-rel-links</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-rel-links</code></h1>
+			<p>
+				All URLs in the page are relative.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-rel-links]: non-relative link or image
+  |
+5 | https://example.com/
+  |</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-rel-links</code> reports any non-relative
+					(eg. absolute or protocol-relative) hyperlinks or images in
+					proposals, with exceptions defined in
+					<a href="https://eips.ethereum.org/EIPS/eip-1#linking-to-external-resources">EIP-1</a>.
+				</p>
+
+				<p>
+					Proposals cannot contain external links for several reasons.
+					First and foremost is that external links can disappear,
+					move, or otherwise suffer from
+					<a href="https://en.wikipedia.org/wiki/Link_rot">link rot</a>.
+					Final proposals provide a guarantee of immutability, and
+					updating final proposals to update links would undermine
+					that guarantee.
+				</p>
+
+				<p>
+					In a similar vein, an external resource (referred to by a
+					non-relative URL) can change independently of the EIP
+					process, which would also undermine the immutability
+					guarantee.
+				</p>
+
+				<p>
+					Finally, there is also the question of copyright, access
+					fees, and general availability. Proposals are licensed under
+					<a href="https://creativecommons.org/share-your-work/public-domain/cc0/">CC0-1.0</a>
+					so that anyone is free to use them for whatever purpose.
+					Content published outside the EIPs repository is likely not
+					licensed under the same terms. Publishers may even charge a
+					fee for access!
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-author</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-author</code></h1>
+			<p>
+				The author header is correctly formatted, and there is at least
+				one GitHub user listed.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-author]: authors in the preamble must match the expected format
+ --> input.md:5:8
+  |
+5 | author: John Doe (@johndoe) &lt;john.doe@example.com&gt;
+  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unrecognized author
+  |
+  = help: Try `Random J. User (@username)` for an author with a GitHub username.
+  = help: Try `Random J. User &lt;test@example.com&gt;` for an author with an email.
+  = help: Try `Random J. User` for an author without contact information.</pre>
+
+				<pre>error[preamble-author]: preamble header `author` must contain at least one GitHub username
+ --> input.md
+  |
+5 | author: John Doe (@johndoe) &lt;john.doe@example.com&gt;
+  |</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>preamble-author</code> makes sure that the
+					<code>author</code> field in the front matter (or preamble)
+					matches the format understood by other tools. It also makes
+					sure that every proposal has at least one author with a
+					GitHub username.
+				</p>
+
+				<p>
+					Specifically, each author must have a name, optionally
+					followed by an email address enclosed in less-than /
+					greater-than signs (<code>&lt;...&gt;</code>) or a GitHub
+					username enclosed in parentheses (<code>(...)</code>.)
+					Multiple authors should be separated by a comma. If, for
+					some reason, an author wants to have both an email address
+					and a GitHub username, make separate author entries (eg.
+					<code>Jacob Carter (@JCarter), Jacob Carter &lt;selmak@example.com&gt;</code>.)
+				</p>
+
+				<p>
+					Each proposal must have at least one author identified with
+					a GitHub username because the <code>author</code> field is
+					used for access control: someone has to be able to approve
+					pull requests.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

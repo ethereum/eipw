@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-date-...</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-date-...</code></h1>
+			<p>
+				The <code>...</code> header is a date.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-date-last-call-deadline]: preamble header `last-call-deadline` is not a date in the `YYYY-MM-DD` format
+ --> input.md:8:20
+  |
+8 | last-call-deadline: 2020/01/01
+  |                    ^^^^^^^^^^^ input contains invalid characters
+  |</pre>
+
+
+				<pre>error[preamble-date-created]: preamble header `created` is not a date in the `YYYY-MM-DD` format
+  --> input.md:10:9
+   |
+10 | created: 2020/01/01
+   |         ^^^^^^^^^^^ input contains invalid characters
+   |</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					The <code>preamble-date-...</code> family of lints make sure
+					that dates in the front matter (or preamble) follow the
+					correct format (<code>YYYY-MM-DD</code>.)
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

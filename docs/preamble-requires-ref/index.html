@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-requires-ref-...</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-requires-ref-...</code></h1>
+			<p>
+				Proposals mentioned in the <code>...</code> header appear in the
+				<code>requires</code> header.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-requires-ref-description]: proposals mentioned in preamble header `description` must appear in `requires`
+ --&gt; input.md:3:27
+  |
+3 | description: Also missing EIP-1559
+  |                           ^^^^^^^^ mentioned here
+  |</pre>
+
+				<pre>error[preamble-requires-ref-title]: proposals mentioned in preamble header `title` must appear in `requires`
+ --&gt; input.md:2:16
+  |
+2 | title: Missing EIP-1559
+  |                ^^^^^^^^ mentioned here
+  |</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					The <code>preamble-requires-ref-...</code> family of lints
+					makes sure that proposals referenced in other front matter
+					(or preamble) fields appear in the <code>requires</code>
+					field.
+				</p>
+
+				<p>
+					If a proposal is important enough to appear in the
+					<code>title</code> or <code>description</code> field, it
+					is extremely likely that it was meant to be required. Often
+					this error appears in proposals extending an already
+					existing standard.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

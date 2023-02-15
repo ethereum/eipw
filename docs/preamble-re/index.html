@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-re-...</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-re-...</code></h1>
+			<p>
+				The <code>...</code> preamble header doesn't contain "standard"
+				or similar words.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-re-title]: preamble header `title` should not contain `standard` (or similar words.)
+ --&gt; eip-20.md:3:7
+  |
+3 | title: Token Standard
+  |       ^^^^^^^^^^^^^^^ prohibited pattern was matched
+  |
+  = info: the pattern in question: `(?i)standar\w*\b`</pre>
+
+				<pre>error[preamble-re-description]: preamble header `description` should not contain `standard` (or similar words.)
+ --&gt; eip-20.md:3:7
+  |
+3 | description: Token Standard
+  |             ^^^^^^^^^^^^^^^ prohibited pattern was matched
+  |
+  = info: the pattern in question: `(?i)standar\w*\b`</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					The <code>preamble-re-...</code> family of lints prevent
+					the use of "standard" or similar words in the
+					<code>title</code> and <code>description</code> front matter
+					(or preamble) fields.
+				</p>
+
+				<p>
+					Nearly every proposal submitted to the EIPs repository is a
+					standard of some type, so repeating the word in every
+					document is unnecessary. Instead, this lint encourages
+					authors to use the limited space for more meaningful
+					content.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

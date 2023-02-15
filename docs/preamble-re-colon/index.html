@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-re-...-colon</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-re-...-colon</code></h1>
+			<p>
+				The <code>...</code> preamble header doesn't contain "standard"
+				or similar words.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+
+				<pre>error[preamble-re-title-colon]: preamble header `title` should not contain `:`
+ --&gt; input.md:4:7
+  |
+4 | title: Token Standard: A New Hope
+  |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
+  |
+  = info: the pattern in question: `:`</pre>
+
+				<pre>error[preamble-re-description-colon]: preamble header `description` should not contain `:`
+ --&gt; input.md:4:7
+  |
+4 | description: Token Standard: A New Hope
+  |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
+  |
+  = info: the pattern in question: `:`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					The <code>preamble-re-...-colon</code> family of lints
+					prevents the use of colons (<code>:</code>) in the
+					<code>title</code> and <code>description</code> front matter
+					(or preamble) fields.
+				</p>
+
+				<p>
+					Support for complex data in the front matter is not
+					perfectly supported in tools.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

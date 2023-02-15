@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-req</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-req</code></h1>
+			<p>
+				All required preamble headers are present.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-req]: preamble is missing header(s): `eip`, `author`, `status`, `type`, `created`
+--&gt; input.md
+ |
+ |</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>preamble-req</code> makes sure the front matter (or
+					preamble) contains all of the required fields. See
+					<a href="https://eips.ethereum.org/EIPS/eip-1#eip-header-preamble">EIP-1</a>
+					for a list of required fields and their descriptions.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

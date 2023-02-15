@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-refs-...</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-refs-...</code></h1>
+			<p>
+				ERCs referenced in the <code>...</code> header use the
+				<code>ERC-</code> prefix.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-refs-description]: references to proposals with a `category` of `ERC` must use a prefix of `ERC`
+ --&gt; eip-2612.md:4:14
+  |
+4 | description: EIP-20 approvals via EIP-712 secp256k1 signatures
+  |              ^^^^^^ referenced here
+  |</pre>
+
+				<pre>error[preamble-refs-title]: references to proposals with a `category` of `ERC` must use a prefix of `ERC`
+ --&gt; eip-2612.md:3:29
+  |
+3 | title: Permit Extension for EIP-20 Signed Approvals
+  |                             ^^^^^^ referenced here
+  |</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					The <code>preamble-refs-...</code> family of lints ensures
+					that any references to proposals in the ERC category use an
+					ERC prefix (ERC-1234), and EIP is used for everything else
+					(EIP-1234).
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

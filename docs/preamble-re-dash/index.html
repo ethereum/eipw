@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-re-...-dash</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-re-...-dash</code></h1>
+			<p>
+				Proposals referenced in the <code>...</code> preamble header use
+				a dash.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-re-description-erc-dash]: proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)
+ --&gt; input.md:3:13
+  |
+3 | description: Incorrect ERC721
+  |             ^^^^^^^^^^^^^^^^^ prohibited pattern was matched
+  |
+  = info: the pattern in question: `(?i)erc[\s]*[0-9]+`</pre>
+
+				<pre>error[preamble-re-title-eip-dash]: proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)
+ --&gt; input.md:2:7
+  |
+2 | title: Incorrect EIP 1559
+  |       ^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
+  |
+  = info: the pattern in question: `(?i)eip[\s]*[0-9]+`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					The <code>preamble-re-...-dash</code> family of lints
+					prevent common mistakes when referencing other proposals,
+					like omitting the hyphen (EIP1234), or replacing it with a
+					space (ERC 1234).
+				</p>
+
+				<p>
+					For consistency, all proposals should be referenced in the
+					same way.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

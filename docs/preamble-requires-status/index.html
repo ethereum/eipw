@@ -2,34 +2,38 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
-		<title>markdown-link-status</title>
+		<title>preamble-requires-status</title>
 		<link rel="stylesheet" href="../main.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 	<body>
 		<article>
-			<h1><code>markdown-link-status</code></h1>
+			<h1><code>preamble-requires-status</code></h1>
 			<p>
-				EIPs linked in the body have statuses further along than the current proposal.
+				EIPs listed in <code>requires</code> have statuses further along
+				than the current proposal.
 			</p>
 
 			<section>
 				<h2>Examples</h2>
 
-				<pre>error[markdown-link-status]: proposal `eip-20.md` is not stable enough for a `status` of `Last Call`
-  --> input.md
-   |
-15 | This is the abstract for the EIP which needs [EIP-20](./eip-20.md).
-   |
-   = help: because of this link, this proposal's `status` must be one of: `Draft`, `Stagnant`</pre>
+				<pre>error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Final`
+ --&gt; eip-20.md:9:10
+  |
+9 | requires: 3074
+  |          ^^^^^ has a less advanced status
+  |
+  = help: valid `status` values for this proposal are: `Draft`, `Stagnant`</pre>
+
 			</section>
 			<section>
 				<h2>Explanation</h2>
 
 				<p>
-					<code>markdown-link-status</code> checks the body of a
-					proposal for links to other proposals that are not as far
-					along in the standardization process.
+					<code>preamble-requires-status</code> checks the front
+					matter (or preamble) field <code>requires</code> for other
+					proposals that are not as far along in the standardization
+					process.
 				</p>
 
 				<p>

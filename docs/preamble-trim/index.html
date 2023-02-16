@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-trim</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-trim</code></h1>
+			<p>
+				There is no extra whitespace around preamble fields.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-trim]: preamble header `description` has extra whitespace
+ --&gt; input.md:3:13
+  |
+3 | description: Also missing 
+  |             ^^^^^^^^^^^^^^ value has extra whitespace
+  |</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>preamble-trim</code> ensures that front matter (or
+					preamble) field values don't have extra whitespace.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

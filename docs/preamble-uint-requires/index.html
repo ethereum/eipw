@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-uint-requires</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-uint-requires</code></h1>
+			<p>
+				The <code>requires</code> header is a sorted list of
+				non-negative integers.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-uint-requires]: preamble header `requires` items must be sorted in ascending order
+  --&gt; input.md
+   |
+11 | requires: 20, 1337, 86
+   |</pre>
+
+				<pre>error[preamble-uint-requires]: preamble header `requires` items must be unsigned integers
+  --&gt; input.md:11:10
+   |
+11 | requires: 20token
+   |          ^^^^^^^^ not a non-negative integer
+   |</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>preamble-uint-requires</code> ensures that the
+					<code>requires</code> front matter (or preamble) field value
+					contains only non-negative numbers, and that those numbers
+					are sorted in ascending order.
+				</p>
+
+				<p>
+					Keeping a consistent order for lists makes it easier to find
+					particular values.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

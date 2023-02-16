@@ -1,6 +1,6 @@
 [package]
 name = "eipw-lint-js"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 license = "MPL-2.0"
 rust-version = "1.65"

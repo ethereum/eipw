@@ -31,6 +31,7 @@ hello world"#;
 2 | header: Foo (
   |        ^^^^^^ unrecognized author
   |
+  = help: Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email.
   = help: Try `Random J. User (@username)` for an author with a GitHub username.
   = help: Try `Random J. User <test@example.com>` for an author with an email.
   = help: Try `Random J. User` for an author without contact information.
@@ -65,6 +66,7 @@ hello world"#;
 2 | header: User (@user), Foo (
   |                      ^^^^^^ unrecognized author
   |
+  = help: Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email.
   = help: Try `Random J. User (@username)` for an author with a GitHub username.
   = help: Try `Random J. User <test@example.com>` for an author with an email.
   = help: Try `Random J. User` for an author without contact information.
@@ -95,6 +97,7 @@ hello world"#;
 2 | header: Foo (, User (@user)
   |        ^^^^^^ unrecognized author
   |
+  = help: Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email.
   = help: Try `Random J. User (@username)` for an author with a GitHub username.
   = help: Try `Random J. User <test@example.com>` for an author with an email.
   = help: Try `Random J. User` for an author without contact information.
@@ -132,6 +135,25 @@ hello world"#;
 async fn valid() {
     let src = r#"---
 header: Foo <test@example.com>, Bar (@bar), Random J. User
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-author", Author("header"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}
+
+#[tokio::test]
+async fn valid_dual() {
+    let src = r#"---
+header: Foo (@Foo) <test@example.com>, Bar (@bar), Random J. User
 ---
 hello world"#;
 

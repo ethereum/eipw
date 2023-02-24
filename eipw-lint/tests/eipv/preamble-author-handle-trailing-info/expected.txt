@@ -4,6 +4,7 @@ error[preamble-author]: authors in the preamble must match the expected format
 5 | author: John Doe (@johndoe)a, Jenny Doe (@jen)
   |        ^^^^^^^^^^^^^^^^^^^^^ unrecognized author
   |
+  = help: Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email.
   = help: Try `Random J. User (@username)` for an author with a GitHub username.
   = help: Try `Random J. User <test@example.com>` for an author with an email.
   = help: Try `Random J. User` for an author without contact information.

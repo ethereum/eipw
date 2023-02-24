@@ -14,6 +14,11 @@ fn footer() -> Vec<Annotation<'static>> {
         Annotation {
             annotation_type: AnnotationType::Help,
             id: None,
+            label: Some("Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email."),
+        },
+        Annotation {
+            annotation_type: AnnotationType::Help,
+            id: None,
             label: Some("Try `Random J. User (@username)` for an author with a GitHub username."),
         },
         Annotation {
@@ -46,9 +51,14 @@ impl<'n> Lint for Author<'n> {
         let items = field.value().split(',');
 
         let set = RegexSet::new([
-            r"^[^()<>,@]+ \(@[a-zA-Z\d-]+\)$", // Match a GitHub username.
-            r"^[^()<>,@]+ <[^@][^>]*@[^>]+\.[^>]+>$", // Match an email address.
-            r"^[^()<>,@]+$",                   // Match just a name.
+            // Match a GitHub username.
+            r"^[^()<>,@]+ \(@[a-zA-Z\d-]+\)$",
+            // Match an email address.
+            r"^[^()<>,@]+ <[^@][^>]*@[^>]+\.[^>]+>$",
+            // Match a GitHub username plus email address.
+            r"^[^()<>,@]+ \(@[a-zA-Z\d-]+\) <[^@][^>]*@[^>]+\.[^>]+>$",
+            // Match just a name.
+            r"^[^()<>,@]+$",
         ])
         .unwrap();
 
@@ -64,6 +74,7 @@ impl<'n> Lint for Author<'n> {
 
             if matches.matched_any() {
                 has_username |= matches.matched(0);
+                has_username |= matches.matched(2);
                 continue;
             }
 

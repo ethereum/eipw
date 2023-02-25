@@ -8,6 +8,8 @@ use annotate_snippets::snippet::{Annotation, Slice, Snippet};
 
 use comrak::nodes::Ast;
 
+use std::fmt::Write;
+
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
@@ -18,6 +20,7 @@ use scraper::Html;
 
 use snafu::Snafu;
 
+
 #[derive(Debug)]
 pub struct RelativeLinks<'e> {
     pub exceptions: &'e [&'e str],
@@ -26,6 +29,7 @@ pub struct RelativeLinks<'e> {
 impl<'e> Lint for RelativeLinks<'e> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
+        let re_md = Regex::new("`(^/)|(://)`").unwrap();
 
         let exceptions = RegexSet::new(self.exceptions).map_err(Error::custom)?;
 
@@ -38,13 +42,31 @@ impl<'e> Lint for RelativeLinks<'e> {
             .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
         for Link { line_start, .. } in links {
+            
+            let mut link_md = String::new();
+            write!(link_md, "`{}`",&Link.address,).unwrap;
+            
+            if !re_md.is_match(&link_md) {
+            
+                let mut footer_label = String::new();
+                let mut footer = vec![];
+                write!(footer_label, "use {} instead",&link_md,).unwrap();
+                
+                footer.push(Annotation {
+                    annotation_type: AnnotationType::Help,
+                    id: None,
+                    label: Some(&footer_label),
+                 });
+                
+            }    
+            
             ctx.report(Snippet {
                 title: Some(Annotation {
                     id: Some(slug),
                     annotation_type: ctx.annotation_type(),
                     label: Some("non-relative link or image"),
                 }),
-                footer: vec![],
+                footer,
                 slices: vec![Slice {
                     line_start: usize::try_from(line_start).unwrap(),
                     fold: false,
@@ -54,6 +76,7 @@ impl<'e> Lint for RelativeLinks<'e> {
                 }],
                 opt: Default::default(),
             })?;
+                    
         }
 
         Ok(())

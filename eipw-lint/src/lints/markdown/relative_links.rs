@@ -29,7 +29,6 @@ pub struct RelativeLinks<'e> {
 impl<'e> Lint for RelativeLinks<'e> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
-        let re_md = Regex::new("`(^/)|(://)`").unwrap();
 
         let exceptions = RegexSet::new(self.exceptions).map_err(Error::custom)?;
 
@@ -46,18 +45,17 @@ impl<'e> Lint for RelativeLinks<'e> {
             let mut link_md = String::new();
             write!(link_md, "`{}`",&Link.address,).unwrap;
             
-            if !re_md.is_match(&link_md) {
+            let mut footer_label = String::new();
+            let mut footer = vec![];
             
-                let mut footer_label = String::new();
-                let mut footer = vec![];
-                write!(footer_label, "use {} instead",&link_md,).unwrap();
+            if !(ctx.line(&Link.line_start).contains(&link_md)) {
+               write!(footer_label, "use {} instead",&link_md,).unwrap();
                 
-                footer.push(Annotation {
-                    annotation_type: AnnotationType::Help,
-                    id: None,
-                    label: Some(&footer_label),
-                 });
-                
+               footer.push(Annotation {
+                   annotation_type: AnnotationType::Help,
+                   id: None,
+                   label: Some(&footer_label),
+               });
             }    
             
             ctx.report(Snippet {

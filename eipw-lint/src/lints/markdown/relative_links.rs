@@ -20,7 +20,7 @@ use scraper::Html;
 
 use snafu::Snafu;
 
-// tyry to ci
+
 
 #[derive(Debug)]
 pub struct RelativeLinks<'e> {
@@ -44,7 +44,7 @@ impl<'e> Lint for RelativeLinks<'e> {
         for Link { line_start, .. } in links {
             
             let mut link_md = String::new();
-            //chech address
+      
             write!(link_md, "`{}`",Link.address,).unwrap();
             
             let mut footer_label = String::new();

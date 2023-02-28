@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
 
 use comrak::nodes::Ast;
 
@@ -45,7 +45,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             
             let mut link_md = String::new();
             //chech address
-            write!(link_md, "`{}`",Link.address,).unwrap;
+            write!(link_md, "`{}`",Link.address,).unwrap();
             
             let mut footer_label = String::new();
             let mut footer = vec![];

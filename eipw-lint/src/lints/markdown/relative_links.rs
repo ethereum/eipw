@@ -45,7 +45,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             
             let mut link_md = String::new();
       
-            write!(link_md, "`{}`",&links[Link { address: Vec<u8>, line_start: u32 }].address).unwrap();
+            write!(link_md, "`{}`",&links.get(0).address).unwrap();
             
             let mut footer_label = String::new();
             let mut footer = vec![];

@@ -45,7 +45,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             
             let mut link_md = String::new();
             //let mut line_with_address = ctx.line(line_start);
-            let mut line_link_address = re.find(ctx.line(line_start)).unwrap().as_str();
+            let mut line_link_address = re.find(ctx.line(line_start)).unwrap();
             
             write!(link_md, "`{}`",&line_link_address).unwrap();
             

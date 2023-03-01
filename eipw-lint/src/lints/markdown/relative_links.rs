@@ -44,7 +44,7 @@ impl<'e> Lint for RelativeLinks<'e> {
         for Link { line_start, .. } in links {
             
             let mut link_md = String::new();
-            let mut Link_test = links;       //test
+            let mut Link_test = links.clone();       
             
             //write!(link_md, "`{}`",&Link.address).unwrap();
             
@@ -87,13 +87,13 @@ impl<'e> Lint for RelativeLinks<'e> {
 #[derive(Debug, Snafu)]
 struct Unsupported;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Link {
     address: Vec<u8>,
     line_start: u32,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 struct Visitor {
     links: Vec<Link>,
 }

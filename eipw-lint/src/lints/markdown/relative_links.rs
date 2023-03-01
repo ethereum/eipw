@@ -48,13 +48,13 @@ impl<'e> Lint for RelativeLinks<'e> {
             let mut line_link_addresses = re.captures(line_with_address.as_bytes()).unwrap();
             let mut linelinkaddress = line_link_addresses.get(0).unwrap();
             
-            write!(link_md, "`{}`",&linelinkaddress.as_bytes()).unwrap();
+            write!(link_md, "`{:?}`",&linelinkaddress).unwrap();
             
             let mut footer_label = String::new();
             let mut footer = vec![];
             
             if !(ctx.line(line_start).contains(&link_md)) {
-               write!(footer_label, "use {} instead",&link_md,).unwrap();
+               write!(footer_label, "use {:?} instead",&link_md,).unwrap();
                 
                footer.push(Annotation {
                    annotation_type: AnnotationType::Help,

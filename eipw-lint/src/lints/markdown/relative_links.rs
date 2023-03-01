@@ -44,10 +44,10 @@ impl<'e> Lint for RelativeLinks<'e> {
         for Link { line_start, .. } in links {
             
             let mut link_md = String::new();
-            let mut line_with_address = ctx.line(line_start).as_str();
-            let mut line_link_address = re.find(&line_with_sddress).unwrap();
+            let mut line_with_address = ctx.line(line_start);
+            let mut line_link_address = re.find(&line_with_address).unwrap();
             
-            write!(link_md, "`{}`",&line_link_address.as_str()).unwrap();
+            write!(link_md, "`{}`",&line_link_address).unwrap();
             
             let mut footer_label = String::new();
             let mut footer = vec![];

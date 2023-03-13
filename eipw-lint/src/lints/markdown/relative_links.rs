@@ -48,7 +48,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             let line_with_address = ctx.line(line_start);
             let line_link_regex = re.captures(line_with_address.as_bytes()).unwrap();
             let line_link_address = line_link_regex.get(0).unwrap();
-            let line_link_address = str::from_utf8(&link_md).unwrap();
+            let line_link_address = str::from_utf8(&line_link_address).unwrap();
             
             write!(link_md, "`{}`",&line_link_address).unwrap();
              

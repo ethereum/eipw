@@ -55,7 +55,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             let mut footer = vec![];
             
             if !(ctx.line(line_start).contains(&link_md)) {
-               write!(footer_label, "use {} instead",&link_md,).unwrap();
+               write!(footer_label, "\n\nuse {} instead\n",&link_md,).unwrap();
                 
                footer.push(Annotation {
                    annotation_type: AnnotationType::Help,

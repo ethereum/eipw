@@ -9,6 +9,7 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
 use comrak::nodes::Ast;
 
 use std::fmt::Write;
+use std::str;
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
@@ -49,13 +50,13 @@ impl<'e> Lint for RelativeLinks<'e> {
             let line_link_address = line_link_regex.get(0).unwrap();
             
             write!(link_md, "`{:?}`",&line_link_address).unwrap();
-            let link_md_str = str::from_utf8(&link_md).unwrap(); 
+            let link_md = str::from_utf8(&link_md).unwrap(); 
             
             let mut footer_label = String::new();
             let mut footer = vec![];
             
             if !(ctx.line(line_start).contains(&link_md)) {
-               write!(footer_label, "use {} instead",&link_md_str,).unwrap();
+               write!(footer_label, "use {} instead",&link_md,).unwrap();
                 
                footer.push(Annotation {
                    annotation_type: AnnotationType::Help,

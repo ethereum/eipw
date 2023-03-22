@@ -28,7 +28,7 @@ impl<'n> Lint for RequiredIfNotEq<'n> {
             (Some(when), Some(_)) if when.value().trim() != self.notEquals => (),
 
             // Correct.
-            (Some(when), None) if when.value().trim() != self.notEquals => (),
+            (Some(when), None) if when.value().trim() == self.notEquals => (),
 
             // Incorrect.
             (Some(when), None) => {

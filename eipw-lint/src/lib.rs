@@ -232,7 +232,7 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             "preamble-req-eip",
             preamble::RequiredIfNotEq {
                 when: "status",
-                equals: "Draft",
+                notEquals: "Draft",
                 then: "eip",
             }
             .boxed(),

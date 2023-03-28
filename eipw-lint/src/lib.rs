@@ -228,15 +228,6 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             ])
             .boxed(),
         ),
-        (
-            "preamble-req-eip",
-            preamble::RequiredIfNotEq {
-                when: "status",
-                notEquals: "Draft",
-                then: "eip",
-            }
-            .boxed(),
-        ),
         ("preamble-date-created", preamble::Date("created").boxed()),
         (
             "preamble-req-last-call-deadline",

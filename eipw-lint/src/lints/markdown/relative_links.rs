@@ -14,7 +14,7 @@ use std::str;
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
-use regex::bytes::{Regex, RegexSet};
+use regex::bytes::{Regex, RegexSet, Captures};
 
 use scraper::node::Node as HtmlNode;
 use scraper::Html;

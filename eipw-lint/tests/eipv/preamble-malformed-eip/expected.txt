@@ -1,6 +1,0 @@
-error[preamble-eip]: preamble header `eip` must be an unsigned integer
- --> input.md:2:5
-  |
-2 | eip: 1abc
-  |     ^^^^^ not a non-negative integer
-  |

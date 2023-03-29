@@ -1,4 +1,3 @@
-eip: 1
 title: A sample proposal
 author: John Doe (@johndoe)
 discussions-to: https://ethereum-magicians.org/

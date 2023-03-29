@@ -1,5 +1,4 @@
 ---
-eip: 1
 title: Foobar an Interface
 description: A standard description
 author: John Doe (@johndoe)

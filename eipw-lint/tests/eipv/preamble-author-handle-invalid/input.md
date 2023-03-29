@@ -1,5 +1,4 @@
 ---
-eip: 1
 title: A sample proposal
 description: A sample description
 author: Jenny Doe (jenny@example.com)

@@ -1,5 +1,4 @@
 ---
-eip: 1
 title: "A sample: proposal"
 description: This: proposal is a sample that should be considered
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>

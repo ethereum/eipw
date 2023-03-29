@@ -1,7 +1,7 @@
 error[preamble-list-requires]: preamble header list items must begin with a space
-  --> input.md:11:13
+  --> input.md:10:13
    |
-11 | requires: 20,1337,2048
+10 | requires: 20,1337,2048
    |             ^ missing space
    |                  ^ missing space
    |

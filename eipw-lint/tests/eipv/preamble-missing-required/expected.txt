@@ -1,13 +1,13 @@
 error[preamble-requires-ref-description]: proposals mentioned in preamble header `description` must appear in `requires`
- --> input.md:4:40
+ --> input.md:3:40
   |
-4 | description: This proposal is a sample EIP-9 and EIP-20 extension.
+3 | description: This proposal is a sample EIP-9 and EIP-20 extension.
   |                                        ^^^^^ mentioned here
   |
 error[preamble-requires-ref-title]: proposals mentioned in preamble header `title` must appear in `requires`
- --> input.md:3:31
+ --> input.md:2:31
   |
-3 | title: A sample extension for EIP-1 and EIP-5
+2 | title: A sample extension for EIP-1 and EIP-5
   |                               ^^^^^ mentioned here
   |                                         ^^^^^ mentioned here
   |

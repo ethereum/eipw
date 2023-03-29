@@ -1,7 +1,7 @@
 error[preamble-author]: authors in the preamble must match the expected format
- --> input.md:5:8
+ --> input.md:4:8
   |
-5 | author: John Doe (@johndoe)a, Jenny Doe (@jen)
+4 | author: John Doe (@johndoe)a, Jenny Doe (@jen)
   |        ^^^^^^^^^^^^^^^^^^^^^ unrecognized author
   |
   = help: Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email.

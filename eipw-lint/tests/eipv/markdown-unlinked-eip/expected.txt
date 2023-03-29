@@ -1,12 +1,12 @@
 error[markdown-link-first]: the first match of the given pattern must be a link
   --> input.md
    |
-15 | This is the abstract for the EIP, which extends EIP-1234.
+14 | This is the abstract for the EIP, which extends EIP-1234.
    |
    = info: the pattern in question: `(?i)(?:eip|erc)-[0-9]+`
 error[markdown-link-first]: the first match of the given pattern must be a link
   --> input.md
    |
-17 | This is also the abstract for the EIP, which extends ERC-1236.
+16 | This is also the abstract for the EIP, which extends ERC-1236.
    |
    = info: the pattern in question: `(?i)(?:eip|erc)-[0-9]+`

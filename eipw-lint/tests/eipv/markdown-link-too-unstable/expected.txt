@@ -1,12 +1,12 @@
 error[markdown-link-status]: proposal `eip-20.md` is not stable enough for a `status` of `Last Call`
   --> input.md
    |
-15 | This is the abstract for the EIP which needs [EIP-20](./eip-20.md).
+14 | This is the abstract for the EIP which needs [EIP-20](./eip-20.md).
    |
    = help: because of this link, this proposal's `status` must be one of: `Draft`, `Stagnant`
 error[markdown-link-status]: proposal `eip-2048.md` is not stable enough for a `status` of `Last Call`
   --> input.md
    |
-21 | This is the specification for the EIP, [for some reason](./eip-2048.md).
+20 | This is the specification for the EIP, [for some reason](./eip-2048.md).
    |
    = help: because of this link, this proposal's `status` must be one of: `Draft`, `Stagnant`

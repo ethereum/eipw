@@ -10,6 +10,7 @@ use comrak::nodes::Ast;
 
 use std::fmt::Write;
 use std::str;
+use std::str::string::String;
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
@@ -51,7 +52,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             let line_with_address = ctx.line(line_start);
             let line_link_regx = re.captures(line_with_address.as_bytes());     //remove .unwrap
             
-            if (!line_link_regx.is_empty()) {
+            if !line_link_regx.is_empty() {
                 
                 let line_link_address = str::from_utf8(&line_link_regx[0]).unwrap();
                 

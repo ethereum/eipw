@@ -78,7 +78,6 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
         //
         ("preamble-no-dup", preamble::NoDuplicates.boxed()),
         ("preamble-trim", preamble::Trim.boxed()),
-        ("preamble-eip", preamble::Uint("eip").boxed()),
         ("preamble-author", preamble::Author("author").boxed()),
         ("preamble-re-title", preamble::Regex {
             name: "title",
@@ -200,7 +199,6 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
         (
             "preamble-req",
             preamble::Required(&[
-                "eip",
                 "title",
                 "description",
                 "author",
@@ -214,7 +212,6 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
         (
             "preamble-order",
             preamble::Order(&[
-                "eip",
                 "title",
                 "description",
                 "author",

@@ -1,3 +1,3 @@
 ---
-eip: 1
+status: Final
 ---

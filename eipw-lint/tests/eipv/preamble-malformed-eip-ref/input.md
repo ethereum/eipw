@@ -1,5 +1,4 @@
 ---
-eip: 1
 title: A sample extension for EIP 1 and ERC-5
 description: Floop ERC55 and EIP99
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>

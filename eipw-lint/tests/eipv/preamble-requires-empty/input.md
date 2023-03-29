@@ -1,5 +1,4 @@
 ---
-eip: 3
 title: Requires is Empty
 description: Header is missing any values
 author: Foo Bar (@foobar)

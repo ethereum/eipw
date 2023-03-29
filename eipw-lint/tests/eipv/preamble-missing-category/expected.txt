@@ -1,6 +1,6 @@
 error[preamble-req-category]: preamble header `category` is required when `type` is `Standards Track`
- --> input.md:8:1
+ --> input.md:7:1
   |
-8 | type: Standards Track
+7 | type: Standards Track
   | --------------------- info: defined here
   |

@@ -1,5 +1,4 @@
 ---
-eip: 1
 description: A sample description
 author: John Doe (@johndoe)
 discussions-to: https://ethereum-magicians.org/

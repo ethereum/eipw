@@ -52,7 +52,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             let line_with_address = ctx.line(line_start);
             
             let line_link_regx = re.captures(line_with_address.as_bytes()).unwrap();     
-            assert!(line_link_regx[0],"{}"); 
+            assert!(line_link_regx[0],{}); 
             
             if line_link_regx.len() >1 {
             

@@ -16,6 +16,7 @@ use crate::tree::{self, Next, TraverseExt};
 use regex::bytes::{Regex, RegexSet};
 use std::assert;
 use std::str;
+use std::string::String;
 
 use scraper::node::Node as HtmlNode;
 use scraper::Html;
@@ -52,7 +53,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             let line_with_address = ctx.line(line_start);
             
             let line_link_regx = re.captures(line_with_address.as_bytes()).unwrap();
-            text1 = line_link_regx.get(0).map_or("", |m| m.as_str());
+            let text1 = line_link_regx.get(0).map_or("", |m| m.as_str());
             assert!(text1,""); 
             
             if line_link_regx.len() >1 {

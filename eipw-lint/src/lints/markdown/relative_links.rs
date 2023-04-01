@@ -13,7 +13,7 @@ use std::fmt::Write;
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
-use regex::bytes::{Regex, RegexSet, Captures};
+use regex::bytes::{Regex, RegexSet};
 use std::assert;
 use std::str;
 
@@ -51,7 +51,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             let mut link_md = String::new();
             let line_with_address = ctx.line(line_start);
             
-            assert!(re.captures(line_with_address.as_bytes()).unwrap()); 
+            assert!(re.captures(line_with_address.as_bytes()).unwrap(),{}); 
             let line_link_regx = re.captures(line_with_address.as_bytes()).unwrap();     
             
             if line_link_regx.len() >1 {

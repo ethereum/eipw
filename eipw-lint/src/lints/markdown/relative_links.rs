@@ -51,10 +51,14 @@ impl<'e> Lint for RelativeLinks<'e> {
             
             let mut link_md = String::new();
             let line_with_address = ctx.line(line_start);
+            let mut line_link_regx = vec![];
+            
+            if line_with_addres != "" {
             
             let line_link_regx = re.captures(line_with_address.as_bytes()).unwrap();
-            let text1 = str::from_utf8(&line_link_regx[0]).unwrap(); //line_link_regx.get(0).map_or("", |m| m.as_str());
-            assert_eq!(text1,""); 
+            //let text1 = str::from_utf8(&line_link_regx[0]).unwrap(); //line_link_regx.get(0).map_or("", |m| m.as_str());
+            //assert_eq!(text1,""); 
+            }
             
             if line_link_regx.len() >1 {
             

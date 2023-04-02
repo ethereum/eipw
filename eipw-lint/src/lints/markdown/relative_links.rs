@@ -45,7 +45,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
         for Link { line_start, .. } in links {
-            let mut line_link_regx = Vec::new();
+            let mut line_link_regx : Vec<u8> = Vec::new();
             
             let mut footer_label = String::new();
             

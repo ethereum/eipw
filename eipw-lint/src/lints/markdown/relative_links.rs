@@ -56,7 +56,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             let line_with_address = ctx.line(line_start);
             
             
-            if line_with_address != "" {
+            if line_with_address (!= "/") && (!= "://") && (!="") {
             
             let line_link_regx = re.captures(line_with_address.as_bytes()).unwrap();
             //let text1 = str::from_utf8(&line_link_regx[0]).unwrap(); //line_link_regx.get(0).map_or("", |m| m.as_str());

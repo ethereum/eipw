@@ -73,7 +73,13 @@ impl<'e> Lint for RelativeLinks<'e> {
                     }            
                 }
                 None => {
-                        todo!(); // The regex did not match. Deal with it here!
+                    write!(footer_label, "None",).unwrap();
+                
+                    footer.push(Annotation {
+                        annotation_type: AnnotationType::Help,
+                        id: None,
+                        label: Some(&footer_label),
+                    });// The regex did not match. Deal with it here!
                 }
             }
             

@@ -46,20 +46,17 @@ impl<'e> Lint for RelativeLinks<'e> {
 
         for Link { line_start, .. } in links {
             
-            //let mut line_link_regx : Vec<u8> = Vec::new();
             let mut footer_label = String::new();
             let mut footer = vec![];
             let mut link_md = String::new();
             
             let line_with_address = ctx.line(line_start);
             
-            //let line_link_regx = re.captures(line_with_address.as_bytes()).unwrap();
-            
             match re.captures(line_with_address.as_bytes()) {
                 Some(caps) => {
                     
-                    let line_link_address = str::from_utf8(&caps[0]).unwrap(); //caps.get(1).unwrap().as_str();
-                    write!(link_md, "`{}`",&line_link_address).unwrap();  //println!("{}", cap);
+                    let line_link_address = str::from_utf8(&caps[0]).unwrap(); 
+                    write!(link_md, "`{}`",&line_link_address).unwrap(); 
                     
                     if !(ctx.line(line_start).contains(&link_md)) {
                         
@@ -79,29 +76,10 @@ impl<'e> Lint for RelativeLinks<'e> {
                         annotation_type: AnnotationType::Help,
                         id: None,
                         label: Some(&footer_label),
-                    });// The regex did not match. Deal with it here!
+                    });
                 }
             }
-            
-            
-      /*      if line_link_regx.len() >1 {
-            
-                //let line_link_address = str::from_utf8(&line_link_regx[0]).unwrap();
-                
-                write!(link_md, "`{}`",&line_link_address).unwrap();
-                
-                if !(ctx.line(line_start).contains(&link_md)) {
-                    write!(footer_label, "\n use: {} instead \n",&link_md,).unwrap();
-                
-                    footer.push(Annotation {
-                        annotation_type: AnnotationType::Help,
-                        id: None,
-                        label: Some(&footer_label),
-                     });   
-                }*/
-            
-            
-            
+             
             ctx.report(Snippet {
                 title: Some(Annotation {
                     id: Some(slug),

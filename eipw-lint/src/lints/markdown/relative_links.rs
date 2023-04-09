@@ -47,7 +47,7 @@ impl<'e> Lint for RelativeLinks<'e> {
         for Link { line_start, .. } in links {
             
             let mut footer_label = String::new();
-            //let mut footer = vec![];
+            let mut footer = vec![];
             let mut link_md = String::new();
             
             let line_with_address = ctx.line(line_start);

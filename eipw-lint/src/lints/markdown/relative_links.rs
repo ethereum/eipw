@@ -76,11 +76,6 @@ impl<'e> Lint for RelativeLinks<'e> {
                     //let mut footer = vec![];
                     write!(footer_label, "None",).unwrap();
                 
-                    /*footer.push(Annotation {
-                        annotation_type: AnnotationType::Help,
-                        id: None,
-                        label: Some(&footer_label),
-                    });*/
                 }
             }
              

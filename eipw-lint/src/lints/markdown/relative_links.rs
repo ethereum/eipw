@@ -14,7 +14,6 @@ use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
 use regex::bytes::{Regex, RegexSet};
-//use std::assert;
 use std::str;
 use std::string::String;
 

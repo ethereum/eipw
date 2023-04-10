@@ -55,7 +55,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             match re.captures(line_with_address.as_bytes()) {
                 Some(caps) => {
                     
-                    let mut footer = vec![];
+                   // let mut footer = vec![];
                     let line_link_address = str::from_utf8(&caps[0]).unwrap(); 
                     write!(link_md, "`{}`",&line_link_address).unwrap(); 
                     
@@ -72,10 +72,10 @@ impl<'e> Lint for RelativeLinks<'e> {
                 }
                 None => {
                     
-                    let mut footer = vec![];
-                    /*write!(footer_label, "None",).unwrap();
+                    //let mut footer = vec![];
+                    write!(footer_label, "None",).unwrap();
                 
-                    footer.push(Annotation {
+                    /*footer.push(Annotation {
                         annotation_type: AnnotationType::Help,
                         id: None,
                         label: Some(&footer_label),

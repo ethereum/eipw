@@ -73,7 +73,6 @@ impl<'e> Lint for RelativeLinks<'e> {
                 }
                 None => {
                     
-                    //let mut footer = vec![];
                     write!(footer_label, "None",).unwrap();
                 
                 }

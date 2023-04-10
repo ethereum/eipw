@@ -57,7 +57,7 @@ impl<'e> Lint for RelativeLinks<'e> {
                     
                    // let mut footer = vec![];
                     let line_link_address = str::from_utf8(&caps[0]).unwrap(); 
-                    if line_link_address == "://" {
+                    if line_link_address != "://" {
                     write!(link_md, "`{}`",&line_link_address).unwrap(); 
                     
                     if !(ctx.line(line_start).contains(&link_md)) {

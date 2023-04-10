@@ -53,23 +53,23 @@ impl<'e> Lint for RelativeLinks<'e> {
             let line_with_address = ctx.line(line_start);
             
             match re.captures(line_with_address.as_bytes()) {
-                Some(caps) => {
-                    
-                   // let mut footer = vec![];
+                Some(caps) => {          
+          
                     let line_link_address = str::from_utf8(&caps[0]).unwrap(); 
                     if line_link_address != "://" {
-                    write!(link_md, "`{}`",&line_link_address).unwrap(); 
+                        write!(link_md, "`{}`",&line_link_address).unwrap(); 
                     
-                    if !(ctx.line(line_start).contains(&link_md)) {
+                        if !(ctx.line(line_start).contains(&link_md)) {
                         
-                        write!(footer_label, "\n use: {} instead \n",&link_md,).unwrap();
+                            write!(footer_label, "\n use: {} instead \n",&link_md,).unwrap();
                 
-                        footer.push(Annotation {
-                            annotation_type: AnnotationType::Help,
-                            id: None,
-                            label: Some(&footer_label),
-                        });   
-                    }}            
+                            footer.push(Annotation {
+                                annotation_type: AnnotationType::Help,
+                                id: None,
+                                label: Some(&footer_label),
+                            });   
+                        }
+                    }            
                 }
                 None => {
                     

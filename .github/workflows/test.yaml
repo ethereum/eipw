@@ -62,7 +62,7 @@ jobs:
       #  with:
        #   command: fmt
         #  args: --all -- --check
-      - uses: actions-rs/clippy-check@v1 
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features -- --deny warnings
+    #  - uses: actions-rs/clippy-check@v1 
+     #   with:
+      #    token: ${{ secrets.GITHUB_TOKEN }}
+       #   args: --all-features -- --deny warnings

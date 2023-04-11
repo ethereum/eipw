@@ -23,7 +23,6 @@ use scraper::Html;
 use snafu::Snafu;
 
 
-
 #[derive(Debug)]
 pub struct RelativeLinks<'e> {
     pub exceptions: &'e [&'e str],

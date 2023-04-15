@@ -2,7 +2,7 @@
 title: A sample proposal
 description: A sample description
 author: John Doe (@johndoe)
-discussions-to: https://ethereum-magicians.org/
+discussions-to: https://ethereum-magicians.org/t/hello/1
 type: Standards Track
 category: Core
 created: 2020-01-01

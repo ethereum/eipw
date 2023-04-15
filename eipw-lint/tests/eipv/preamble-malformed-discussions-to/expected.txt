@@ -10,4 +10,4 @@ error[preamble-re-discussions-to]: preamble header `discussions-to` should point
 5 | discussions-to: not a website dot com
   |                ^^^^^^^^^^^^^^^^^^^^^^ required pattern was not matched
   |
-  = info: the pattern in question: `^https://ethereum-magicians.org/`
+  = info: the pattern in question: `^https://ethereum-magicians.org/t/[^/]+/[0-9]+$`

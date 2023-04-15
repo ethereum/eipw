@@ -156,7 +156,7 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
             preamble::Regex {
                 name: "discussions-to",
                 mode: regex::Mode::Includes,
-                pattern: "^https://ethereum-magicians.org/",
+                pattern: "^https://ethereum-magicians.org/t/[^/]+/[0-9]+$",
                 message: concat!(
                     "preamble header `discussions-to` should ",
                     "point to a thread on ethereum-magicians.org"

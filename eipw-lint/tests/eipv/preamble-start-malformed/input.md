@@ -1,6 +1,6 @@
 title: A sample proposal
 author: John Doe (@johndoe)
-discussions-to: https://ethereum-magicians.org/
+discussions-to: https://ethereum-magicians.org/t/hello/1
 status: Draft
 type: Standards Track
 category: Core

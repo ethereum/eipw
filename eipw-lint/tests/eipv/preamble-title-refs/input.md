@@ -2,7 +2,7 @@
 title: A sample extension to ERC-9, and EIP-10
 description: This proposal is a sample that should be considered
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>
-discussions-to: https://ethereum-magicians.org/
+discussions-to: https://ethereum-magicians.org/t/hello/1
 status: Final
 type: Standards Track
 category: Core

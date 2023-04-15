@@ -2,7 +2,7 @@
 title: A sample extension for EIP 1 and ERC-5
 description: Floop ERC55 and EIP99
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>
-discussions-to: https://ethereum-magicians.org/
+discussions-to: https://ethereum-magicians.org/t/hello/1
 status: Last Call
 last-call-deadline: 2020-01-01
 type: Standards Track

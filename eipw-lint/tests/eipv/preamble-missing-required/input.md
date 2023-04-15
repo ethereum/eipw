@@ -2,7 +2,7 @@
 title: A sample extension for EIP-1 and EIP-5
 description: This proposal is a sample EIP-9 and EIP-20 extension.
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>
-discussions-to: https://ethereum-magicians.org/
+discussions-to: https://ethereum-magicians.org/t/hello/1
 status: Last Call
 last-call-deadline: 2020-01-01
 type: Standards Track

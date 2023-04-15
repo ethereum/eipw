@@ -2,7 +2,7 @@
 title: A sample proposal
 description: This proposal is a sample that should be considered
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>
-discussions-to: https://ethereum-magicians.org/
+discussions-to: https://ethereum-magicians.org/t/hello/1
 status: Stagnant
 type: Standards Track
 category: Core

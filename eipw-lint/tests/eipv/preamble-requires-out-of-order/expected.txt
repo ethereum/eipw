@@ -1,5 +1,5 @@
 error[preamble-uint-requires]: preamble header `requires` items must be sorted in ascending order
   --> input.md
    |
-10 | requires: 20, 1337, 86
+11 | requires: 20, 1337, 86
    |

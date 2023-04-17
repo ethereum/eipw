@@ -1,6 +1,6 @@
 error[preamble-enum-category]: preamble header `category` has an unrecognized value
- --> input.md:8:10
+ --> input.md:9:10
   |
-8 | category: Unknown
+9 | category: Unknown
   |          ^^^^^^^^ must be one of: `Core`, `Networking`, `Interface`, `ERC`
   |

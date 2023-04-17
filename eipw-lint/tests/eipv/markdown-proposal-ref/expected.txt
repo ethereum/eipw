@@ -1,15 +1,15 @@
 error[markdown-refs]: references to proposals with a `category` of `ERC` must use a prefix of `ERC`
   --> input.md
    |
-17 | This is the motivation for the EIP, which extends [EIP-721](./eip-721.md).
+18 | This is the motivation for the EIP, which extends [EIP-721](./eip-721.md).
    |
 error[markdown-refs]: references to proposals without a `category` must use a prefix of `EIP`
   --> input.md
    |
-20 | This is the specification for the EIP, which doesn't extend [EIP-123](./eip-123.md) or [ERC-123](./eip-123.md).
+21 | This is the specification for the EIP, which doesn't extend [EIP-123](./eip-123.md) or [ERC-123](./eip-123.md).
    |
 error[markdown-refs]: references to proposals with a `category` of `ERC` must use a prefix of `ERC`
   --> input.md
    |
-23 | This is the rationale for the EIP-721.
+24 | This is the rationale for the EIP-721.
    |

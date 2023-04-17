@@ -1,11 +1,11 @@
 error[markdown-json-cite]: code block of type `csl-json` does not conform to required schema
-  --> input.md:41:1
+  --> input.md:42:1
    |
-41 | //     ```csl-json
-42 | ||     [{
-43 | ||         "type": "article",
-44 | ||         "id": "1",
-45 |  |         "URL": "3"
+42 | //     ```csl-json
+43 | ||     [{
+44 | ||         "type": "article",
+45 | ||         "id": "1",
+46 |  |         "URL": "3"
    | ||__________________^ "3" is not a "uri"
    |  |__________________^ "DOI" is a required property
    |

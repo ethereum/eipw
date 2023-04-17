@@ -1,6 +1,6 @@
 error[preamble-order]: preamble has extra header(s)
-  --> input.md:10:1
+  --> input.md:11:1
    |
-10 | unknown: nothing
+11 | unknown: nothing
    | ^^^^^^^ unrecognized header
    |

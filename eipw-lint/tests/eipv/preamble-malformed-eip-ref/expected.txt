@@ -1,21 +1,21 @@
 error[preamble-re-description-eip-dash]: proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)
- --> input.md:3:13
+ --> input.md:4:13
   |
-3 | description: Floop ERC55 and EIP99
+4 | description: Floop ERC55 and EIP99
   |             ^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
   |
   = info: the pattern in question: `(?i)eip[\s]*[0-9]+`
 error[preamble-re-description-erc-dash]: proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)
- --> input.md:3:13
+ --> input.md:4:13
   |
-3 | description: Floop ERC55 and EIP99
+4 | description: Floop ERC55 and EIP99
   |             ^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
   |
   = info: the pattern in question: `(?i)erc[\s]*[0-9]+`
 error[preamble-re-title-eip-dash]: proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)
- --> input.md:2:7
+ --> input.md:3:7
   |
-2 | title: A sample extension for EIP 1 and ERC-5
+3 | title: A sample extension for EIP 1 and ERC-5
   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
   |
   = info: the pattern in question: `(?i)eip[\s]*[0-9]+`

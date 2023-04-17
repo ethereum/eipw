@@ -1,4 +1,5 @@
 ---
+eip: 1
 title: A sample extension to ERC-9, and EIP-10
 description: This proposal is a sample that should be considered
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>

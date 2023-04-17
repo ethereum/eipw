@@ -31,6 +31,7 @@ pub struct RelativeLinks<'e> {
 impl<'e> Lint for RelativeLinks<'e> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
+        let re_eip_num = Regex::new("\d+").unwrap();
 
         let exceptions = RegexSet::new(self.exceptions).map_err(Error::custom)?;
 
@@ -54,20 +55,31 @@ impl<'e> Lint for RelativeLinks<'e> {
                 Some(caps) => {          
           
                     let line_link_address = str::from_utf8(&caps[0]).unwrap(); 
-                    if line_link_address != "://" {
-                        write!(link_md, "`{}`",&line_link_address).unwrap(); 
                     
-                        if !(ctx.line(line_start).contains(&link_md)) {
+                    if line_link_address != "://" {
                         
-                            write!(footer_label, "\n use: {} instead \n",&link_md,).unwrap();
+                        match re_eip_num.captures(line_link_address.as_bytes()) {
+                            Some(num) => {
+                                
+                                let eip_num = str::from_utf8(&num[0]).unwrap(); 
+                            
+                                write!(link_md, "`[EIP-{}](./eip-{}.md`",&eip_num,&eip_num).unwrap(); 
+                    
+                                //if !(ctx.line(line_start).contains(&link_md)) {
+                        
+                                 write!(footer_label, "\n use: {} instead \n",&link_md,).unwrap();
                 
-                            footer.push(Annotation {
-                                annotation_type: AnnotationType::Help,
-                                id: None,
-                                label: Some(&footer_label),
-                            });   
-                        }
-                    }            
+                                footer.push(Annotation {
+                                    annotation_type: AnnotationType::Help,
+                                    id: None,
+                                    label: Some(&footer_label),
+                                });   
+                            }
+                            None => {
+                                write!(footer_label, "None",).unwrap();
+                            }
+                        }  
+                    }     
                 }
                 None => {
                     

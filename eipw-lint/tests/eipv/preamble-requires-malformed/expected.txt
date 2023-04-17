@@ -1,6 +1,6 @@
 error[preamble-uint-requires]: preamble header `requires` items must be unsigned integers
-  --> input.md:10:10
+  --> input.md:11:10
    |
-10 | requires: 20token
+11 | requires: 20token
    |          ^^^^^^^^ not a non-negative integer
    |

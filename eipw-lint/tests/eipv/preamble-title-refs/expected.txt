@@ -1,12 +1,12 @@
 error[preamble-refs-title]: references to proposals with a `category` of `Networking` must use a prefix of `EIP`
- --> input.md:2:30
+ --> input.md:3:30
   |
-2 | title: A sample extension to ERC-9, and EIP-10
+3 | title: A sample extension to ERC-9, and EIP-10
   |                              ^^^^^ referenced here
   |
 error[preamble-refs-title]: references to proposals with a `category` of `ERC` must use a prefix of `ERC`
- --> input.md:2:41
+ --> input.md:3:41
   |
-2 | title: A sample extension to ERC-9, and EIP-10
+3 | title: A sample extension to ERC-9, and EIP-10
   |                                         ^^^^^^ referenced here
   |

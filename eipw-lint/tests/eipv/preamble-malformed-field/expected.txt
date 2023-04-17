@@ -1,9 +1,9 @@
 error: missing delimiter `:` in preamble field
   --> input.md
    |
-10 | hello world
+11 | hello world
    |
-error[preamble-req]: preamble is missing header(s): `title`, `description`, `author`, `discussions-to`, `status`, `type`, `created`
+error[preamble-req]: preamble is missing header(s): `eip`, `title`, `description`, `author`, `discussions-to`, `status`, `type`, `created`
 --> input.md
  |
  |

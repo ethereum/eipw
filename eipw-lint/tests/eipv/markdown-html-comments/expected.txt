@@ -1,5 +1,5 @@
 error[markdown-html-comments]: HTML comments are not allowed when `status` is `Last Call`
   --> input.md
    |
-15 | <!-- This is an html comment -->
+16 | <!-- This is an html comment -->
    |

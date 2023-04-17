@@ -1,4 +1,5 @@
 ---
+eip: 1
 title: A sample proposal whose title is too long to still be considered valid for the purposes of the Ethereum Improvement Proposal processes and the repository in which they reside
 description: A sample description
 author: John Doe (@johndoe)

@@ -1,6 +1,6 @@
 error[preamble-enum-status]: preamble header `status` has an unrecognized value
- --> input.md:6:8
+ --> input.md:7:8
   |
-6 | status: Invalid
+7 | status: Invalid
   |        ^^^^^^^^ must be one of: `Draft`, `Review`, `Last Call`, `Final`, `Stagnant`, `Withdrawn`, `Living`
   |

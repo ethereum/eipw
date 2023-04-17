@@ -1,7 +1,7 @@
 error[preamble-author]: authors in the preamble must match the expected format
- --> input.md:4:8
+ --> input.md:5:8
   |
-4 | author: John Doe @johndoe)
+5 | author: John Doe @johndoe)
   |        ^^^^^^^^^^^^^^^^^^^ unrecognized author
   |
   = help: Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email.
@@ -11,5 +11,5 @@ error[preamble-author]: authors in the preamble must match the expected format
 error[preamble-author]: preamble header `author` must contain at least one GitHub username
  --> input.md
   |
-4 | author: John Doe @johndoe)
+5 | author: John Doe @johndoe)
   |

@@ -1,6 +1,6 @@
 error[preamble-date-created]: preamble header `created` is not a date in the `YYYY-MM-DD` format
- --> input.md:9:9
-  |
-9 | created: 2020/01/01
-  |         ^^^^^^^^^^^ input contains invalid characters
-  |
+  --> input.md:10:9
+   |
+10 | created: 2020/01/01
+   |         ^^^^^^^^^^^ input contains invalid characters
+   |

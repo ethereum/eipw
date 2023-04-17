@@ -1,12 +1,12 @@
 error[markdown-re-eip-dash]: proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)
   --> input.md
    |
-26 | These are the backwards compatibility concerns for the EIP1234.
+27 | These are the backwards compatibility concerns for the EIP1234.
    |
    = info: the pattern in question: `(?i)eip[\s]*[0-9]+`
 error[markdown-re-erc-dash]: proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)
   --> input.md
    |
-14 | This is the abstract for the EIP, which extends ERC721.
+15 | This is the abstract for the EIP, which extends ERC721.
    |
    = info: the pattern in question: `(?i)erc[\s]*[0-9]+`

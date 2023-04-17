@@ -1,4 +1,5 @@
 ---
+eip: 1
 title: A sample extension for EIP-1 and EIP-5
 description: This proposal is a sample EIP-9 and EIP-20 extension.
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>

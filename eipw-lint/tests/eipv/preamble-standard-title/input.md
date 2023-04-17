@@ -1,4 +1,5 @@
 ---
+eip: 1
 title: Standardize an Interface
 description: A sample description
 author: John Doe (@johndoe)

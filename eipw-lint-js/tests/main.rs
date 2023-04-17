@@ -35,7 +35,7 @@ async fn lint_one() {
     let expected = json! {
     [
        {
-          "formatted": "error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`\n  --> tests/eips/eip-1000.md:11:10\n   |\n11 | requires: 20\n   |          ^^^ has a less advanced status\n   |\n   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`\n   = help: see https://ethereum.github.io/eipw/preamble-requires-status/",
+          "formatted": "error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`\n  --> tests/eips/eip-1000.md:12:10\n   |\n12 | requires: 20\n   |          ^^^ has a less advanced status\n   |\n   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`\n   = help: see https://ethereum.github.io/eipw/preamble-requires-status/",
           "footer": [
              {
                 "annotation_type": "Help",
@@ -65,7 +65,7 @@ async fn lint_one() {
                    }
                 ],
                 "fold": false,
-                "line_start": 11,
+                "line_start": 12,
                 "origin": "tests/eips/eip-1000.md",
                 "source": "requires: 20"
              }
@@ -112,7 +112,7 @@ async fn lint_one_with_options() {
     let expected = json! {
     [
        {
-          "formatted": "warning[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`\n  --> tests/eips/eip-1000.md:11:10\n   |\n11 | requires: 20\n   |          --- has a less advanced status\n   |\n   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`\n   = help: see https://ethereum.github.io/eipw/preamble-requires-status/",
+          "formatted": "warning[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`\n  --> tests/eips/eip-1000.md:12:10\n   |\n12 | requires: 20\n   |          --- has a less advanced status\n   |\n   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`\n   = help: see https://ethereum.github.io/eipw/preamble-requires-status/",
           "footer": [
              {
                 "annotation_type": "Help",
@@ -142,7 +142,7 @@ async fn lint_one_with_options() {
                    }
                 ],
                 "fold": false,
-                "line_start": 11,
+                "line_start": 12,
                 "origin": "tests/eips/eip-1000.md",
                 "source": "requires: 20"
              }
@@ -179,9 +179,9 @@ async fn format_one() {
     let actual = format(&snippet).ok().unwrap();
 
     let expected = r#"error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`
-  --> tests/eips/eip-1000.md:11:10
+  --> tests/eips/eip-1000.md:12:10
    |
-11 | requires: 20
+12 | requires: 20
    |          ^^^ has a less advanced status
    |
    = help: valid `status` values for this proposal are: `Draft`, `Stagnant`

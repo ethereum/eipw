@@ -1,7 +1,7 @@
 error[preamble-re-title]: preamble header `title` should not contain `standard` (or similar words.)
- --> input.md:2:7
+ --> input.md:3:7
   |
-2 | title: Standardize an Interface
+3 | title: Standardize an Interface
   |       ^^^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
   |
   = info: the pattern in question: `(?i)standar\w*\b`

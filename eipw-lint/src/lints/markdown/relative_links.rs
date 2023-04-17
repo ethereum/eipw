@@ -31,7 +31,7 @@ pub struct RelativeLinks<'e> {
 impl<'e> Lint for RelativeLinks<'e> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
-        let re_eip_num = Regex::new("\d+").unwrap();
+        let re_eip_num = Regex::new(r"\d+").unwrap();
 
         let exceptions = RegexSet::new(self.exceptions).map_err(Error::custom)?;
 

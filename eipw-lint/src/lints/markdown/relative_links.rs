@@ -22,7 +22,6 @@ use scraper::Html;
 
 use snafu::Snafu;
 
-
 #[derive(Debug)]
 pub struct RelativeLinks<'e> {
     pub exceptions: &'e [&'e str],
@@ -43,36 +42,38 @@ impl<'e> Lint for RelativeLinks<'e> {
             .into_iter()
             .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
-        for Link { line_start, address, .. } in links {
-            
+        for Link {
+            line_start,
+            address,
+            ..
+        } in links
+        {
             let mut footer_label = String::new();
             let mut footer = vec![];
             let mut link_md = String::new();
-            
+
             let line_with_address = str::from_utf8(&address).unwrap();
-                  
+
             if line_with_address != "://" {
-                        
                 match re_eip_num.captures(line_with_address.as_bytes()) {
                     Some(num) => {
-                                
-                        let eip_num = str::from_utf8(&num[0]).unwrap(); 
-                            
-                        write!(link_md, "`[EIP-{}](./eip-{}.md`",&eip_num,&eip_num).unwrap(); 
-                        write!(footer_label, "\n use: {} instead \n",&link_md,).unwrap();
-                
+                        let eip_num = str::from_utf8(&num[0]).unwrap();
+
+                        write!(link_md, "`[EIP-{}](./eip-{}.md`", &eip_num, &eip_num).unwrap();
+                        write!(footer_label, "\n use: {} instead \n", &link_md,).unwrap();
+
                         footer.push(Annotation {
                             annotation_type: AnnotationType::Help,
                             id: None,
                             label: Some(&footer_label),
-                            });   
+                        });
                     }
                     None => {
                         write!(footer_label, "None",).unwrap();
                     }
-                }  
-            }     
-             
+                }
+            }
+
             ctx.report(Snippet {
                 title: Some(Annotation {
                     id: Some(slug),
@@ -89,7 +90,6 @@ impl<'e> Lint for RelativeLinks<'e> {
                 }],
                 opt: Default::default(),
             })?;
-                    
         }
 
         Ok(())

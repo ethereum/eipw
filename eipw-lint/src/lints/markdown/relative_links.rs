@@ -64,10 +64,7 @@ impl<'e> Lint for RelativeLinks<'e> {
                                 let eip_num = str::from_utf8(&num[0]).unwrap(); 
                             
                                 write!(link_md, "`[EIP-{}](./eip-{}.md`",&eip_num,&eip_num).unwrap(); 
-                    
-                                //if !(ctx.line(line_start).contains(&link_md)) {
-                        
-                                 write!(footer_label, "\n use: {} instead \n",&link_md,).unwrap();
+                                write!(footer_label, "\n use: {} instead \n",&link_md,).unwrap();
                 
                                 footer.push(Annotation {
                                     annotation_type: AnnotationType::Help,

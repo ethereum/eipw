@@ -49,7 +49,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             let mut footer = vec![];
             let mut link_md = String::new();
             
-            let line_with_address = address;//ctx.line(line_start);
+            let line_with_address = str::from_utf8(&address).unwrap();//ctx.line(line_start);
             
             //match re.captures(line_with_address.as_bytes()) {
                // Some(caps) => {          

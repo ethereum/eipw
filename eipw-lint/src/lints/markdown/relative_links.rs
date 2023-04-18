@@ -43,22 +43,22 @@ impl<'e> Lint for RelativeLinks<'e> {
             .into_iter()
             .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
-        for Link { line_start, .. } in links {
+        for Link { line_start, address, .. } in links {
             
             let mut footer_label = String::new();
             let mut footer = vec![];
             let mut link_md = String::new();
             
-            let line_with_address = ctx.line(line_start);
+            let line_with_address = address;//ctx.line(line_start);
             
-            match re.captures(line_with_address.as_bytes()) {
-                Some(caps) => {          
+            //match re.captures(line_with_address.as_bytes()) {
+               // Some(caps) => {          
           
-                    let line_link_address = str::from_utf8(&caps[0]).unwrap(); 
+                    //let line_link_address = str::from_utf8(&caps[0]).unwrap(); 
                     
-                    if line_link_address != "://" {
+                    if line_with_address != "://" {
                         
-                        match re_eip_num.captures(line_link_address.as_bytes()) {
+                        match re_eip_num.captures(line_with_address.as_bytes()) {
                             Some(num) => {
                                 
                                 let eip_num = str::from_utf8(&num[0]).unwrap(); 
@@ -77,13 +77,13 @@ impl<'e> Lint for RelativeLinks<'e> {
                             }
                         }  
                     }     
-                }
-                None => {
+                //}
+                //None => {
                     
-                    write!(footer_label, "None",).unwrap();
+                    //write!(footer_label, "None",).unwrap();
                 
-                }
-            }
+                //}
+            //}
              
             ctx.report(Snippet {
                 title: Some(Annotation {

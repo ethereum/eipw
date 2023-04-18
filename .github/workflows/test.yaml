@@ -56,7 +56,7 @@ jobs:
           toolchain: 1.65.0
           override: true
       - run: rustup component add rustfmt clippy
-      - run: rustup component add clippy --toolchain 1.65.0-x86_64-unknown-linux-gnu 
+      #- run: rustup component add clippy --toolchain 1.65.0-x86_64-unknown-linux-gnu 
       - run: cargo fmt --all --version
       - uses: actions-rs/cargo@v1
         with:

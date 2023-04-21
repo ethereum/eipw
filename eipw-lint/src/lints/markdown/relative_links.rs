@@ -55,9 +55,20 @@ impl<'e> Lint for RelativeLinks<'e> {
 
             if let Some(num) = re_eip_num.captures(line_with_address.as_bytes()) {
                 let eip_num = str::from_utf8(&num[0]).unwrap();
-
-                write!(footer_label, "use `./{0}.md` instead", &eip_num).unwrap();
-
+                let test_assets_string = String:;new();
+                
+                write!(test_assets_string, "assets/{0}/eth_sign.png",&eip_num);
+                
+                if !(line_with_address.contains(test_assets_string) {
+                    
+                    write!(footer_label, "use `./{0}.md` instead", &eip_num).unwrap();
+                    
+                } else {
+                    
+                    write!(footer_label, "use `../{0}` instead", &test_assets_string).unwrap();
+                    
+                }
+                    
                 footer.push(Annotation {
                     annotation_type: AnnotationType::Help,
                     id: None,

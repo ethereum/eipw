@@ -50,28 +50,19 @@ impl<'e> Lint for RelativeLinks<'e> {
         {
             let mut footer_label = String::new();
             let mut footer = vec![];
-            let mut link_md = String::new();
 
             let line_with_address = str::from_utf8(&address).unwrap();
 
-            if line_with_address != "://" {
-                match re_eip_num.captures(line_with_address.as_bytes()) {
-                    Some(num) => {
-                        let eip_num = str::from_utf8(&num[0]).unwrap();
+            if let Some(num) = re_eip_num.captures(line_with_address.as_bytes()) {
+                let eip_num = str::from_utf8(&num[0]).unwrap();
 
-                        write!(link_md, "`[EIP-{}](./eip-{}.md`", &eip_num, &eip_num).unwrap();
-                        write!(footer_label, "\n use: {} instead \n", &link_md,).unwrap();
+                write!(footer_label, "use `./eip-{0}.md` instead", &eip_num).unwrap();
 
-                        footer.push(Annotation {
-                            annotation_type: AnnotationType::Help,
-                            id: None,
-                            label: Some(&footer_label),
-                        });
-                    }
-                    None => {
-                        write!(footer_label, "None",).unwrap();
-                    }
-                }
+                footer.push(Annotation {
+                    annotation_type: AnnotationType::Help,
+                    id: None,
+                    label: Some(&footer_label),
+                });
             }
 
             ctx.report(Snippet {

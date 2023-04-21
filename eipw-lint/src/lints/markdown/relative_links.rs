@@ -30,7 +30,7 @@ pub struct RelativeLinks<'e> {
 impl<'e> Lint for RelativeLinks<'e> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
-        let re_eip_num = Regex::new(r"\d+").unwrap();
+        let re_eip_num = Regex::new(r"eip-\d{1,4}").unwrap();
 
         let exceptions = RegexSet::new(self.exceptions).map_err(Error::custom)?;
 
@@ -56,7 +56,7 @@ impl<'e> Lint for RelativeLinks<'e> {
             if let Some(num) = re_eip_num.captures(line_with_address.as_bytes()) {
                 let eip_num = str::from_utf8(&num[0]).unwrap();
 
-                write!(footer_label, "use `./eip-{0}.md` instead", &eip_num).unwrap();
+                write!(footer_label, "use `./{0}.md` instead", &eip_num).unwrap();
 
                 footer.push(Annotation {
                     annotation_type: AnnotationType::Help,

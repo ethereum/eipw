@@ -115,7 +115,7 @@ header: value1
         reports,
         r#"error[markdown-rel]: non-relative link or image
   |
-5 | [hello](https://example.com/4444)
+5 | [hi](https://example.com/4444)
   |
 "#
     );

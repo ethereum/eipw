@@ -55,7 +55,6 @@ impl<'e> Lint for RelativeLinks<'e> {
                 let eip_num = str::from_utf8(&num[0]).unwrap();
                 let mut test_assets_string = String::new();
                 write!(test_assets_string, "assets/{0}/eth_sign.png",&eip_num);
-                
                 if !(line_with_address.contains(&test_assets_string)) {
                     write!(footer_label, "use `./{0}.md` instead", &eip_num).unwrap();
                 } else {

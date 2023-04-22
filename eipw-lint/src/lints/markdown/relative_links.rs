@@ -50,7 +50,6 @@ impl<'e> Lint for RelativeLinks<'e> {
         {
             let mut footer_label = String::new();
             let mut footer = vec![];
-            
             let line_with_address = str::from_utf8(&address).unwrap();
             
             if let Some(num) = re_eip_num.captures(line_with_address.as_bytes()) {
@@ -64,7 +63,6 @@ impl<'e> Lint for RelativeLinks<'e> {
                 } else {
                     write!(footer_label, "use `../{0}` instead", &test_assets_string).unwrap();
                 }
-                
                 footer.push(Annotation {
                     annotation_type: AnnotationType::Help,
                     id: None,

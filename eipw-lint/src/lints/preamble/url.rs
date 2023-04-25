@@ -28,6 +28,9 @@ impl<'n> Lint for Url<'n> {
         let label = format!("preamble header `{}` is not a valid URL", self.0);
         let slice_label = e.to_string();
 
+        let name_count = field.name().chars().count();
+        let value_count = field.value().chars().count();
+
         ctx.report(Snippet {
             title: Some(Annotation {
                 annotation_type: ctx.annotation_type(),
@@ -43,10 +46,7 @@ impl<'n> Lint for Url<'n> {
                 annotations: vec![SourceAnnotation {
                     annotation_type: ctx.annotation_type(),
                     label: &slice_label,
-                    range: (
-                        field.name().len() + 1,
-                        field.value().len() + field.name().len() + 1,
-                    ),
+                    range: (name_count + 1, value_count + name_count + 1),
                 }],
             }],
             opt: Default::default(),

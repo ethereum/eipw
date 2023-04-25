@@ -35,6 +35,41 @@ hello world"#;
 }
 
 #[tokio::test]
+async fn without_when_with_then_unicode() {
+    let src = r#"---
+header: válue1
+then: féé
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "req-if-eq",
+            RequiredIfEq {
+                when: "when",
+                equals: "equals",
+                then: "then",
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[req-if-eq]: preamble header `then` is only allowed when `when` is `equals`
+  |
+3 | then: féé
+  | ^^^^^^^^^ defined here
+  |
+"#
+    );
+}
+
+#[tokio::test]
 async fn without_when_with_then() {
     let src = r#"---
 header: value1
@@ -64,6 +99,45 @@ hello world"#;
   |
 3 | then: foo
   | ^^^^^^^^^ defined here
+  |
+"#
+    );
+}
+
+#[tokio::test]
+async fn when_not_equal_with_then_unicode() {
+    let src = r#"---
+when: bár
+header: valué1
+then: féé
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "req-if-eq",
+            RequiredIfEq {
+                when: "when",
+                equals: "equals",
+                then: "then",
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[req-if-eq]: preamble header `then` is only allowed when `when` is `equals`
+  |
+2 | when: bár
+  | --------- info: unless equal to `equals`
+  |
+4 | then: féé
+  | ^^^^^^^^^ remove this
   |
 "#
     );

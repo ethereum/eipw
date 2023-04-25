@@ -166,6 +166,34 @@ hello world"#;
 }
 
 #[tokio::test]
+async fn unicode() {
+    let src = r#"---
+author: Bánana Banana (@banana),  banana (@banana),  Orangé Banana (@banana)
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-list", List("author"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-list]: preamble header list items have extra whitespace
+  |
+2 | author: Bánana Banana (@banana),  banana (@banana),  Orangé Banana (@banana)
+  |                                 ^^^^^^^^^^^^^^^^^^ extra space
+  |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^ extra space
+  |
+"#
+    );
+}
+
+#[tokio::test]
 async fn valid() {
     let src = r#"---
 header: foo, bar, example.com/foo?bar

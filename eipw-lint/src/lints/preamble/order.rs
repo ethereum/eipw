@@ -45,7 +45,7 @@ impl<'n> Lint for Order<'n> {
                 annotations: vec![SourceAnnotation {
                     annotation_type: ctx.annotation_type(),
                     label: "unrecognized header",
-                    range: (0, f.name().len()),
+                    range: (0, f.name().chars().count()),
                 }],
             })
             .collect();

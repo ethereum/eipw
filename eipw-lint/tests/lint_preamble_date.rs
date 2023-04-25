@@ -90,6 +90,33 @@ hello world"#;
 }
 
 #[tokio::test]
+async fn invalid_unicode() {
+    let src = r#"---
+heáder: 12-13-2022
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-date", Date("heáder"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-date]: preamble header `heáder` is not a date in the `YYYY-MM-DD` format
+  |
+2 | heáder: 12-13-2022
+  |        ^^^^^^^^^^^ trailing input
+  |
+"#,
+    );
+}
+
+#[tokio::test]
 async fn valid() {
     let src = r#"---
 header: 2022-01-02

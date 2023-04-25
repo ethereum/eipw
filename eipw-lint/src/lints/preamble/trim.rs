@@ -31,6 +31,9 @@ impl Lint for Trim {
                 continue;
             }
 
+            let name_count = field.name().chars().count();
+            let value_count = field.value().chars().count();
+
             let label = format!("preamble header `{}` has extra whitespace", field.name());
             ctx.report(Snippet {
                 title: Some(Annotation {
@@ -46,10 +49,7 @@ impl Lint for Trim {
                     annotations: vec![SourceAnnotation {
                         annotation_type: ctx.annotation_type(),
                         label: "value has extra whitespace",
-                        range: (
-                            field.name().len() + 1,
-                            field.value().len() + field.name().len() + 1,
-                        ),
+                        range: (name_count + 1, value_count + name_count + 1),
                     }],
                 }],
                 footer: vec![],
@@ -60,16 +60,19 @@ impl Lint for Trim {
         if !no_space.is_empty() {
             let slices = no_space
                 .into_iter()
-                .map(|n| Slice {
-                    line_start: n.line_start(),
-                    fold: false,
-                    origin: ctx.origin(),
-                    source: n.source(),
-                    annotations: vec![SourceAnnotation {
-                        annotation_type: ctx.annotation_type(),
-                        label: "space required here",
-                        range: (n.name().len() + 1, n.name().len() + 2),
-                    }],
+                .map(|n| {
+                    let name_count = n.name().chars().count();
+                    Slice {
+                        line_start: n.line_start(),
+                        fold: false,
+                        origin: ctx.origin(),
+                        source: n.source(),
+                        annotations: vec![SourceAnnotation {
+                            annotation_type: ctx.annotation_type(),
+                            label: "space required here",
+                            range: (name_count + 1, name_count + 2),
+                        }],
+                    }
                 })
                 .collect();
 

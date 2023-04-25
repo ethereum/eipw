@@ -61,6 +61,41 @@ hello world"#;
 }
 
 #[tokio::test]
+async fn unicode() {
+    let src = r#"---
+header: Exténsion of EIP-9999 ánd EIP-44
+other: 1234, 55
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "preamble-req-ref",
+            RequireReferenced {
+                name: "header",
+                requires: "other",
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-req-ref]: proposals mentioned in preamble header `header` must appear in `other`
+  |
+2 | header: Exténsion of EIP-9999 ánd EIP-44
+  |                      ^^^^^^^^ mentioned here
+  |                                   ^^^^^^ mentioned here
+  |
+"#
+    );
+}
+
+#[tokio::test]
 async fn one_missing() {
     let src = r#"---
 header: Extension of EIP-9999 and EIP-44

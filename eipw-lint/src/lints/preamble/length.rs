@@ -24,6 +24,9 @@ impl<'n> Lint for Length<'n> {
 
         let value = field.value().trim();
 
+        let name_count = field.name().chars().count();
+        let value_count = field.value().chars().count();
+
         if let Some(max) = self.max {
             if value.len() > max {
                 let label = format!(
@@ -46,10 +49,7 @@ impl<'n> Lint for Length<'n> {
                         annotations: vec![SourceAnnotation {
                             annotation_type: ctx.annotation_type(),
                             label: "too long",
-                            range: (
-                                field.name().len() + 1,
-                                field.value().len() + field.name().len() + 1,
-                            ),
+                            range: (name_count + 1, value_count + name_count + 1),
                         }],
                     }],
                     opt: Default::default(),
@@ -79,10 +79,7 @@ impl<'n> Lint for Length<'n> {
                         annotations: vec![SourceAnnotation {
                             annotation_type: ctx.annotation_type(),
                             label: "too short",
-                            range: (
-                                field.name().len() + 1,
-                                field.value().len() + field.name().len() + 1,
-                            ),
+                            range: (name_count + 1, value_count + name_count + 1),
                         }],
                     }],
                     opt: Default::default(),

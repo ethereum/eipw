@@ -9,6 +9,41 @@ use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 
 #[tokio::test]
+async fn unicode() {
+    let src = r#"---
+a1: válué
+header: value1
+foo: bar
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "preamble-one-of",
+            OneOf {
+                name: "a1",
+                values: &["v1", "v2"],
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-one-of]: preamble header `a1` has an unrecognized value
+  |
+2 | a1: válué
+  |    ^^^^^^ must be one of: `v1`, `v2`
+  |
+"#
+    );
+}
+
+#[tokio::test]
 async fn unrecognized_value() {
     let src = r#"---
 a1: value

@@ -19,6 +19,9 @@ impl<'n> Lint for Uint<'n> {
         };
 
         if field.value().trim().parse::<u64>().is_err() {
+            let name_count = field.name().chars().count();
+            let value_count = field.value().chars().count();
+
             let label = format!("preamble header `{}` must be an unsigned integer", self.0);
 
             ctx.report(Snippet {
@@ -35,10 +38,7 @@ impl<'n> Lint for Uint<'n> {
                     annotations: vec![SourceAnnotation {
                         annotation_type: ctx.annotation_type(),
                         label: "not a non-negative integer",
-                        range: (
-                            field.name().len() + 1,
-                            field.value().len() + field.name().len() + 1,
-                        ),
+                        range: (name_count + 1, value_count + name_count + 1),
                     }],
                 }],
                 footer: vec![],
@@ -68,11 +68,15 @@ impl<'n> Lint for UintList<'n> {
         let mut values: Vec<u64> = Vec::new();
         let mut not_uint = Vec::new();
 
+        let name_count = field.name().chars().count();
+
         let mut offset = 0;
 
         for item in items {
+            let item_count = item.chars().count();
+
             let current = offset;
-            offset += item.len() + 1;
+            offset += item_count + 1;
             let trimmed = item.trim();
 
             match trimmed.parse() {
@@ -82,8 +86,8 @@ impl<'n> Lint for UintList<'n> {
                         annotation_type: ctx.annotation_type(),
                         label: "not a non-negative integer",
                         range: (
-                            field.name().len() + current + 1,
-                            field.name().len() + current + 1 + item.len(),
+                            name_count + current + 1,
+                            name_count + current + 1 + item_count,
                         ),
                     });
                     continue;

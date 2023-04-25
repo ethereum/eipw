@@ -51,7 +51,7 @@ impl<'n> Lint for RequiredIfEq<'n> {
                         annotations: vec![SourceAnnotation {
                             annotation_type: AnnotationType::Info,
                             label: "defined here",
-                            range: (0, when.source().len()),
+                            range: (0, when.source().chars().count()),
                         }],
                     }],
                     opt: Default::default(),
@@ -76,7 +76,7 @@ impl<'n> Lint for RequiredIfEq<'n> {
                         annotations: vec![SourceAnnotation {
                             annotation_type: AnnotationType::Info,
                             label: &info_label,
-                            range: (0, when.source().len()),
+                            range: (0, when.source().chars().count()),
                         }],
                     },
                     Slice {
@@ -87,7 +87,7 @@ impl<'n> Lint for RequiredIfEq<'n> {
                         annotations: vec![SourceAnnotation {
                             annotation_type: ctx.annotation_type(),
                             label: "remove this",
-                            range: (0, then.source().len()),
+                            range: (0, then.source().chars().count()),
                         }],
                     },
                 ];
@@ -128,7 +128,7 @@ impl<'n> Lint for RequiredIfEq<'n> {
                         annotations: vec![SourceAnnotation {
                             annotation_type: ctx.annotation_type(),
                             label: "defined here",
-                            range: (0, then.source().len()),
+                            range: (0, then.source().chars().count()),
                         }],
                     }],
                     opt: Default::default(),

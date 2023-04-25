@@ -9,6 +9,33 @@ use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 
 #[tokio::test]
+async fn one_extra_unicode() {
+    let src = r#"---
+heáder: value1
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-order", Order(&["a1", "b2"]))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-order]: preamble has extra header(s)
+  |
+2 | heáder: value1
+  | ^^^^^^ unrecognized header
+  |
+"#
+    );
+}
+
+#[tokio::test]
 async fn one_extra() {
     let src = r#"---
 header: value1
@@ -63,6 +90,34 @@ hello world"#;
 4 | header2: value1
   | ^^^^^^^ unrecognized header
   |
+"#
+    );
+}
+
+#[tokio::test]
+async fn out_of_order_unicode() {
+    let src = r#"---
+á2: hiya
+é1: foo
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-order", Order(&["é1", "á2"]))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-order]: preamble header `á2` is out of order
+  |
+2 | á2: hiya
+  |
+  = help: `á2` should come after `é1`
 "#
     );
 }

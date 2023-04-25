@@ -24,6 +24,8 @@ impl Lint for NoDuplicates {
                 }
                 Entry::Occupied(o) => {
                     let original = o.get();
+                    let original_count = original.source().chars().count();
+                    let field_count = field.source().chars().count();
                     let label = format!(
                         "preamble header `{}` defined multiple times",
                         original.name()
@@ -44,7 +46,7 @@ impl Lint for NoDuplicates {
                                 annotations: vec![SourceAnnotation {
                                     annotation_type: AnnotationType::Info,
                                     label: "first defined here",
-                                    range: (0, original.source().len()),
+                                    range: (0, original_count),
                                 }],
                             },
                             Slice {
@@ -55,7 +57,7 @@ impl Lint for NoDuplicates {
                                 annotations: vec![SourceAnnotation {
                                     annotation_type: ctx.annotation_type(),
                                     label: "redefined here",
-                                    range: (0, field.source().len()),
+                                    range: (0, field_count),
                                 }],
                             },
                         ],

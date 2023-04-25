@@ -29,7 +29,9 @@ impl<'n> Lint for List<'n> {
         let mut offset = 0;
         for matched in value.split(',') {
             let current = offset;
-            offset += matched.len() + 1;
+            offset += matched.chars().count() + 1;
+
+            let name_count = field.name().chars().count();
 
             let trimmed = matched.trim();
             if trimmed.is_empty() {
@@ -49,10 +51,7 @@ impl<'n> Lint for List<'n> {
                         annotations: vec![SourceAnnotation {
                             annotation_type: ctx.annotation_type(),
                             label: "this item is empty",
-                            range: (
-                                field.name().len() + current + 1,
-                                field.name().len() + current + 2,
-                            ),
+                            range: (name_count + current + 1, name_count + current + 2),
                         }],
                     }],
                     opt: Default::default(),
@@ -67,10 +66,7 @@ impl<'n> Lint for List<'n> {
                     missing_space.push(SourceAnnotation {
                         annotation_type: ctx.annotation_type(),
                         label: "missing space",
-                        range: (
-                            field.name().len() + current + 1,
-                            field.name().len() + current + 2,
-                        ),
+                        range: (name_count + current + 1, name_count + current + 2),
                     });
                     continue;
                 }
@@ -84,8 +80,8 @@ impl<'n> Lint for List<'n> {
                 annotation_type: ctx.annotation_type(),
                 label: "extra space",
                 range: (
-                    field.name().len() + current + 2,
-                    field.name().len() + current + 2 + matched.len(),
+                    name_count + current + 2,
+                    name_count + current + 2 + matched.chars().count(),
                 ),
             });
         }

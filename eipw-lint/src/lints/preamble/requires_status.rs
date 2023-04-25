@@ -71,8 +71,11 @@ impl<'n> Lint for RequiresStatus<'n> {
 
         let mut offset = 0;
         for item in items {
+            let name_count = field.name().chars().count();
+            let item_count = item.chars().count();
+
             let current = offset;
-            offset += item.len() + 1;
+            offset += item_count + 1;
 
             let key = match item.trim().parse::<u64>() {
                 Ok(k) => PathBuf::from(format!("eip-{}.md", k)),
@@ -98,8 +101,8 @@ impl<'n> Lint for RequiresStatus<'n> {
                                 annotation_type: ctx.annotation_type(),
                                 label: "required from here",
                                 range: (
-                                    field.name().len() + current + 1,
-                                    field.name().len() + current + 1 + item.len(),
+                                    name_count + current + 1,
+                                    name_count + current + 1 + item_count,
                                 ),
                             }],
                         }],
@@ -123,8 +126,8 @@ impl<'n> Lint for RequiresStatus<'n> {
                 annotation_type: ctx.annotation_type(),
                 label: "has a less advanced status",
                 range: (
-                    field.name().len() + current + 1,
-                    field.name().len() + current + 1 + item.len(),
+                    name_count + current + 1,
+                    name_count + current + 1 + item_count,
                 ),
             });
         }

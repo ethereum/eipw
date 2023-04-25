@@ -61,3 +61,34 @@ hello world"#;
 "#
     );
 }
+
+#[tokio::test]
+async fn unicode() {
+    let src = r#"---
+header: value0
+other-header: value
+header: value1
+foo: bar
+eip: 1é234
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-eip", Uint("eip"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-eip]: preamble header `eip` must be an unsigned integer
+  |
+6 | eip: 1é234
+  |     ^^^^^^ not a non-negative integer
+  |
+"#
+    );
+}

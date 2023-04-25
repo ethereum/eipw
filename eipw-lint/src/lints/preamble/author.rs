@@ -67,7 +67,8 @@ impl<'n> Lint for Author<'n> {
 
         for item in items {
             let current = offset;
-            offset += item.len() + 1;
+            let item_count = item.chars().count();
+            offset += item_count + 1;
             let trimmed = item.trim();
 
             let matches = set.matches(trimmed);
@@ -77,6 +78,8 @@ impl<'n> Lint for Author<'n> {
                 has_username |= matches.matched(2);
                 continue;
             }
+
+            let name_count = field.name().chars().count();
 
             ctx.report(Snippet {
                 title: Some(Annotation {
@@ -93,8 +96,8 @@ impl<'n> Lint for Author<'n> {
                         annotation_type: ctx.annotation_type(),
                         label: "unrecognized author",
                         range: (
-                            field.name().len() + current + 1,
-                            field.name().len() + current + 1 + item.len(),
+                            name_count + current + 1,
+                            name_count + current + 1 + item_count,
                         ),
                     }],
                 }],

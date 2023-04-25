@@ -59,12 +59,14 @@ impl<'n> Lint for RequireReferenced<'n> {
             self.name, self.requires,
         );
 
+        let name_count = field.name().chars().count();
+
         let annotations = missing
             .iter()
             .map(|m| SourceAnnotation {
                 range: (
-                    m.start() + field.name().len() + 1,
-                    m.end() + field.name().len() + 1,
+                    field.value()[..m.start()].chars().count() + name_count + 1,
+                    field.value()[..m.end()].chars().count() + name_count + 1,
                 ),
                 label: "mentioned here",
                 annotation_type: ctx.annotation_type(),

@@ -40,6 +40,9 @@ impl<'n> Lint for FileName<'n> {
         let label = format!("file name must reflect the preamble header `{}`", self.name);
         let footer_label = format!("this file's name should be `{}`", expected);
 
+        let name_count = field.name().chars().count();
+        let value_count = field.value().chars().count();
+
         ctx.report(Snippet {
             title: Some(Annotation {
                 annotation_type: ctx.annotation_type(),
@@ -54,10 +57,7 @@ impl<'n> Lint for FileName<'n> {
                 annotations: vec![SourceAnnotation {
                     annotation_type: ctx.annotation_type(),
                     label: "this value",
-                    range: (
-                        field.name().len() + 1,
-                        field.value().len() + field.name().len() + 1,
-                    ),
+                    range: (name_count + 1, value_count + name_count + 1),
                 }],
             }],
             footer: vec![Annotation {

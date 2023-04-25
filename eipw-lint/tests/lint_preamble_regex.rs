@@ -9,6 +9,42 @@ use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 
 #[tokio::test]
+async fn unicode() {
+    let src = r#"---
+header: áa
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "preamble-regex",
+            Regex {
+                mode: Mode::Excludes,
+                pattern: "áa",
+                message: "bloop",
+                name: "header",
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-regex]: bloop
+  |
+2 | header: áa
+  |        ^^^ prohibited pattern was matched
+  |
+  = info: the pattern in question: `áa`
+"#,
+    );
+}
+
+#[tokio::test]
 async fn exclude_present() {
     let src = r#"---
 header: aa

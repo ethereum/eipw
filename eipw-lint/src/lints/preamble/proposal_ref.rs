@@ -48,10 +48,16 @@ impl<'n> Lint for ProposalRef<'n> {
         let regex = Self::regex();
         let captures = regex.captures_iter(field.value());
 
+        let name_count = field.name().chars().count();
+
         for capture in captures {
             let whole = capture.get(0).unwrap();
-            let start = whole.start() + field.name().len() + 1;
-            let end = whole.end() + field.name().len() + 1;
+
+            let start_text = &field.value()[..whole.start()];
+            let start = start_text.chars().count() + name_count + 1;
+
+            let end_text = &field.value()[..whole.end()];
+            let end = end_text.chars().count() + name_count + 1;
 
             let number = capture.get(1).unwrap();
             let url = format!("eip-{}.md", number.as_str());

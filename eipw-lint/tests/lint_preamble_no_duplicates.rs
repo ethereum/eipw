@@ -9,6 +9,39 @@ use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 
 #[tokio::test]
+async fn unicode() {
+    let src = r#"---
+header: válué0
+other-header: value
+header: válué1
+foo: bar
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-no-dup", NoDuplicates)
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-no-dup]: preamble header `header` defined multiple times
+  |
+2 | header: válué0
+  | -------------- info: first defined here
+  |
+4 | header: válué1
+  | ^^^^^^^^^^^^^^ redefined here
+  |
+"#,
+    );
+}
+
+#[tokio::test]
 async fn one_duplicate() {
     let src = r#"---
 header: value0

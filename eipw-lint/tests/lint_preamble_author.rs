@@ -9,6 +9,41 @@ use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 
 #[tokio::test]
+async fn unicode_invalid() {
+    let src = r#"---
+header: Bánana (
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-author", Author("header"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-author]: authors in the preamble must match the expected format
+  |
+2 | header: Bánana (
+  |        ^^^^^^^^^ unrecognized author
+  |
+  = help: Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email.
+  = help: Try `Random J. User (@username)` for an author with a GitHub username.
+  = help: Try `Random J. User <test@example.com>` for an author with an email.
+  = help: Try `Random J. User` for an author without contact information.
+error[preamble-author]: preamble header `header` must contain at least one GitHub username
+  |
+2 | header: Bánana (
+  |
+"#,
+    );
+}
+
+#[tokio::test]
 async fn one_invalid() {
     let src = r#"---
 header: Foo (

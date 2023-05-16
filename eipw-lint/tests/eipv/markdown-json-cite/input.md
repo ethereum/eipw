@@ -40,9 +40,9 @@ Copyright and related rights waived via [CC0](../LICENSE.md).
 
 [^1]:
     ```csl-json
-    [{
+    {
         "type": "article",
         "id": "1",
         "URL": "3"
-    }]
+    }
     ```

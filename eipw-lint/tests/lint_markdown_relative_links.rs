@@ -1,7 +1,7 @@
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ * file. You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 use eipw_lint::lints::markdown::RelativeLinks;
@@ -59,6 +59,63 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | [hi](https://example.com/)
+  |
+"#
+    );
+}
+
+#[tokio::test]
+async fn inline_link_with_scheme_to_eips_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+[hello](https://eips.ethereum.org/EIPS/eip-1234)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | [hello](https://eips.ethereum.org/EIPS/eip-1234)
+  |
+  = help: use `./eip-1234.md` instead
+"#
+    );
+}
+
+#[tokio::test]
+async fn inline_link_with_scheme_and_numbers() {
+    let src = r#"---
+header: value1
+---
+
+[hi](https://example.com/4444)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | [hi](https://example.com/4444)
   |
 "#
     );
@@ -195,6 +252,37 @@ Hello [hi][hello]!
 }
 
 #[tokio::test]
+async fn reference_link_with_scheme_to_eips_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+Hello [hi][hello]!
+
+[hello]: https://eips.ethereum.org/EIPS/eip-1234
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | Hello [hi][hello]!
+  |
+  = help: use `./eip-1234.md` instead
+"#
+    );
+}
+
+#[tokio::test]
 async fn inline_autolink() {
     let src = r#"---
 header: value1
@@ -281,6 +369,35 @@ header: value1
 }
 
 #[tokio::test]
+async fn anchor_link_protocol_relative_to_eips_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+<a href="//eips.ethereum.org/EIPS/eip-1234">example</a>
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <a href="//eips.ethereum.org/EIPS/eip-1234">example</a>
+  |
+  = help: use `./eip-1234.md` instead
+"#
+    );
+}
+
+#[tokio::test]
 async fn anchor_link_relative_double_slash() {
     let src = r#"---
 header: value1
@@ -346,6 +463,35 @@ header: value1
   |
 5 | <img src="//example.com/foo.jpg">
   |
+"#
+    );
+}
+
+#[tokio::test]
+async fn img_protocol_relative_to_eips_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+<img src="//eips.ethereum.org/assets/eip-712/eth_sign.png">
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <img src="//eips.ethereum.org/assets/eip-712/eth_sign.png">
+  |
+  = help: use `../assets/eip-712/eth_sign.png` instead
 "#
     );
 }

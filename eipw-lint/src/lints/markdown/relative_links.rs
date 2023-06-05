@@ -1,17 +1,21 @@
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ * file. You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet};
+use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
 
 use comrak::nodes::Ast;
+
+use std::fmt::Write;
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
 use regex::bytes::{Regex, RegexSet};
+use std::str;
+use std::string::String;
 
 use scraper::node::Node as HtmlNode;
 use scraper::Html;
@@ -26,6 +30,7 @@ pub struct RelativeLinks<'e> {
 impl<'e> Lint for RelativeLinks<'e> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
+        let re_eip_num = Regex::new(r"eip-\d{1,4}").unwrap();
 
         let exceptions = RegexSet::new(self.exceptions).map_err(Error::custom)?;
 
@@ -37,14 +42,38 @@ impl<'e> Lint for RelativeLinks<'e> {
             .into_iter()
             .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
-        for Link { line_start, .. } in links {
+        for Link {
+            line_start,
+            address,
+            ..
+        } in links
+        {
+            let mut footer_label = String::new();
+            let mut footer = vec![];
+            let line_with_address = str::from_utf8(&address).unwrap();
+            let mut test_assets_string = String::new();
+            if let Some(num) = re_eip_num.captures(line_with_address.as_bytes()) {
+                let eip_num = str::from_utf8(&num[0]).unwrap();
+                write!(test_assets_string, "assets/{0}/eth_sign.png", &eip_num).unwrap();
+                if !(line_with_address.contains(&test_assets_string)) {
+                    write!(footer_label, "use `./{0}.md` instead", &eip_num).unwrap();
+                } else {
+                    write!(footer_label, "use `../{0}` instead", &test_assets_string).unwrap();
+                }
+                footer.push(Annotation {
+                    annotation_type: AnnotationType::Help,
+                    id: None,
+                    label: Some(&footer_label),
+                });
+            }
+
             ctx.report(Snippet {
                 title: Some(Annotation {
                     id: Some(slug),
                     annotation_type: ctx.annotation_type(),
                     label: Some("non-relative link or image"),
                 }),
-                footer: vec![],
+                footer,
                 slices: vec![Slice {
                     line_start: usize::try_from(line_start).unwrap(),
                     fold: false,

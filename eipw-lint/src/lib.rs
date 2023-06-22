@@ -394,8 +394,8 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
         ),
         ("markdown-rel-links", markdown::RelativeLinks {
             exceptions: &[
-                "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",
-                "^https://(www\\.)?github\\.com/ethereum/devp2p/blob/[0-9a-f]{40}/.+$"
+                "^https://(www\\.)?github\\.com/ethereum/consensus-specs/(blob|commit)/[a-f0-9]{40}/.+$",
+                "^https://(www\\.)?github\\.com/ethereum/devp2p/(blob|commit)/[0-9a-f]{40}/.+$"
             ]
         }.boxed()),
         (

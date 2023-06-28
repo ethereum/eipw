@@ -69,16 +69,18 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
     type Error = Error;
 
     fn enter_code_block(&mut self, ast: &Ast, node: &NodeCodeBlock) -> Result<Next, Self::Error> {
-        let info = std::str::from_utf8(&node.info)?;
+        let info = &node.info;
         if info != self.language {
             return Ok(Next::SkipChildren);
         }
 
-        let json_value: serde_json::Value = match serde_json::from_slice(&node.literal) {
+        let json_value: serde_json::Value = match serde_json::from_str(&node.literal) {
             Ok(v) => v,
             Err(e) => {
                 let label = format!("code block of type `{}` does not contain valid JSON", info);
-                let source = self.ctx.source_for_text(ast.start_line, &node.literal);
+                let source = self
+                    .ctx
+                    .source_for_text(ast.sourcepos.start.line, &node.literal);
                 let slice_label = e.to_string();
                 self.ctx.report(Snippet {
                     title: Some(Annotation {
@@ -88,7 +90,7 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
                     }),
                     slices: vec![Slice {
                         fold: false,
-                        line_start: usize::try_from(ast.start_line).unwrap(),
+                        line_start: ast.sourcepos.start.line,
                         origin: self.ctx.origin(),
                         source: &source,
                         annotations: vec![SourceAnnotation {
@@ -114,7 +116,9 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
             .into_iter()
             .map(|d| d.error_description().to_string())
             .collect();
-        let source = self.ctx.source_for_text(ast.start_line, &node.literal);
+        let source = self
+            .ctx
+            .source_for_text(ast.sourcepos.start.line, &node.literal);
         let annotations = labels
             .iter()
             .map(|l| SourceAnnotation {
@@ -136,7 +140,7 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
             }),
             slices: vec![Slice {
                 fold: false,
-                line_start: usize::try_from(ast.start_line).unwrap(),
+                line_start: ast.sourcepos.start.line,
                 origin: self.ctx.origin(),
                 source: &source,
                 annotations,

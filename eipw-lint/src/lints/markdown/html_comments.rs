@@ -40,10 +40,7 @@ impl<'n> Lint for HtmlComments<'n> {
         for node in ctx.body().descendants() {
             let data = node.data.borrow();
             let fragment = match data.value {
-                NodeValue::HtmlBlock(ref b) => {
-                    let html = std::str::from_utf8(&b.literal)?;
-                    Html::parse_fragment(html)
-                }
+                NodeValue::HtmlBlock(ref b) => Html::parse_fragment(&b.literal),
                 _ => continue,
             };
 
@@ -53,10 +50,10 @@ impl<'n> Lint for HtmlComments<'n> {
                 }
 
                 slices.push(Slice {
-                    line_start: usize::try_from(data.start_line).unwrap(),
+                    line_start: data.sourcepos.start.line,
                     fold: false,
                     origin: ctx.origin(),
-                    source: ctx.line(data.start_line),
+                    source: ctx.line(data.sourcepos.start.line),
                     annotations: vec![],
                 });
             }

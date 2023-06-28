@@ -11,7 +11,7 @@ use comrak::nodes::Ast;
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
-use regex::bytes::{Regex, RegexSet};
+use regex::{Regex, RegexSet};
 
 use scraper::node::Node as HtmlNode;
 use scraper::Html;
@@ -46,7 +46,7 @@ impl<'e> Lint for RelativeLinks<'e> {
                 }),
                 footer: vec![],
                 slices: vec![Slice {
-                    line_start: usize::try_from(line_start).unwrap(),
+                    line_start,
                     fold: false,
                     origin: ctx.origin(),
                     source: ctx.line(line_start),
@@ -65,8 +65,8 @@ struct Unsupported;
 
 #[derive(Debug)]
 struct Link {
-    address: Vec<u8>,
-    line_start: u32,
+    address: String,
+    line_start: usize,
 }
 
 #[derive(Debug, Default)]
@@ -75,17 +75,16 @@ struct Visitor {
 }
 
 impl Visitor {
-    fn push(&mut self, ast: &Ast, address: &[u8]) -> Result<Next, <Self as tree::Visitor>::Error> {
+    fn push(&mut self, ast: &Ast, address: &str) -> Result<Next, <Self as tree::Visitor>::Error> {
         self.links.push(Link {
             address: address.to_owned(),
-            line_start: ast.start_line,
+            line_start: ast.sourcepos.start.line,
         });
 
         Ok(Next::TraverseChildren)
     }
 
-    fn html(&mut self, ast: &Ast, html: &[u8]) -> Result<Next, <Self as tree::Visitor>::Error> {
-        let html = std::str::from_utf8(html)?;
+    fn html(&mut self, ast: &Ast, html: &str) -> Result<Next, <Self as tree::Visitor>::Error> {
         let fragment = Html::parse_fragment(html);
 
         for node in fragment.tree.nodes() {
@@ -105,7 +104,7 @@ impl Visitor {
                     return Err(Error::custom(Unsupported));
                 }
 
-                self.push(ast, attr.1.as_bytes())?;
+                self.push(ast, attr.1)?;
             }
         }
 
@@ -140,7 +139,7 @@ impl tree::Visitor for Visitor {
         self.html(ast, &html_block.literal)
     }
 
-    fn enter_html_inline(&mut self, ast: &Ast, html: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_html_inline(&mut self, ast: &Ast, html: &str) -> Result<Next, Self::Error> {
         self.html(ast, html)
     }
 }

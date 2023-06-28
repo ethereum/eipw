@@ -31,7 +31,7 @@ impl<'n> Lint for SectionRequired<'n> {
             })
             // Descend into their children.
             .map(|heading| {
-                let collected: Vec<_> = heading
+                let collected = heading
                     .descendants()
                     .skip(1)
                     // Filter for text nodes.
@@ -39,14 +39,13 @@ impl<'n> Lint for SectionRequired<'n> {
                         Ast {
                             value: NodeValue::Text(v),
                             ..
-                        } => Some(v.to_vec()),
+                        } => Some(v.to_owned()),
                         _ => None,
                     })
-                    .flatten()
-                    .collect();
+                    .collect::<Vec<_>>()
+                    .join("");
                 collected
             })
-            .filter_map(|v| String::from_utf8(v).ok())
             .collect();
 
         // Use a `Vec` here to preserve the order of sections.
@@ -78,7 +77,7 @@ impl<'n> Lint for SectionRequired<'n> {
                 annotations: vec![],
                 origin: ctx.origin(),
                 source: ctx.body_source(),
-                line_start: ctx.body().data.borrow().start_line.try_into().unwrap(),
+                line_start: ctx.body().data.borrow().sourcepos.start.line,
             }],
             footer: vec![Annotation {
                 id: None,

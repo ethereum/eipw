@@ -10,7 +10,7 @@ use comrak::nodes::{Ast, AstNode, NodeValue};
 
 use crate::lints::{Context, Error, FetchContext, Lint};
 
-use regex::bytes::Regex;
+use regex::Regex;
 
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -32,7 +32,7 @@ impl<'n> LinkStatus<'n> {
             .unwrap_or(0)
     }
 
-    fn find_links<'a>(node: &'a AstNode<'a>) -> impl 'a + Iterator<Item = (u32, PathBuf)> {
+    fn find_links<'a>(node: &'a AstNode<'a>) -> impl 'a + Iterator<Item = (usize, PathBuf)> {
         let re = Regex::new("(?i)eip-([0-9]+).md$").unwrap();
 
         node.descendants()
@@ -40,23 +40,19 @@ impl<'n> LinkStatus<'n> {
             .filter_map(|start| match &*start.data.borrow() {
                 Ast {
                     value: NodeValue::Link(link),
-                    start_line,
+                    sourcepos,
                     ..
-                } => Some((*start_line, link.url.clone())),
+                } => Some((sourcepos.start.line, link.url.clone())),
                 _ => None,
             })
             .filter_map(move |(start_line, url)| {
                 // This is a bit of a cheat, honestly. Doesn't correctly respect directories, but
                 // also doesn't allow directory traversal.
-                re.captures(&url).and_then(|c| {
-                    Some((
+                re.captures(&url).map(|c| {
+                    (
                         start_line,
-                        format!(
-                            "eip-{}.md",
-                            std::str::from_utf8(c.get(1).unwrap().as_bytes()).ok()?
-                        )
-                        .into(),
-                    ))
+                        format!("eip-{}.md", c.get(1).unwrap().as_str()).into(),
+                    )
                 })
             })
     }
@@ -97,7 +93,7 @@ impl<'n> Lint for LinkStatus<'n> {
                         }),
                         slices: vec![Slice {
                             fold: false,
-                            line_start: start_line.try_into().unwrap(),
+                            line_start: start_line,
                             origin: ctx.origin(),
                             source: ctx.line(start_line),
                             annotations: vec![],
@@ -160,7 +156,7 @@ impl<'n> Lint for LinkStatus<'n> {
                 }),
                 slices: vec![Slice {
                     fold: false,
-                    line_start: start_line.try_into().unwrap(),
+                    line_start: start_line,
                     origin: ctx.origin(),
                     source: ctx.line(start_line),
                     annotations: vec![],

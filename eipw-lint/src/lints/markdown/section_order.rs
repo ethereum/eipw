@@ -36,21 +36,21 @@ impl<'n> SectionOrder<'n> {
 impl<'n> Lint for SectionOrder<'n> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         // Collect the headings.
-        let headings_bytes = ctx
+        let headings: Vec<_> = ctx
             .body()
             .descendants()
             // Find all headings of level 2.
             .filter_map(|start| match &*start.data.borrow() {
                 Ast {
                     value: NodeValue::Heading(NodeHeading { level: 2, .. }),
-                    start_line,
+                    sourcepos,
                     ..
-                } => Some((*start_line, start)),
+                } => Some((sourcepos.start.line, start)),
                 _ => None,
             })
             // Descend into their children.
             .map(|(start_line, heading)| {
-                let collected: Vec<_> = heading
+                let collected = heading
                     .descendants()
                     .skip(1)
                     // Filter for text nodes.
@@ -58,25 +58,21 @@ impl<'n> Lint for SectionOrder<'n> {
                         Ast {
                             value: NodeValue::Text(v),
                             ..
-                        } => Some(v.to_vec()),
+                        } => Some(v.to_owned()),
                         _ => None,
                     })
-                    .flatten()
-                    .collect();
+                    .collect::<Vec<_>>()
+                    .join("");
                 (start_line, collected)
-            });
-
-        let mut headings = Vec::new();
-        for (line_start, bytes) in headings_bytes {
-            headings.push((line_start, String::from_utf8(bytes)?));
-        }
+            })
+            .collect();
 
         // Check for unknown sections.
         let unknowns: Vec<_> = headings
             .iter()
             .filter(|(_, f)| !self.0.contains(&f.as_str()))
             .map(|(line_start, _)| Slice {
-                line_start: usize::try_from(*line_start).unwrap(),
+                line_start: *line_start,
                 fold: false,
                 origin: ctx.origin(),
                 source: ctx.line(*line_start),
@@ -133,7 +129,7 @@ impl<'n> Lint for SectionOrder<'n> {
                     }),
                     footer,
                     slices: vec![Slice {
-                        line_start: line_start.try_into().unwrap(),
+                        line_start,
                         origin: ctx.origin(),
                         source: ctx.line(line_start),
                         fold: false,

@@ -11,7 +11,7 @@ use comrak::nodes::{Ast, NodeCode, NodeCodeBlock, NodeHtmlBlock, NodeLink};
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
-use ::regex::bytes::Regex as BytesRegex;
+use ::regex::Regex;
 
 use std::collections::HashSet;
 
@@ -20,7 +20,7 @@ pub struct LinkFirst<'n>(pub &'n str);
 
 impl<'n> Lint for LinkFirst<'n> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let re = BytesRegex::new(self.0).map_err(Error::custom)?;
+        let re = Regex::new(self.0).map_err(Error::custom)?;
 
         let mut visitor = Visitor {
             ctx,
@@ -39,17 +39,17 @@ impl<'n> Lint for LinkFirst<'n> {
 
 struct Visitor<'a, 'b, 'c> {
     ctx: &'c Context<'a, 'b>,
-    re: BytesRegex,
+    re: Regex,
     pattern: &'c str,
     slug: &'c str,
-    linked: HashSet<Vec<u8>>,
+    linked: HashSet<String>,
     link_depth: usize,
 }
 
 impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
-    fn check(&self, ast: &Ast, buf: &[u8]) -> Result<Next, Error> {
-        for matched in self.re.find_iter(buf) {
-            if self.linked.contains(matched.as_bytes()) {
+    fn check(&self, ast: &Ast, text: &str) -> Result<Next, Error> {
+        for matched in self.re.find_iter(text) {
+            if self.linked.contains(matched.as_str()) {
                 continue;
             }
 
@@ -57,7 +57,7 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
 
             // TODO: Actually annotate the matches.
 
-            let source = self.ctx.source_for_text(ast.start_line, buf);
+            let source = self.ctx.source_for_text(ast.sourcepos.start.line, text);
             self.ctx.report(Snippet {
                 title: Some(Annotation {
                     annotation_type: self.ctx.annotation_type(),
@@ -66,7 +66,7 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
                 }),
                 slices: vec![Slice {
                     fold: false,
-                    line_start: usize::try_from(ast.start_line).unwrap(),
+                    line_start: ast.sourcepos.start.line,
                     origin: self.ctx.origin(),
                     source: &source,
                     annotations: vec![],
@@ -87,7 +87,7 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
 impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
     type Error = Error;
 
-    fn enter_front_matter(&mut self, _: &Ast, _: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_front_matter(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
         Ok(Next::SkipChildren)
     }
 
@@ -99,7 +99,7 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_html_inline(&mut self, _: &Ast, _: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_html_inline(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
         Ok(Next::SkipChildren)
     }
 
@@ -107,14 +107,14 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_footnote_definition(&mut self, ast: &Ast, defn: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_footnote_definition(&mut self, ast: &Ast, defn: &str) -> Result<Next, Self::Error> {
         self.check(ast, defn)
     }
 
-    fn enter_text(&mut self, ast: &Ast, txt: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
         if self.link_depth > 0 {
             if let Some(m) = self.re.find(txt) {
-                self.linked.insert(m.as_bytes().to_vec());
+                self.linked.insert(m.as_str().to_owned());
             }
             Ok(Next::TraverseChildren)
         } else {
@@ -136,7 +136,7 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         self.check(ast, &link.title)
     }
 
-    fn enter_footnote_reference(&mut self, ast: &Ast, refn: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_footnote_reference(&mut self, ast: &Ast, refn: &str) -> Result<Next, Self::Error> {
         self.check(ast, refn)
     }
 }

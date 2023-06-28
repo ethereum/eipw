@@ -43,9 +43,7 @@ pub trait Visitor {
             NodeValue::TableRow(r) => self.enter_table_row(&data, *r),
             NodeValue::TableCell => self.enter_table_cell(&data),
             NodeValue::Text(txt) => self.enter_text(&data, txt),
-            NodeValue::TaskItem { checked, symbol } => {
-                self.enter_task_item(&data, *checked, *symbol)
-            }
+            NodeValue::TaskItem(chr) => self.enter_task_item(&data, *chr),
             NodeValue::SoftBreak => self.enter_soft_break(&data),
             NodeValue::LineBreak => self.enter_line_break(&data),
             NodeValue::Code(nc) => self.enter_code(&data, nc),
@@ -64,11 +62,7 @@ pub trait Visitor {
         Ok(Next::TraverseChildren)
     }
 
-    fn enter_front_matter(
-        &mut self,
-        _ast: &Ast,
-        _front_matter: &[u8],
-    ) -> Result<Next, Self::Error> {
+    fn enter_front_matter(&mut self, _ast: &Ast, _front_matter: &str) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
 
@@ -135,7 +129,7 @@ pub trait Visitor {
     fn enter_footnote_definition(
         &mut self,
         _ast: &Ast,
-        _footnote_defn: &[u8],
+        _footnote_defn: &str,
     ) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
@@ -152,16 +146,11 @@ pub trait Visitor {
         Ok(Next::TraverseChildren)
     }
 
-    fn enter_text(&mut self, _ast: &Ast, _txt: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_text(&mut self, _ast: &Ast, _txt: &str) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
 
-    fn enter_task_item(
-        &mut self,
-        _ast: &Ast,
-        _checked: bool,
-        _symbol: u8,
-    ) -> Result<Next, Self::Error> {
+    fn enter_task_item(&mut self, _ast: &Ast, _chr: Option<char>) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
 
@@ -177,7 +166,7 @@ pub trait Visitor {
         Ok(Next::TraverseChildren)
     }
 
-    fn enter_html_inline(&mut self, _ast: &Ast, _html: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_html_inline(&mut self, _ast: &Ast, _html: &str) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
 
@@ -205,7 +194,7 @@ pub trait Visitor {
         Ok(Next::TraverseChildren)
     }
 
-    fn enter_footnote_reference(&mut self, _ast: &Ast, _refn: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_footnote_reference(&mut self, _ast: &Ast, _refn: &str) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
 
@@ -231,9 +220,7 @@ pub trait Visitor {
             NodeValue::TableRow(r) => self.depart_table_row(&data, *r),
             NodeValue::TableCell => self.depart_table_cell(&data),
             NodeValue::Text(txt) => self.depart_text(&data, txt),
-            NodeValue::TaskItem { checked, symbol } => {
-                self.depart_task_item(&data, *checked, *symbol)
-            }
+            NodeValue::TaskItem(chr) => self.depart_task_item(&data, *chr),
             NodeValue::SoftBreak => self.depart_soft_break(&data),
             NodeValue::LineBreak => self.depart_line_break(&data),
             NodeValue::Code(nc) => self.depart_code(&data, nc),
@@ -252,7 +239,7 @@ pub trait Visitor {
         Ok(())
     }
 
-    fn depart_front_matter(&mut self, _ast: &Ast, _front_matter: &[u8]) -> Result<(), Self::Error> {
+    fn depart_front_matter(&mut self, _ast: &Ast, _front_matter: &str) -> Result<(), Self::Error> {
         Ok(())
     }
 
@@ -319,7 +306,7 @@ pub trait Visitor {
     fn depart_footnote_definition(
         &mut self,
         _ast: &Ast,
-        _footnote_defn: &[u8],
+        _footnote_defn: &str,
     ) -> Result<(), Self::Error> {
         Ok(())
     }
@@ -336,16 +323,11 @@ pub trait Visitor {
         Ok(())
     }
 
-    fn depart_text(&mut self, _ast: &Ast, _txt: &[u8]) -> Result<(), Self::Error> {
+    fn depart_text(&mut self, _ast: &Ast, _txt: &str) -> Result<(), Self::Error> {
         Ok(())
     }
 
-    fn depart_task_item(
-        &mut self,
-        _ast: &Ast,
-        _checked: bool,
-        _symbol: u8,
-    ) -> Result<(), Self::Error> {
+    fn depart_task_item(&mut self, _ast: &Ast, _chr: Option<char>) -> Result<(), Self::Error> {
         Ok(())
     }
 
@@ -361,7 +343,7 @@ pub trait Visitor {
         Ok(())
     }
 
-    fn depart_html_inline(&mut self, _ast: &Ast, _html: &[u8]) -> Result<(), Self::Error> {
+    fn depart_html_inline(&mut self, _ast: &Ast, _html: &str) -> Result<(), Self::Error> {
         Ok(())
     }
 
@@ -389,7 +371,7 @@ pub trait Visitor {
         Ok(())
     }
 
-    fn depart_footnote_reference(&mut self, _ast: &Ast, _refn: &[u8]) -> Result<(), Self::Error> {
+    fn depart_footnote_reference(&mut self, _ast: &Ast, _refn: &str) -> Result<(), Self::Error> {
         Ok(())
     }
 }

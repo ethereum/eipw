@@ -814,20 +814,20 @@ fn process<'r, 'a>(
         ..Default::default()
     };
 
-    let mut preamble_lines: u32 = preamble_source.matches('\n').count().try_into().unwrap();
+    let mut preamble_lines = preamble_source.matches('\n').count();
     preamble_lines += 3;
 
     let body = comrak::parse_document(arena, body_source, &options);
 
     for node in body.descendants() {
         let mut data = node.data.borrow_mut();
-        if data.start_line == 0 {
+        if data.sourcepos.start.line == 0 {
             if let Some(parent) = node.parent() {
                 // XXX: This doesn't actually work.
-                data.start_line = parent.data.borrow().start_line;
+                data.sourcepos.start.line = parent.data.borrow().sourcepos.start.line;
             }
         } else {
-            data.start_line += preamble_lines;
+            data.sourcepos.start.line += preamble_lines;
         }
     }
 

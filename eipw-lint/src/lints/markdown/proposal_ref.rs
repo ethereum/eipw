@@ -11,7 +11,7 @@ use comrak::nodes::{Ast, AstNode, NodeCode, NodeCodeBlock, NodeHtmlBlock};
 use crate::lints::{Context, Error, FetchContext, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
-use regex::bytes::Regex;
+use regex::Regex;
 
 use std::collections::HashSet;
 use std::path::PathBuf;
@@ -20,7 +20,7 @@ use std::path::PathBuf;
 pub struct ProposalRef;
 
 impl ProposalRef {
-    fn find_refs<'a>(node: &'a AstNode<'a>) -> Result<Vec<(u32, PathBuf, String)>, Error> {
+    fn find_refs<'a>(node: &'a AstNode<'a>) -> Result<Vec<(usize, PathBuf, String)>, Error> {
         let mut visitor = Visitor::default();
         node.traverse().visit(&mut visitor)?;
         Ok(visitor.refs)
@@ -53,7 +53,7 @@ impl Lint for ProposalRef {
                         }),
                         slices: vec![Slice {
                             fold: false,
-                            line_start: start_line.try_into().unwrap(),
+                            line_start: start_line,
                             origin: ctx.origin(),
                             source: ctx.line(start_line),
                             annotations: vec![],
@@ -93,7 +93,7 @@ impl Lint for ProposalRef {
                 }),
                 slices: vec![Slice {
                     fold: false,
-                    line_start: start_line.try_into().unwrap(),
+                    line_start: start_line,
                     origin: ctx.origin(),
                     source: ctx.line(start_line),
                     annotations: vec![],
@@ -108,7 +108,7 @@ impl Lint for ProposalRef {
 
 struct Visitor {
     re: Regex,
-    refs: Vec<(u32, PathBuf, String)>,
+    refs: Vec<(usize, PathBuf, String)>,
 }
 
 impl Default for Visitor {
@@ -124,7 +124,7 @@ impl Default for Visitor {
 impl tree::Visitor for Visitor {
     type Error = Error;
 
-    fn enter_front_matter(&mut self, _: &Ast, _: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_front_matter(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
         Ok(Next::SkipChildren)
     }
 
@@ -136,7 +136,7 @@ impl tree::Visitor for Visitor {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_html_inline(&mut self, _: &Ast, _: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_html_inline(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
         Ok(Next::SkipChildren)
     }
 
@@ -144,16 +144,15 @@ impl tree::Visitor for Visitor {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_text(&mut self, ast: &Ast, txt: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
         for found in self.re.captures_iter(txt) {
-            let whole = std::str::from_utf8(found.get(0).unwrap().as_bytes())?;
-            let number = found.get(1).unwrap();
+            let whole = found.get(0).unwrap().as_str();
+            let number_txt = found.get(1).unwrap().as_str();
 
-            let number_txt = std::str::from_utf8(number.as_bytes())?;
             let filename = format!("eip-{}.md", number_txt);
 
             self.refs
-                .push((ast.start_line, filename.into(), whole.into()));
+                .push((ast.sourcepos.start.line, filename.into(), whole.into()));
         }
 
         Ok(Next::TraverseChildren)

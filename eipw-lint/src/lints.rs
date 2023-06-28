@@ -90,27 +90,23 @@ where
     /// XXX: comrak doesn't include a source field with its `AstNode`, so use
     ///      this instead. Don't expose it publicly since it's really hacky.
     ///      Yes, lines start at one.
-    pub(crate) fn line(&self, mut line: u32) -> &'a str {
+    pub(crate) fn line(&self, mut line: usize) -> &'a str {
         assert_ne!(line, 0);
         line -= 1;
-        self.inner
-            .source
-            .split('\n')
-            .nth(line.try_into().unwrap())
-            .unwrap()
+        self.inner.source.split('\n').nth(line).unwrap()
     }
 
     /// XXX: comrak doesn't include a source field with its `AstNode`, so use
     ///      this instead. Don't expose it publicly since it's really hacky.
-    pub(crate) fn source_for_text(&self, line: u32, buf: &[u8]) -> String {
+    pub(crate) fn source_for_text(&self, line: usize, text: &str) -> String {
         assert_ne!(line, 0);
 
-        let newlines = max(1, buf.iter().copied().filter(|c| *c == b'\n').count());
+        let newlines = max(1, text.chars().filter(|c| *c == '\n').count());
 
         self.inner
             .source
             .split('\n')
-            .skip(usize::try_from(line - 1).unwrap())
+            .skip(line - 1)
             .take(newlines)
             .collect::<Vec<_>>()
             .join("\n")

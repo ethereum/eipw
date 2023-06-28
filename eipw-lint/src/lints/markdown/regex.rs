@@ -11,7 +11,7 @@ use comrak::nodes::{Ast, NodeCode, NodeCodeBlock, NodeHtmlBlock, NodeLink};
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 
-use ::regex::bytes::Regex as BytesRegex;
+use ::regex::Regex as TextRegex;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 #[non_exhaustive]
@@ -31,7 +31,7 @@ pub struct Regex<'n> {
 
 impl<'n> Lint for Regex<'n> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let re = BytesRegex::new(self.pattern).map_err(Error::custom)?;
+        let re = TextRegex::new(self.pattern).map_err(Error::custom)?;
 
         let mut visitor = match self.mode {
             Mode::Excludes => ExcludesVisitor {
@@ -51,14 +51,14 @@ impl<'n> Lint for Regex<'n> {
 
 struct ExcludesVisitor<'a, 'b, 'c> {
     ctx: &'c Context<'a, 'b>,
-    re: BytesRegex,
+    re: TextRegex,
     pattern: &'c str,
     slug: &'c str,
     message: &'c str,
 }
 
 impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
-    fn check(&self, ast: &Ast, buf: &[u8]) -> Result<Next, Error> {
+    fn check(&self, ast: &Ast, buf: &str) -> Result<Next, Error> {
         if !self.re.is_match(buf) {
             return Ok(Next::TraverseChildren);
         }
@@ -67,7 +67,7 @@ impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
 
         // TODO: Actually annotate the matches for `Mode::Excludes`.
 
-        let source = self.ctx.source_for_text(ast.start_line, buf);
+        let source = self.ctx.source_for_text(ast.sourcepos.start.line, buf);
         self.ctx.report(Snippet {
             title: Some(Annotation {
                 annotation_type: self.ctx.annotation_type(),
@@ -76,7 +76,7 @@ impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
             }),
             slices: vec![Slice {
                 fold: false,
-                line_start: usize::try_from(ast.start_line).unwrap(),
+                line_start: ast.sourcepos.start.line,
                 origin: self.ctx.origin(),
                 source: &source,
                 annotations: vec![],
@@ -96,7 +96,7 @@ impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
 impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
     type Error = Error;
 
-    fn enter_front_matter(&mut self, _: &Ast, _: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_front_matter(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
         Ok(Next::SkipChildren)
     }
 
@@ -108,7 +108,7 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_html_inline(&mut self, _: &Ast, _: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_html_inline(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
         Ok(Next::SkipChildren)
     }
 
@@ -116,11 +116,11 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_footnote_definition(&mut self, ast: &Ast, defn: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_footnote_definition(&mut self, ast: &Ast, defn: &str) -> Result<Next, Self::Error> {
         self.check(ast, defn)
     }
 
-    fn enter_text(&mut self, ast: &Ast, txt: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
         self.check(ast, txt)
     }
 
@@ -132,7 +132,7 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
         self.check(ast, &link.title)
     }
 
-    fn enter_footnote_reference(&mut self, ast: &Ast, refn: &[u8]) -> Result<Next, Self::Error> {
+    fn enter_footnote_reference(&mut self, ast: &Ast, refn: &str) -> Result<Next, Self::Error> {
         self.check(ast, refn)
     }
 }

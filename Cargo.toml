@@ -4,7 +4,7 @@ members = [ "eipw-lint", "eipw-lint-js" ]
 [package]
 name = "eipw"
 description = "Ethereum Improvement Proposal linter that's one more than eipv"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 license = "MPL-2.0"
 rust-version = "1.65"
@@ -16,7 +16,7 @@ repository = "https://github.com/ethereum/eipw"
 annotate-snippets = "0.9.1"
 tokio = { version = "1.29.0", features = [ "macros" ] }
 clap = { version = "4.3.9", features = [ "derive" ] }
-eipw-lint = { version = "0.4.0", path = "eipw-lint", features = [ "tokio" ] }
+eipw-lint = { version = "0.4.1", path = "eipw-lint", features = [ "tokio" ] }
 serde_json = "1.0.99"
 thiserror = "1.0.40"
 
@@ -26,7 +26,3 @@ getrandom = { version = "0.2.8", features = [ "js" ] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { version = "1.29.0", features = [ "fs", "macros", "rt-multi-thread" ] }
-
-[patch.crates-io.jsonschema]
-git = "https://github.com/SamWilsn/jsonschema-rs.git"
-branch = "ahash-on-wasm"

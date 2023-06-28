@@ -83,6 +83,78 @@ async fn lint_one() {
 }
 
 #[wasm_bindgen_test]
+async fn lint_json_schema() {
+    let mut path = PathBuf::from("tests");
+    path.push("eips");
+    path.push("eip-2000.md");
+
+    let path = path.to_str().unwrap();
+
+    let result = lint(vec![JsValue::from_str(path)], None)
+        .await
+        .ok()
+        .unwrap();
+
+    let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
+    let expected = json! {
+    [
+       {
+          "formatted": "error[markdown-json-cite]: code block of type `csl-json` does not conform to required schema\n  --> tests/eips/eip-2000.md:42:1\n   |\n42 | //     ```csl-json\n43 | ||     {\n44 | ||         \"type\": \"article\",\n45 | ||         \"id\": \"1\",\n46 |  |         \"URL\": \"3\"\n   | ||__________________^ \"3\" is not a \"uri\"\n   |  |__________________^ \"DOI\" is a required property\n   |\n   = help: see https://github.com/ethereum/eipw/blob/master/eipw-lint/src/lints/markdown/json_schema/citation.json\n   = help: see https://ethereum.github.io/eipw/markdown-json-cite/",
+          "footer": [
+             {
+                "annotation_type": "Help",
+                "id": null,
+                "label": "see https://github.com/ethereum/eipw/blob/master/eipw-lint/src/lints/markdown/json_schema/citation.json"
+             },
+             {
+                "annotation_type": "Help",
+                "id": null,
+                "label": "see https://ethereum.github.io/eipw/markdown-json-cite/"
+             }
+          ],
+          "opt": {
+             "anonymized_line_numbers": false,
+             "color": false
+          },
+          "slices": [
+             {
+                "annotations": [
+                   {
+                      "annotation_type": "Error",
+                      "label": "\"3\" is not a \"uri\"",
+                      "range": [
+                         0,
+                         86
+                      ]
+                   },
+                   {
+                      "annotation_type": "Error",
+                      "label": "\"DOI\" is a required property",
+                      "range": [
+                         0,
+                         86
+                      ]
+                   }
+                ],
+                "fold": false,
+                "line_start": 42,
+                "origin": "tests/eips/eip-2000.md",
+                "source": "    ```csl-json\n    {\n        \"type\": \"article\",\n        \"id\": \"1\",\n        \"URL\": \"3\""
+             }
+          ],
+          "title": {
+             "annotation_type": "Error",
+             "id": "markdown-json-cite",
+             "label": "code block of type `csl-json` does not conform to required schema"
+          }
+       }
+    ]
+        };
+
+    assert_eq!(expected, actual);
+}
+
+#[wasm_bindgen_test]
 async fn lint_one_with_options() {
     let mut path = PathBuf::from("tests");
     path.push("eips");

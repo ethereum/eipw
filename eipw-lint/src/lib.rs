@@ -17,7 +17,7 @@ use comrak::arena_tree::Node;
 use comrak::nodes::Ast;
 use comrak::{Arena, ComrakExtensionOptions, ComrakOptions};
 
-use crate::lints::{Context, Error as LintError, FetchContext, InnerContext, Lint, LintExt as _};
+use crate::lints::{Context, DefaultLint, Error as LintError, FetchContext, InnerContext, Lint};
 use crate::modifiers::Modifier;
 use crate::preamble::Preamble;
 use crate::reporters::Reporter;
@@ -69,6 +69,11 @@ fn default_modifiers() -> Vec<Box<dyn Modifier>> {
 }
 
 pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
+    default_lints_enum().map(|(name, lint)| (name, lint.boxed()))
+}
+
+fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&'static str>)> {
+    use self::DefaultLint::*;
     use lints::preamble::regex;
     use lints::{markdown, preamble};
 
@@ -76,85 +81,85 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
         //
         // Preamble
         //
-        ("preamble-no-dup", preamble::NoDuplicates.boxed()),
-        ("preamble-trim", preamble::Trim.boxed()),
-        ("preamble-eip", preamble::Uint("eip").boxed()),
-        ("preamble-author", preamble::Author("author").boxed()),
-        ("preamble-re-title", preamble::Regex {
+        ("preamble-no-dup", PreambleNoDuplicates(preamble::NoDuplicates)),
+        ("preamble-trim", PreambleTrim(preamble::Trim)),
+        ("preamble-eip", PreambleUint { name: preamble::Uint("eip") }),
+        ("preamble-author", PreambleAuthor { name: preamble::Author("author") } ),
+        ("preamble-re-title", PreambleRegex(preamble::Regex {
             name: "title",
             mode: regex::Mode::Excludes,
             pattern: r"(?i)standar\w*\b",
             message: "preamble header `title` should not contain `standard` (or similar words.)",
-        }.boxed()),
-        ("preamble-re-title-colon", preamble::Regex {
+        })),
+        ("preamble-re-title-colon", PreambleRegex(preamble::Regex {
             name: "title",
             mode: regex::Mode::Excludes,
             pattern: r":",
             message: "preamble header `title` should not contain `:`",
-        }.boxed()),
+        })),
         (
             "preamble-refs-title",
-            preamble::ProposalRef("title").boxed(),
+            PreambleProposalRef { name: preamble::ProposalRef("title") },
         ),
         (
             "preamble-refs-description",
-            preamble::ProposalRef("description").boxed(),
+            PreambleProposalRef { name: preamble::ProposalRef("description") },
         ),
         (
             "preamble-re-title-erc-dash",
-            preamble::Regex {
+            PreambleRegex(preamble::Regex {
                 name: "title",
                 mode: regex::Mode::Excludes,
                 pattern: r"(?i)erc[\s]*[0-9]+",
                 message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
-            }.boxed(),
+            }),
         ),
         (
             "preamble-re-title-eip-dash",
-            preamble::Regex {
+            PreambleRegex(preamble::Regex {
                 name: "title",
                 mode: regex::Mode::Excludes,
                 pattern: r"(?i)eip[\s]*[0-9]+",
                 message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
-            }.boxed(),
+            }),
         ),
         (
             "preamble-re-description-erc-dash",
-            preamble::Regex {
+            PreambleRegex(preamble::Regex {
                 name: "description",
                 mode: regex::Mode::Excludes,
                 pattern: r"(?i)erc[\s]*[0-9]+",
                 message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
-            }.boxed(),
+            }),
         ),
         (
             "preamble-re-description-eip-dash",
-            preamble::Regex {
+            PreambleRegex(preamble::Regex {
                 name: "description",
                 mode: regex::Mode::Excludes,
                 pattern: r"(?i)eip[\s]*[0-9]+",
                 message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
-            }.boxed(),
+            }),
         ),
-        ("preamble-re-description", preamble::Regex {
+        ("preamble-re-description", PreambleRegex(preamble::Regex {
             name: "description",
             mode: regex::Mode::Excludes,
             pattern: r"(?i)standar\w*\b",
             message: "preamble header `description` should not contain `standard` (or similar words.)",
-        }.boxed()),
-        ("preamble-re-description-colon", preamble::Regex {
+        })),
+        ("preamble-re-description-colon", PreambleRegex(preamble::Regex {
             name: "description",
             mode: regex::Mode::Excludes,
             pattern: r":",
             message: "preamble header `description` should not contain `:`",
-        }.boxed()),
+        })),
         (
             "preamble-discussions-to",
-            preamble::Url("discussions-to").boxed(),
+            PreambleUrl { name: preamble::Url("discussions-to") },
         ),
         (
             "preamble-re-discussions-to",
-            preamble::Regex {
+            PreambleRegex(preamble::Regex {
                 name: "discussions-to",
                 mode: regex::Mode::Includes,
                 pattern: "^https://ethereum-magicians.org/t/[^/]+/[0-9]+$",
@@ -162,44 +167,44 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                     "preamble header `discussions-to` should ",
                     "point to a thread on ethereum-magicians.org"
                 ),
-            }.boxed(),
+            }),
         ),
-        ("preamble-list-author", preamble::List("author").boxed()),
-        ("preamble-list-requires", preamble::List("requires").boxed()),
+        ("preamble-list-author", PreambleList { name: preamble::List("author") }),
+        ("preamble-list-requires", PreambleList{name: preamble::List("requires")}),
         (
             "preamble-len-requires",
-            preamble::Length {
+            PreambleLength(preamble::Length {
                 name: "requires",
                 min: Some(1),
                 max: None,
             }
-            .boxed(),
+            ),
         ),
         (
             "preamble-uint-requires",
-            preamble::UintList("requires").boxed(),
+            PreambleUintList { name: preamble::UintList("requires") },
         ),
         (
             "preamble-len-title",
-            preamble::Length {
+            PreambleLength(preamble::Length {
                 name: "title",
                 min: Some(2),
                 max: Some(44),
             }
-            .boxed(),
+            ),
         ),
         (
             "preamble-len-description",
-            preamble::Length {
+            PreambleLength(preamble::Length {
                 name: "description",
                 min: Some(2),
                 max: Some(140),
             }
-            .boxed(),
+            ),
         ),
         (
             "preamble-req",
-            preamble::Required(&[
+            PreambleRequired { names: preamble::Required(vec![
                 "eip",
                 "title",
                 "description",
@@ -209,11 +214,11 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                 "type",
                 "created",
             ])
-            .boxed(),
+            },
         ),
         (
             "preamble-order",
-            preamble::Order(&[
+            PreambleOrder { names: preamble::Order(vec![
                 "eip",
                 "title",
                 "description",
@@ -227,45 +232,45 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                 "requires",
                 "withdrawal-reason",
             ])
-            .boxed(),
+            },
         ),
-        ("preamble-date-created", preamble::Date("created").boxed()),
+        ("preamble-date-created", PreambleDate { name: preamble::Date("created") } ),
         (
             "preamble-req-last-call-deadline",
-            preamble::RequiredIfEq {
+            PreambleRequiredIfEq(preamble::RequiredIfEq {
                 when: "status",
                 equals: "Last Call",
                 then: "last-call-deadline",
             }
-            .boxed(),
+            ),
         ),
         (
             "preamble-date-last-call-deadline",
-            preamble::Date("last-call-deadline").boxed(),
+            PreambleDate { name: preamble::Date("last-call-deadline") },
         ),
         (
             "preamble-req-category",
-            preamble::RequiredIfEq {
+            PreambleRequiredIfEq(preamble::RequiredIfEq {
                 when: "type",
                 equals: "Standards Track",
                 then: "category",
             }
-            .boxed(),
+            ),
         ),
         (
             "preamble-req-withdrawal-reason",
-            preamble::RequiredIfEq {
+            PreambleRequiredIfEq(preamble::RequiredIfEq {
                 when: "status",
                 equals: "Withdrawn",
                 then: "withdrawal-reason",
             }
-            .boxed(),
+            ),
         ),
         (
             "preamble-enum-status",
-            preamble::OneOf {
+            PreambleOneOf(preamble::OneOf {
                 name: "status",
-                values: &[
+                values: vec![
                     "Draft",
                     "Review",
                     "Last Call",
@@ -275,125 +280,128 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                     "Living",
                 ],
             }
-            .boxed(),
+            ),
         ),
         (
             "preamble-enum-type",
-            preamble::OneOf {
+            PreambleOneOf(preamble::OneOf {
                 name: "type",
-                values: &["Standards Track", "Meta", "Informational"],
+                values: vec!["Standards Track", "Meta", "Informational"],
             }
-            .boxed(),
+            ),
         ),
         (
             "preamble-enum-category",
-            preamble::OneOf {
+            PreambleOneOf(preamble::OneOf {
                 name: "category",
-                values: &["Core", "Networking", "Interface", "ERC"],
+                values: vec!["Core", "Networking", "Interface", "ERC"],
             }
-            .boxed(),
+            ),
         ),
         (
             "preamble-requires-status",
-            preamble::RequiresStatus {
+            PreambleRequiresStatus(preamble::RequiresStatus {
                 requires: "requires",
                 status: "status",
-                flow: &[
-                    &["Draft", "Stagnant"],
-                    &["Review"],
-                    &["Last Call"],
-                    &["Final", "Withdrawn", "Living"],
+                flow: vec![
+                    vec!["Draft", "Stagnant"],
+                    vec!["Review"],
+                    vec!["Last Call"],
+                    vec!["Final", "Withdrawn", "Living"],
                 ]
-            }.boxed(),
+            }),
         ),
         (
             "preamble-requires-ref-title",
-            preamble::RequireReferenced {
+            PreambleRequireReferenced(preamble::RequireReferenced {
                 name: "title",
                 requires: "requires",
-            }.boxed(),
+            }),
         ),
         (
             "preamble-requires-ref-description",
-            preamble::RequireReferenced {
+            PreambleRequireReferenced(preamble::RequireReferenced {
                 name: "description",
                 requires: "requires",
-            }.boxed(),
+            }),
         ),
         (
             "preamble-file-name",
-            preamble::FileName {
+            PreambleFileName(preamble::FileName {
                 name: "eip",
                 prefix: "eip-",
                 suffix: ".md",
-            }.boxed(),
+            }),
         ),
         //
         // Markdown
         //
         (
             "markdown-refs",
-            markdown::ProposalRef.boxed(),
+            MarkdownProposalRef(markdown::ProposalRef),
         ),
         (
             "markdown-html-comments",
-            markdown::HtmlComments {
+            MarkdownHtmlComments(markdown::HtmlComments {
                 name: "status",
-                warn_for: &[
+                warn_for: vec![
                     "Draft",
                     "Withdrawn",
                 ],
             }
-            .boxed(),
+            ),
         ),
         (
             "markdown-req-section",
-            markdown::SectionRequired(&[
+            MarkdownSectionRequired { sections: markdown::SectionRequired(vec![
                 "Abstract",
                 "Specification",
                 "Rationale",
                 "Security Considerations",
                 "Copyright",
             ])
-            .boxed(),
+            },
         ),
         (
             "markdown-order-section",
-            markdown::SectionOrder(&[
-                "Abstract",
-                "Motivation",
-                "Specification",
-                "Rationale",
-                "Backwards Compatibility",
-                "Test Cases",
-                "Reference Implementation",
-                "Security Considerations",
-                "Copyright",
-            ])
-            .boxed(),
+            MarkdownSectionOrder {
+                sections: markdown::SectionOrder(vec![
+                    "Abstract",
+                    "Motivation",
+                    "Specification",
+                    "Rationale",
+                    "Backwards Compatibility",
+                    "Test Cases",
+                    "Reference Implementation",
+                    "Security Considerations",
+                    "Copyright",
+                ])
+            },
         ),
         (
             "markdown-re-erc-dash",
-            markdown::Regex {
+            MarkdownRegex(markdown::Regex {
                 mode: markdown::regex::Mode::Excludes,
                 pattern: r"(?i)erc[\s]*[0-9]+",
                 message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
-            }.boxed(),
+            }),
         ),
         (
             "markdown-re-eip-dash",
-            markdown::Regex {
+            MarkdownRegex(markdown::Regex {
                 mode: markdown::regex::Mode::Excludes,
                 pattern: r"(?i)eip[\s]*[0-9]+",
                 message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
-            }.boxed(),
+            }),
         ),
         (
             "markdown-link-first",
-            markdown::LinkFirst(r"(?i)(?:eip|erc)-[0-9]+").boxed(),
+            MarkdownLinkFirst {
+                pattern: markdown::LinkFirst(r"(?i)(?:eip|erc)-[0-9]+"),
+            }
         ),
-        ("markdown-rel-links", markdown::RelativeLinks {
-            exceptions: &[
+        ("markdown-rel-links", MarkdownRelativeLinks(markdown::RelativeLinks {
+            exceptions: vec![
                 "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",
                 "^https://(www\\.)?github\\.com/ethereum/consensus-specs/commit/[a-f0-9]{40}$",
 
@@ -406,23 +414,23 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                 "^https://[a-z]*\\.spec\\.whatwg\\.org/commit-snapshots/[0-9a-f]{40}/$",
                 "^https://www\\.rfc-editor\\.org/rfc/.*$",
             ]
-        }.boxed()),
+        })),
         (
             "markdown-link-status",
-            markdown::LinkStatus {
+            MarkdownLinkStatus(markdown::LinkStatus {
                 status: "status",
-                flow: &[
-                    &["Draft", "Stagnant"],
-                    &["Review"],
-                    &["Last Call"],
-                    &["Final", "Withdrawn", "Living"],
+                flow: vec![
+                    vec!["Draft", "Stagnant"],
+                    vec!["Review"],
+                    vec!["Last Call"],
+                    vec!["Final", "Withdrawn", "Living"],
                 ]
-            }.boxed(),
+            }),
         ),
         (
             "markdown-json-cite",
-            markdown::JsonSchema {
-                additional_schemas: &[
+            MarkdownJsonSchema(markdown::JsonSchema {
+                additional_schemas: vec![
                     (
                         "https://resource.citationstyles.org/schema/v1.0/input/json/csl-data.json",
                         include_str!("lints/markdown/json_schema/csl-data.json"),
@@ -435,7 +443,7 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
                     "master/eipw-lint/src/lints/markdown/",
                     "json_schema/citation.json",
                 ),
-            }.boxed(),
+            }),
         ),
     ]
     .into_iter()
@@ -547,7 +555,7 @@ impl<'a, R> Linter<'a, R> {
     where
         T: 'static + Lint,
     {
-        self.lints.insert(slug, (level, lint.boxed()));
+        self.lints.insert(slug, (level, Box::new(lint)));
         self
     }
 
@@ -838,4 +846,18 @@ fn process<'r, 'a>(
         preamble,
         origin,
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn serialize_deserialize() {
+        type DefaultLints<S> = HashMap<S, DefaultLint<S>>;
+        let config: DefaultLints<&str> = default_lints_enum().collect();
+
+        let serialized = toml::to_string_pretty(&config).unwrap();
+        toml::from_str::<DefaultLints<String>>(&serialized).unwrap();
+    }
 }

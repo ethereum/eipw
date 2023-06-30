@@ -13,8 +13,13 @@ use crate::tree::{self, Next, TraverseExt};
 
 use ::regex::Regex as TextRegex;
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
+#[serde(rename_all = "kebab-case")]
 pub enum Mode {
     /// Ensure that each syntax node individually doesn't contain the pattern.
     Excludes,
@@ -22,23 +27,27 @@ pub enum Mode {
     //       matches the pattern.
 }
 
-#[derive(Debug)]
-pub struct Regex<'n> {
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct Regex<S> {
     pub mode: Mode,
-    pub pattern: &'n str,
-    pub message: &'n str,
+    pub pattern: S,
+    pub message: S,
 }
 
-impl<'n> Lint for Regex<'n> {
+impl<S> Lint for Regex<S>
+where
+    S: Display + Debug + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let re = TextRegex::new(self.pattern).map_err(Error::custom)?;
+        let pattern = self.pattern.as_ref();
+        let re = TextRegex::new(pattern).map_err(Error::custom)?;
 
         let mut visitor = match self.mode {
             Mode::Excludes => ExcludesVisitor {
                 ctx,
                 re,
-                message: self.message,
-                pattern: self.pattern,
+                message: self.message.as_ref(),
+                pattern,
                 slug,
             },
         };

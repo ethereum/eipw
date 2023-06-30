@@ -13,10 +13,12 @@ use crate::tree::{self, Next, TraverseExt};
 
 use regex::Regex;
 
+use serde::{Deserialize, Serialize};
+
 use std::collections::HashSet;
 use std::path::PathBuf;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct ProposalRef;
 
 impl ProposalRef {

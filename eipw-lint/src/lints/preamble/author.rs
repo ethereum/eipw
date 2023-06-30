@@ -5,9 +5,14 @@
  */
 
 use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+
 use regex::RegexSet;
 
 use crate::lints::{Context, Error, Lint};
+
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
 
 fn footer() -> Vec<Annotation<'static>> {
     vec![
@@ -34,12 +39,16 @@ fn footer() -> Vec<Annotation<'static>> {
     ]
 }
 
-#[derive(Debug)]
-pub struct Author<'n>(pub &'n str);
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct Author<S>(pub S);
 
-impl<'n> Lint for Author<'n> {
+impl<S> Lint for Author<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.0) {
+        let field = match ctx.preamble().by_name(self.0.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };

@@ -25,7 +25,7 @@ header: value1
             "markdown-json-schema",
             JsonSchema {
                 language: "hello",
-                additional_schemas: &[],
+                additional_schemas: vec![],
                 schema: "{}",
                 help: "see https://example.com/schema.json",
             },
@@ -64,7 +64,7 @@ header: value1
             "markdown-json-schema",
             JsonSchema {
                 language: "hello",
-                additional_schemas: &[],
+                additional_schemas: vec![],
                 schema: "{}",
                 help: "see https://example.com/schema.json",
             },
@@ -95,7 +95,7 @@ header: value1
             "markdown-json-schema",
             JsonSchema {
                 language: "hello",
-                additional_schemas: &[],
+                additional_schemas: vec![],
                 help: "see https://example.com/schema.json",
                 schema: r#"{
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -134,7 +134,7 @@ header: value1
             "markdown-json-schema",
             JsonSchema {
                 language: "hello",
-                additional_schemas: &[],
+                additional_schemas: vec![],
                 help: "see https://example.com/schema.json",
                 schema: r#"{
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -182,7 +182,7 @@ header: value1
             "markdown-json-schema",
             JsonSchema {
                 language: "hello",
-                additional_schemas: &[(
+                additional_schemas: vec![(
                     "http://example.com/additional.json",
                     r#"{ "type": "integer" }"#,
                 )],
@@ -233,7 +233,7 @@ header: value1
             "markdown-json-schema",
             JsonSchema {
                 language: "hello",
-                additional_schemas: &[(
+                additional_schemas: vec![(
                     "http://example.com/additional.json",
                     r#"{ "type": "integer" }"#,
                 )],

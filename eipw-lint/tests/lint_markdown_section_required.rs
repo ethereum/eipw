@@ -21,7 +21,7 @@ header: value1
         .clear_lints()
         .deny(
             "markdown-section-req",
-            SectionRequired(&["Banana", "Orange"]),
+            SectionRequired(vec!["Banana", "Orange"]),
         )
         .check_slice(None, src)
         .run()
@@ -50,7 +50,7 @@ header: value1
         .clear_lints()
         .deny(
             "markdown-section-req",
-            SectionRequired(&["Banana", "Orange"]),
+            SectionRequired(vec!["Banana", "Orange"]),
         )
         .check_slice(None, src)
         .run()
@@ -83,7 +83,7 @@ header: value1
         .clear_lints()
         .deny(
             "markdown-section-req",
-            SectionRequired(&["Banana", "Orange"]),
+            SectionRequired(vec!["Banana", "Orange"]),
         )
         .check_slice(None, src)
         .run()

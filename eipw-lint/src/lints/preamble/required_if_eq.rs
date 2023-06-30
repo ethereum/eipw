@@ -8,27 +8,36 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, Sou
 
 use crate::lints::{Context, Error, Lint};
 
-#[derive(Debug)]
-pub struct RequiredIfEq<'b> {
-    pub when: &'b str,
-    pub equals: &'b str,
-    pub then: &'b str,
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct RequiredIfEq<S> {
+    pub when: S,
+    pub equals: S,
+    pub then: S,
 }
 
-impl<'n> Lint for RequiredIfEq<'n> {
+impl<S> Lint for RequiredIfEq<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let then_opt = ctx.preamble().by_name(self.then);
-        let when_opt = ctx.preamble().by_name(self.when);
+        let then_opt = ctx.preamble().by_name(self.then.as_ref());
+        let when_opt = ctx.preamble().by_name(self.when.as_ref());
+
+        let equals = self.equals.as_ref();
 
         match (when_opt, then_opt) {
             // Correct.
             (None, None) => (),
 
             // Correct.
-            (Some(when), Some(_)) if when.value().trim() == self.equals => (),
+            (Some(when), Some(_)) if when.value().trim() == equals => (),
 
             // Correct.
-            (Some(when), None) if when.value().trim() != self.equals => (),
+            (Some(when), None) if when.value().trim() != equals => (),
 
             // Incorrect.
             (Some(when), None) => {

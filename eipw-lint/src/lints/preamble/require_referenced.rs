@@ -10,22 +10,29 @@ use crate::lints::{Context, Error, Lint};
 
 use regex::Regex;
 
-#[derive(Debug)]
-pub struct RequireReferenced<'n> {
-    pub name: &'n str,
-    pub requires: &'n str,
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+pub struct RequireReferenced<S> {
+    pub name: S,
+    pub requires: S,
 }
 
-impl<'n> Lint for RequireReferenced<'n> {
+impl<S> Lint for RequireReferenced<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.name) {
+        let field = match ctx.preamble().by_name(self.name.as_ref()) {
             None => return Ok(()),
             Some(f) => f,
         };
 
         let requires_txt = ctx
             .preamble()
-            .by_name(self.requires)
+            .by_name(self.requires.as_ref())
             .map(|f| f.value())
             .unwrap_or_default();
 

@@ -8,31 +8,39 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, Sou
 
 use crate::lints::{Context, Error, Lint};
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
 #[non_exhaustive]
+#[serde(rename_all = "kebab-case")]
 pub enum Mode {
     Includes,
     Excludes,
 }
 
-#[derive(Debug)]
-pub struct Regex<'n> {
-    pub name: &'n str,
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct Regex<S> {
+    pub name: S,
     pub mode: Mode,
-    pub pattern: &'n str,
-    pub message: &'n str,
+    pub pattern: S,
+    pub message: S,
 }
 
-impl<'n> Lint for Regex<'n> {
+impl<S> Lint for Regex<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.name) {
+        let field = match ctx.preamble().by_name(self.name.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };
 
         let value = field.value().trim();
 
-        let re = ::regex::Regex::new(self.pattern).map_err(Error::custom)?;
+        let re = ::regex::Regex::new(self.pattern.as_ref()).map_err(Error::custom)?;
         let matches = re.is_match(value);
 
         let slice_label = match (self.mode, matches) {
@@ -55,7 +63,7 @@ impl<'n> Lint for Regex<'n> {
             title: Some(Annotation {
                 annotation_type: ctx.annotation_type(),
                 id: Some(slug),
-                label: Some(self.message),
+                label: Some(self.message.as_ref()),
             }),
             slices: vec![Slice {
                 fold: false,

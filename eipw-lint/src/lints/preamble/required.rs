@@ -8,16 +8,24 @@ use annotate_snippets::snippet::{Annotation, Slice, Snippet};
 
 use crate::lints::{Context, Error, Lint};
 
-#[derive(Debug)]
-pub struct Required<'n>(pub &'n [&'n str]);
+use serde::{Deserialize, Serialize};
 
-impl<'n> Lint for Required<'n> {
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct Required<S>(pub Vec<S>);
+
+impl<S> Lint for Required<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let missing = self
             .0
             .iter()
+            .map(AsRef::as_ref)
             .filter(|name| ctx.preamble().by_name(name).is_none())
-            .cloned()
             .collect::<Vec<_>>()
             .join("`, `");
 

@@ -13,19 +13,27 @@ use crate::tree::{self, Next, TraverseExt};
 
 use ::regex::Regex;
 
+use serde::{Deserialize, Serialize};
+
 use std::collections::HashSet;
+use std::fmt::{Debug, Display};
 
-#[derive(Debug)]
-pub struct LinkFirst<'n>(pub &'n str);
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct LinkFirst<S>(pub S);
 
-impl<'n> Lint for LinkFirst<'n> {
+impl<S> Lint for LinkFirst<S>
+where
+    S: Display + Debug + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let re = Regex::new(self.0).map_err(Error::custom)?;
+        let pattern = self.0.as_ref();
+        let re = Regex::new(pattern).map_err(Error::custom)?;
 
         let mut visitor = Visitor {
             ctx,
             re,
-            pattern: self.0,
+            pattern,
             slug,
             linked: Default::default(),
             link_depth: 0,

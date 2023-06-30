@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+mod known_lints;
 pub mod markdown;
 pub mod preamble;
 
@@ -15,6 +16,8 @@ use crate::preamble::Preamble;
 use crate::reporters::{self, Reporter};
 
 use educe::Educe;
+
+pub use self::known_lints::DefaultLint;
 
 use snafu::Snafu;
 
@@ -196,18 +199,5 @@ impl Lint for Box<dyn Lint> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let lint: &dyn Lint = self.deref();
         lint.lint(slug, ctx)
-    }
-}
-
-pub(crate) trait LintExt: Lint {
-    fn boxed(self) -> Box<dyn Lint>;
-}
-
-impl<T> LintExt for T
-where
-    T: 'static + Lint,
-{
-    fn boxed(self) -> Box<dyn Lint> {
-        Box::new(self) as Box<dyn Lint>
     }
 }

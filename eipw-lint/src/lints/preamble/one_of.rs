@@ -8,26 +8,36 @@ use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
 
 use crate::lints::{Context, Error, Lint};
 
-#[derive(Debug)]
-pub struct OneOf<'n> {
-    pub name: &'n str,
-    pub values: &'n [&'n str],
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OneOf<S> {
+    pub name: S,
+    pub values: Vec<S>,
 }
 
-impl<'n> Lint for OneOf<'n> {
+impl<S> Lint for OneOf<S>
+where
+    S: Debug + Display + AsRef<str> + for<'eq> PartialEq<&'eq str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.name) {
+        let field = match ctx.preamble().by_name(self.name.as_ref()) {
             None => return Ok(()),
             Some(f) => f,
         };
 
-        if self.values.contains(&field.value().trim()) {
+        let value = field.value().trim();
+
+        if self.values.iter().any(|e| e == &value) {
             return Ok(());
         }
 
         let label = format!("preamble header `{}` has an unrecognized value", self.name);
 
-        let slice_label = format!("must be one of: `{}`", self.values.join("`, `"));
+        let values: Vec<_> = self.values.iter().map(|a| a.as_ref()).collect();
+        let slice_label = format!("must be one of: `{}`", values.join("`, `"));
 
         let name_count = field.name().chars().count();
         let value_count = field.value().chars().count();

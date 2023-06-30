@@ -8,18 +8,24 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, Sou
 
 use crate::lints::{Context, Error, Lint};
 
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
 use std::path::Path;
 
-#[derive(Debug)]
-pub struct FileName<'n> {
-    pub name: &'n str,
-    pub prefix: &'n str,
-    pub suffix: &'n str,
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct FileName<S> {
+    pub name: S,
+    pub prefix: S,
+    pub suffix: S,
 }
 
-impl<'n> Lint for FileName<'n> {
+impl<S> Lint for FileName<S>
+where
+    S: Display + Debug + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.name) {
+        let field = match ctx.preamble().by_name(self.name.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };

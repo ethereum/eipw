@@ -13,20 +13,27 @@ use crate::lints::{Context, Error, Lint};
 use scraper::node::Node as HtmlNode;
 use scraper::Html;
 
-#[derive(Debug)]
-pub struct HtmlComments<'n> {
-    pub name: &'n str,
-    pub warn_for: &'n [&'n str],
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HtmlComments<S> {
+    pub name: S,
+    pub warn_for: Vec<S>,
 }
 
-impl<'n> Lint for HtmlComments<'n> {
+impl<S> Lint for HtmlComments<S>
+where
+    S: Display + Debug + AsRef<str> + for<'eq> PartialEq<&'eq str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.name) {
+        let field = match ctx.preamble().by_name(self.name.as_ref()) {
             None => return Ok(()),
             Some(s) => s.value().trim(),
         };
 
-        let warn = self.warn_for.contains(&field);
+        let warn = self.warn_for.iter().any(|e| e == &field);
 
         // Downgrade diagnostic level if header's value is in `warn_for`.
         let annotation_type = if warn && ctx.annotation_type() == AnnotationType::Error {
@@ -62,7 +69,12 @@ impl<'n> Lint for HtmlComments<'n> {
         if !slices.is_empty() {
             let label = match warn {
                 true => {
-                    let joined = self.warn_for.join("`, `");
+                    let joined = self
+                        .warn_for
+                        .iter()
+                        .map(AsRef::as_ref)
+                        .collect::<Vec<_>>()
+                        .join("`, `");
                     format!(
                         "HTML comments are only allowed while `{}` is one of: `{joined}`",
                         self.name,

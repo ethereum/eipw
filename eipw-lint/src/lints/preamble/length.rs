@@ -8,16 +8,23 @@ use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
 
 use crate::lints::{Context, Error, Lint};
 
-#[derive(Debug)]
-pub struct Length<'n> {
-    pub name: &'n str,
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct Length<S> {
+    pub name: S,
     pub min: Option<usize>,
     pub max: Option<usize>,
 }
 
-impl<'n> Lint for Length<'n> {
+impl<S> Lint for Length<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.name) {
+        let field = match ctx.preamble().by_name(self.name.as_ref()) {
             None => return Ok(()),
             Some(f) => f,
         };

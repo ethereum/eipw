@@ -10,12 +10,20 @@ use chrono::NaiveDate;
 
 use crate::lints::{Context, Error, Lint};
 
-#[derive(Debug)]
-pub struct Date<'n>(pub &'n str);
+use serde::{Deserialize, Serialize};
 
-impl<'n> Lint for Date<'n> {
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct Date<S>(pub S);
+
+impl<S> Lint for Date<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.0) {
+        let field = match ctx.preamble().by_name(self.0.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };

@@ -8,12 +8,15 @@ use annotate_snippets::snippet::Snippet;
 
 use clap::{Parser, ValueEnum};
 
+use eipw_lint::lints::{DefaultLint, Lint};
 use eipw_lint::reporters::count::Count;
 use eipw_lint::reporters::{AdditionalHelp, Json, Reporter, Text};
 use eipw_lint::{default_lints, Linter};
 
+use serde::{Deserialize, Serialize};
+
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Parser)]
 struct Opts {
@@ -44,6 +47,10 @@ struct Opts {
     /// Lints to disable.
     #[clap(long, short('A'))]
     allow: Vec<String>,
+
+    /// Path to file defining alternate default lints.
+    #[clap(long, short('c'))]
+    config: Option<PathBuf>,
 }
 
 #[derive(ValueEnum, Clone, Debug)]
@@ -81,6 +88,20 @@ fn list_lints() {
     }
 
     println!();
+}
+
+#[cfg(target_arch = "wasm32")]
+async fn read_config(_path: &Path) -> Lints {
+    todo!()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+async fn read_config(path: &Path) -> Lints {
+    let contents = tokio::fs::read_to_string(path)
+        .await
+        .expect("couldn't read config file");
+
+    toml::from_str(&contents).expect("couldn't parse config file")
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -125,6 +146,11 @@ async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io:
     Ok(output)
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct Lints {
+    lints: HashMap<String, DefaultLint<String>>,
+}
+
 #[cfg_attr(target_arch = "wasm32", tokio::main(flavor = "current_thread"))]
 #[cfg_attr(not(target_arch = "wasm32"), tokio::main)]
 async fn run(opts: Opts) -> Result<(), usize> {
@@ -147,7 +173,20 @@ async fn run(opts: Opts) -> Result<(), usize> {
     });
     let reporter = Count::new(reporter);
 
-    let mut linter = Linter::new(reporter);
+    let lints: Lints;
+    let mut linter;
+    if let Some(ref path) = opts.config {
+        lints = read_config(path).await;
+        linter = Linter::with_lints(
+            reporter,
+            lints
+                .lints
+                .iter()
+                .map(|(k, v)| (k.as_str(), Box::new(v.clone()) as Box<dyn Lint>)),
+        );
+    } else {
+        linter = Linter::new(reporter);
+    }
 
     if opts.no_default_lints {
         linter = linter.clear_lints();

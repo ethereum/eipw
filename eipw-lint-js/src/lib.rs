@@ -5,6 +5,7 @@
  */
 
 use eipw_lint::fetch::Fetch;
+use eipw_lint::lints::{DefaultLint, Lint};
 use eipw_lint::reporters::{AdditionalHelp, Json};
 use eipw_lint::{default_lints, Linter};
 
@@ -76,17 +77,20 @@ struct Opts {
 
     #[serde(default)]
     deny: Vec<String>,
+
+    #[serde(default)]
+    default_lints: Option<HashMap<String, DefaultLint<String>>>,
 }
 
 impl Opts {
-    fn apply<R>(self, mut linter: Linter<R>) -> Linter<R> {
-        for allow in self.allow {
-            linter = linter.allow(&allow);
+    fn apply<'a, 'b: 'a, R>(&'a self, mut linter: Linter<'b, R>) -> Linter<'a, R> {
+        for allow in &self.allow {
+            linter = linter.allow(allow);
         }
 
         if !self.warn.is_empty() {
             let mut lints: HashMap<_, _> = default_lints().collect();
-            for warn in self.warn {
+            for warn in &self.warn {
                 let (k, v) = lints.remove_entry(warn.as_str()).unwrap();
                 linter = linter.warn(k, v);
             }
@@ -94,7 +98,7 @@ impl Opts {
 
         if !self.deny.is_empty() {
             let mut lints: HashMap<_, _> = default_lints().collect();
-            for deny in self.deny {
+            for deny in &self.deny {
                 let (k, v) = lints.remove_entry(deny.as_str()).unwrap();
                 linter = linter.deny(k, v);
             }
@@ -116,12 +120,29 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     let reporter = AdditionalHelp::new(reporter, |t: &str| {
         Ok(format!("see https://ethereum.github.io/eipw/{}/", t))
     });
-    let mut linter = Linter::new(reporter).set_fetch(NodeFetch);
 
+    let opts: Opts;
+    let mut linter;
     if let Some(options) = options {
-        let opts: Opts = serde_wasm_bindgen::from_value(options.deref().clone())?;
+        opts = serde_wasm_bindgen::from_value(options.deref().clone())?;
+
+        if let Some(ref lints) = opts.default_lints {
+            linter = Linter::with_lints(
+                reporter,
+                lints
+                    .iter()
+                    .map(|(k, v)| (k.as_str(), Box::new(v.clone()) as Box<dyn Lint>)),
+            );
+        } else {
+            linter = Linter::new(reporter);
+        }
+
         linter = opts.apply(linter);
+    } else {
+        linter = Linter::new(reporter);
     }
+
+    linter = linter.set_fetch(NodeFetch);
 
     for source in &sources {
         linter = linter.check_file(source);

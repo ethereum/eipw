@@ -232,6 +232,89 @@ async fn lint_one_with_options() {
 }
 
 #[wasm_bindgen_test]
+async fn lint_one_with_default_lints() {
+    let mut path = PathBuf::from("tests");
+    path.push("eips");
+    path.push("eip-1000.md");
+
+    let path = path.to_str().unwrap();
+
+    let opts = json!(
+        {
+            "default_lints": {
+                "banana": {
+                    "kind": "preamble-regex",
+                    "name": "requires",
+                    "mode": "includes",
+                    "pattern": "banana",
+                    "message": "requires must include banana"
+                }
+            }
+       }
+    );
+
+    let opts_js = opts
+        .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
+        .unwrap();
+    let opts = Object::try_from(&opts_js).unwrap().to_owned();
+
+    let result = lint(vec![JsValue::from_str(path)], Some(opts))
+        .await
+        .ok()
+        .unwrap();
+
+    let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
+    let expected = json! {
+    [
+       {
+          "formatted": "error[banana]: requires must include banana\n  --> tests/eips/eip-1000.md:12:10\n   |\n12 | requires: 20\n   |          ^^^ required pattern was not matched\n   |\n   = info: the pattern in question: `banana`\n   = help: see https://ethereum.github.io/eipw/banana/",
+          "footer": [
+             {
+                "annotation_type": "Info",
+                "id": null,
+                "label": "the pattern in question: `banana`"
+             },
+             {
+                "annotation_type": "Help",
+                "id": null,
+                "label": "see https://ethereum.github.io/eipw/banana/"
+             }
+          ],
+          "opt": {
+             "anonymized_line_numbers": false,
+             "color": false
+          },
+          "slices": [
+             {
+                "annotations": [
+                   {
+                      "annotation_type": "Error",
+                      "label": "required pattern was not matched",
+                      "range": [
+                         9,
+                         12
+                      ]
+                   }
+                ],
+                "fold": false,
+                "line_start": 12,
+                "origin": "tests/eips/eip-1000.md",
+                "source": "requires: 20"
+             }
+          ],
+          "title": {
+             "annotation_type": "Error",
+             "id": "banana",
+             "label": "requires must include banana"
+          }
+       }
+    ]
+        };
+
+    assert_eq!(expected, actual);
+}
+
+#[wasm_bindgen_test]
 async fn format_one() {
     let mut path = PathBuf::from("tests");
     path.push("eips");

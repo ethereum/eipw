@@ -14,27 +14,35 @@ use crate::tree::{self, Next, TraverseExt};
 
 use jsonschema::{CompilationOptions, JSONSchema};
 
+use serde::{Deserialize, Serialize};
+
 use snafu::{FromString as _, Whatever};
 
-#[derive(Debug)]
-pub struct JsonSchema<'n> {
-    pub language: &'n str,
-    pub additional_schemas: &'n [(&'n str, &'n str)],
-    pub schema: &'n str,
-    pub help: &'n str,
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct JsonSchema<S> {
+    pub language: S,
+    pub additional_schemas: Vec<(S, S)>,
+    pub schema: S,
+    pub help: S,
 }
 
-impl<'n> Lint for JsonSchema<'n> {
+impl<S> Lint for JsonSchema<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let value: serde_json::Value = serde_json::from_str(self.schema).map_err(Error::custom)?;
+        let value: serde_json::Value =
+            serde_json::from_str(self.schema.as_ref()).map_err(Error::custom)?;
 
         let mut options = CompilationOptions::default();
 
         options.with_draft(jsonschema::Draft::Draft7);
 
-        for (url, json_text) in self.additional_schemas {
+        for (url, json_text) in &self.additional_schemas {
             let value: serde_json::Value =
-                serde_json::from_str(json_text).map_err(Error::custom)?;
+                serde_json::from_str(json_text.as_ref()).map_err(Error::custom)?;
             options.with_document(url.to_string(), value);
         }
 
@@ -47,8 +55,8 @@ impl<'n> Lint for JsonSchema<'n> {
             ctx,
             schema,
             slug,
-            language: self.language,
-            help: self.help,
+            language: self.language.as_ref(),
+            help: self.help.as_ref(),
         };
 
         ctx.body().traverse().visit(&mut visitor)?;

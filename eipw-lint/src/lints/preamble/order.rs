@@ -8,20 +8,27 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, Sou
 
 use crate::lints::{Context, Error, Lint};
 
-use std::fmt::Write;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
-pub struct Order<'n>(pub &'n [&'n str]);
+use std::fmt::{Debug, Display, Write};
 
-impl<'n> Order<'n> {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct Order<S>(pub Vec<S>);
+
+impl<S> Order<S>
+where
+    S: AsRef<str>,
+{
     fn find_preceding(&self, present: &[&str], needle: &str) -> Option<&str> {
-        let needle_idx = match self.0.iter().position(|x| *x == needle) {
+        let needle_idx = match self.0.iter().position(|x| x.as_ref() == needle) {
             None | Some(0) => return None,
             Some(i) => i,
         };
 
         for (idx, name) in self.0.iter().enumerate().rev() {
-            if *name != needle && present.contains(name) && idx < needle_idx {
+            let name = name.as_ref();
+            if name != needle && present.contains(&name) && idx < needle_idx {
                 return Some(name);
             }
         }
@@ -30,13 +37,16 @@ impl<'n> Order<'n> {
     }
 }
 
-impl<'n> Lint for Order<'n> {
+impl<S> Lint for Order<S>
+where
+    S: Debug + Display + AsRef<str> + for<'eq> PartialEq<&'eq str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         // Check for unknown headers.
         let unknowns: Vec<_> = ctx
             .preamble()
             .fields()
-            .filter(|f| !self.0.contains(&f.name()))
+            .filter(|f| !self.0.iter().any(|e| e == &f.name()))
             .map(|f| Slice {
                 line_start: f.line_start(),
                 fold: false,
@@ -68,7 +78,7 @@ impl<'n> Lint for Order<'n> {
         // Check that headers are in the correct order.
         let mut max_line = 0;
         for name in self.0.iter() {
-            if let Some(field) = ctx.preamble().by_name(name) {
+            if let Some(field) = ctx.preamble().by_name(name.as_ref()) {
                 let cur = max_line;
                 max_line = field.line_start();
 

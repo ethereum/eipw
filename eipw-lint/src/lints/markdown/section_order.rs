@@ -10,13 +10,19 @@ use comrak::nodes::{Ast, NodeHeading, NodeValue};
 
 use crate::lints::{Context, Error, Lint};
 
+use serde::{Deserialize, Serialize};
+
 use std::collections::HashMap;
-use std::fmt::Write;
+use std::fmt::{Debug, Display, Write};
 
-#[derive(Debug)]
-pub struct SectionOrder<'n>(pub &'n [&'n str]);
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct SectionOrder<S>(pub Vec<S>);
 
-impl<'n> SectionOrder<'n> {
+impl<S> SectionOrder<S>
+where
+    S: AsRef<str> + for<'eq> PartialEq<&'eq str>,
+{
     fn find_preceding(&self, present: &[&str], needle: &str) -> Option<&str> {
         let needle_idx = match self.0.iter().position(|x| *x == needle) {
             None | Some(0) => return None,
@@ -24,7 +30,12 @@ impl<'n> SectionOrder<'n> {
         };
 
         for (idx, name) in self.0.iter().enumerate().rev() {
-            if *name != needle && present.contains(name) && idx < needle_idx {
+            let name = name.as_ref();
+            if name == needle || idx >= needle_idx {
+                continue;
+            }
+
+            if present.iter().any(|e| e == &name) {
                 return Some(name);
             }
         }
@@ -33,7 +44,10 @@ impl<'n> SectionOrder<'n> {
     }
 }
 
-impl<'n> Lint for SectionOrder<'n> {
+impl<S> Lint for SectionOrder<S>
+where
+    S: Debug + Display + AsRef<str> + for<'eq> PartialEq<&'eq str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         // Collect the headings.
         let headings: Vec<_> = ctx
@@ -70,7 +84,7 @@ impl<'n> Lint for SectionOrder<'n> {
         // Check for unknown sections.
         let unknowns: Vec<_> = headings
             .iter()
-            .filter(|(_, f)| !self.0.contains(&f.as_str()))
+            .filter(|(_, f)| !self.0.iter().any(|e| e == &f.as_str()))
             .map(|(line_start, _)| Slice {
                 line_start: *line_start,
                 fold: false,
@@ -99,7 +113,8 @@ impl<'n> Lint for SectionOrder<'n> {
 
         let mut max_line = 0;
         for name in self.0.iter() {
-            if let Some(line_start) = map.get(*name).copied() {
+            let name = name.as_ref();
+            if let Some(line_start) = map.get(name).copied() {
                 let cur = max_line;
                 max_line = line_start;
 

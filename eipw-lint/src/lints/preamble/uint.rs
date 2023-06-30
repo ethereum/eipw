@@ -8,12 +8,20 @@ use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
 
 use crate::lints::{Context, Error, Lint};
 
-#[derive(Debug)]
-pub struct Uint<'n>(pub &'n str);
+use serde::{Deserialize, Serialize};
 
-impl<'n> Lint for Uint<'n> {
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct Uint<S>(pub S);
+
+impl<S> Lint for Uint<S>
+where
+    S: Display + Debug + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.0) {
+        let field = match ctx.preamble().by_name(self.0.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };
@@ -50,12 +58,16 @@ impl<'n> Lint for Uint<'n> {
     }
 }
 
-#[derive(Debug)]
-pub struct UintList<'n>(pub &'n str);
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(transparent)]
+pub struct UintList<S>(pub S);
 
-impl<'n> Lint for UintList<'n> {
+impl<S> Lint for UintList<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.0) {
+        let field = match ctx.preamble().by_name(self.0.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };

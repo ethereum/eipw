@@ -12,19 +12,25 @@ use crate::lints::{Context, Error, FetchContext, Lint};
 
 use regex::Regex;
 
+use serde::{Deserialize, Serialize};
+
 use std::collections::{HashMap, HashSet};
+use std::fmt::{Debug, Display};
 use std::path::PathBuf;
 
-#[derive(Debug)]
-pub struct LinkStatus<'n> {
-    pub status: &'n str,
-    pub flow: &'n [&'n [&'n str]],
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LinkStatus<S> {
+    pub status: S,
+    pub flow: Vec<Vec<S>>,
 }
 
-impl<'n> LinkStatus<'n> {
+impl<S> LinkStatus<S>
+where
+    S: AsRef<str>,
+{
     fn tier(&self, map: &HashMap<&str, usize>, ctx: &Context<'_, '_>) -> usize {
         ctx.preamble()
-            .by_name(self.status)
+            .by_name(self.status.as_ref())
             .map(|f| f.value())
             .map(str::trim)
             .and_then(|s| map.get(s))
@@ -58,7 +64,10 @@ impl<'n> LinkStatus<'n> {
     }
 }
 
-impl<'n> Lint for LinkStatus<'n> {
+impl<S> Lint for LinkStatus<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn find_resources<'a>(&self, ctx: &FetchContext<'a>) -> Result<(), Error> {
         Self::find_links(ctx.body())
             .map(|x| x.1)
@@ -72,8 +81,8 @@ impl<'n> Lint for LinkStatus<'n> {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let mut map = HashMap::new();
         for (tier, values) in self.flow.iter().enumerate() {
-            for value in *values {
-                map.insert(*value, tier + 1);
+            for value in values {
+                map.insert(value.as_ref(), tier + 1);
             }
         }
 
@@ -119,7 +128,7 @@ impl<'n> Lint for LinkStatus<'n> {
                 url.display(),
                 self.status,
                 ctx.preamble()
-                    .by_name(self.status)
+                    .by_name(self.status.as_ref())
                     .map(|f| f.value())
                     .unwrap_or("<missing>")
                     .trim(),

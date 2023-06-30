@@ -8,9 +8,11 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, Sou
 
 use crate::lints::{Context, Error, Lint};
 
+use serde::{Deserialize, Serialize};
+
 use std::collections::hash_map::{Entry, HashMap};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 pub struct NoDuplicates;
 
 impl Lint for NoDuplicates {

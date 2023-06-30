@@ -8,12 +8,20 @@ use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
 
 use crate::lints::{Context, Error, Lint};
 
-#[derive(Debug)]
-pub struct List<'n>(pub &'n str);
+use serde::{Deserialize, Serialize};
 
-impl<'n> Lint for List<'n> {
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct List<S>(pub S);
+
+impl<S> Lint for List<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.0) {
+        let field = match ctx.preamble().by_name(self.0.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };

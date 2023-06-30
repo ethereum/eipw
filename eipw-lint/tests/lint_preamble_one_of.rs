@@ -23,7 +23,7 @@ hello world"#;
             "preamble-one-of",
             OneOf {
                 name: "a1",
-                values: &["v1", "v2"],
+                values: vec!["v1", "v2"],
             },
         )
         .check_slice(None, src)
@@ -58,7 +58,7 @@ hello world"#;
             "preamble-one-of",
             OneOf {
                 name: "a1",
-                values: &["v1", "v2"],
+                values: vec!["v1", "v2"],
             },
         )
         .check_slice(None, src)
@@ -93,7 +93,7 @@ hello world"#;
             "preamble-one-of",
             OneOf {
                 name: "a1",
-                values: &["v1", "v2"],
+                values: vec!["v1", "v2"],
             },
         )
         .check_slice(None, src)
@@ -128,7 +128,7 @@ hello world"#;
             "preamble-one-of",
             OneOf {
                 name: "a1",
-                values: &["v1", "v2"],
+                values: vec!["v1", "v2"],
             },
         )
         .check_slice(None, src)
@@ -154,7 +154,7 @@ hello world"#;
             "preamble-one-of",
             OneOf {
                 name: "a1",
-                values: &["v1", "v2"],
+                values: vec!["v1", "v2"],
             },
         )
         .check_slice(None, src)

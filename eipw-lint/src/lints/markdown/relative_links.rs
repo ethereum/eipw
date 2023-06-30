@@ -16,18 +16,25 @@ use regex::{Regex, RegexSet};
 use scraper::node::Node as HtmlNode;
 use scraper::Html;
 
+use serde::{Deserialize, Serialize};
+
 use snafu::Snafu;
 
-#[derive(Debug)]
-pub struct RelativeLinks<'e> {
-    pub exceptions: &'e [&'e str],
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RelativeLinks<S> {
+    pub exceptions: Vec<S>,
 }
 
-impl<'e> Lint for RelativeLinks<'e> {
+impl<S> Lint for RelativeLinks<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
 
-        let exceptions = RegexSet::new(self.exceptions).map_err(Error::custom)?;
+        let exceptions = RegexSet::new(&self.exceptions).map_err(Error::custom)?;
 
         let mut visitor = Visitor::default();
         ctx.body().traverse().visit(&mut visitor)?;

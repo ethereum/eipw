@@ -27,7 +27,7 @@ text after
             "markdown-html-comments",
             HtmlComments {
                 name: "header",
-                warn_for: &["value1"],
+                warn_for: vec!["value1"],
             },
         )
         .check_slice(None, src)
@@ -65,7 +65,7 @@ text after
             "markdown-html-comments",
             HtmlComments {
                 name: "header",
-                warn_for: &["value1"],
+                warn_for: vec!["value1"],
             },
         )
         .check_slice(None, src)

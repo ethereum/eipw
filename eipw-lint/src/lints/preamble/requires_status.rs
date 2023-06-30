@@ -8,20 +8,26 @@ use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, Sou
 
 use crate::lints::{Context, Error, FetchContext, Lint};
 
+use serde::{Deserialize, Serialize};
+
 use std::collections::HashMap;
+use std::fmt::{Debug, Display};
 use std::path::PathBuf;
 
-#[derive(Debug)]
-pub struct RequiresStatus<'n> {
-    pub requires: &'n str,
-    pub status: &'n str,
-    pub flow: &'n [&'n [&'n str]],
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RequiresStatus<S> {
+    pub requires: S,
+    pub status: S,
+    pub flow: Vec<Vec<S>>,
 }
 
-impl<'n> RequiresStatus<'n> {
+impl<S> RequiresStatus<S>
+where
+    S: AsRef<str>,
+{
     fn tier(&self, map: &HashMap<&str, usize>, ctx: &Context<'_, '_>) -> usize {
         ctx.preamble()
-            .by_name(self.status)
+            .by_name(self.status.as_ref())
             .map(|f| f.value())
             .map(str::trim)
             .and_then(|s| map.get(s))
@@ -30,9 +36,12 @@ impl<'n> RequiresStatus<'n> {
     }
 }
 
-impl<'n> Lint for RequiresStatus<'n> {
+impl<S> Lint for RequiresStatus<S>
+where
+    S: Display + Debug + AsRef<str>,
+{
     fn find_resources<'a>(&self, ctx: &FetchContext<'a>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.requires) {
+        let field = match ctx.preamble().by_name(self.requires.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };
@@ -51,15 +60,16 @@ impl<'n> Lint for RequiresStatus<'n> {
     }
 
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.requires) {
+        let field = match ctx.preamble().by_name(self.requires.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };
 
         let mut map = HashMap::new();
         for (tier, values) in self.flow.iter().enumerate() {
-            for value in *values {
-                map.insert(*value, tier + 1);
+            for value in values.iter() {
+                let value = value.as_ref();
+                map.insert(value, tier + 1);
             }
         }
 
@@ -138,7 +148,7 @@ impl<'n> Lint for RequiresStatus<'n> {
                 self.requires,
                 self.status,
                 ctx.preamble()
-                    .by_name(self.status)
+                    .by_name(self.status.as_ref())
                     .map(|f| f.value())
                     .unwrap_or("<missing>")
                     .trim(),

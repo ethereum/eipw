@@ -10,21 +10,28 @@ use crate::lints::{Context, Error, FetchContext, Lint};
 
 use regex::Regex;
 
+use serde::{Deserialize, Serialize};
+
+use std::fmt::{Debug, Display};
 use std::path::Path;
 
-#[derive(Debug)]
-pub struct ProposalRef<'n>(pub &'n str);
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct ProposalRef<S>(pub S);
 
-impl<'n> ProposalRef<'n> {
+impl<S> ProposalRef<S> {
     fn regex() -> Regex {
         // NB: This regex is used to calculate a path, so be careful of directory traversal.
         Regex::new(r"(?i)\b(?:eip|erc)-([0-9]+)\b").unwrap()
     }
 }
 
-impl<'n> Lint for ProposalRef<'n> {
+impl<S> Lint for ProposalRef<S>
+where
+    S: Debug + Display + AsRef<str>,
+{
     fn find_resources<'a>(&self, ctx: &FetchContext<'a>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.0) {
+        let field = match ctx.preamble().by_name(self.0.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };
@@ -40,7 +47,7 @@ impl<'n> Lint for ProposalRef<'n> {
     }
 
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.0) {
+        let field = match ctx.preamble().by_name(self.0.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };

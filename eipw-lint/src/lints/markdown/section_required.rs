@@ -10,10 +10,18 @@ use comrak::nodes::{Ast, NodeHeading, NodeValue};
 
 use crate::lints::{Context, Error, Lint};
 
-#[derive(Debug)]
-pub struct SectionRequired<'n>(pub &'n [&'n str]);
+use serde::{Deserialize, Serialize};
 
-impl<'n> Lint for SectionRequired<'n> {
+use std::fmt::{Debug, Display};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct SectionRequired<S>(pub Vec<S>);
+
+impl<S> Lint for SectionRequired<S>
+where
+    S: Debug + Display + AsRef<str> + Clone + PartialEq<String>,
+{
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
         // Collect the headings.
         let headings: Vec<_> = ctx
@@ -54,7 +62,7 @@ impl<'n> Lint for SectionRequired<'n> {
         // TODO: I'm sure this is horribly inefficient!
         missing.retain(|i| {
             for text in &headings {
-                if *i == text {
+                if i == text {
                     return false;
                 }
             }
@@ -65,7 +73,12 @@ impl<'n> Lint for SectionRequired<'n> {
             return Ok(());
         }
 
-        let label = format!("body is missing section(s): `{}`", missing.join("`, `"));
+        let missing_txt = missing
+            .iter()
+            .map(AsRef::as_ref)
+            .collect::<Vec<_>>()
+            .join("`, `");
+        let label = format!("body is missing section(s): `{}`", missing_txt);
         ctx.report(Snippet {
             title: Some(Annotation {
                 annotation_type: ctx.annotation_type(),

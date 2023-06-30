@@ -19,7 +19,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-section-order", SectionOrder(&[]))
+        .deny("markdown-section-order", SectionOrder(Vec::<&str>::new()))
         .check_slice(None, src)
         .run()
         .await
@@ -51,7 +51,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-section-order", SectionOrder(&["Banana"]))
+        .deny("markdown-section-order", SectionOrder(vec!["Banana"]))
         .check_slice(None, src)
         .run()
         .await
@@ -87,7 +87,7 @@ header: value1
         .clear_lints()
         .deny(
             "markdown-section-order",
-            SectionOrder(&["Foo", "Banana", "Bar"]),
+            SectionOrder(vec!["Foo", "Banana", "Bar"]),
         )
         .check_slice(None, src)
         .run()
@@ -123,7 +123,7 @@ header: value1
         .clear_lints()
         .deny(
             "markdown-section-order",
-            SectionOrder(&["Orange", "Foo", "Pear", "Banana", "Bar"]),
+            SectionOrder(vec!["Orange", "Foo", "Pear", "Banana", "Bar"]),
         )
         .check_slice(None, src)
         .run()
@@ -159,7 +159,7 @@ header: value1
         .clear_lints()
         .deny(
             "markdown-section-order",
-            SectionOrder(&["Foo", "Banana", "Bar"]),
+            SectionOrder(vec!["Foo", "Banana", "Bar"]),
         )
         .check_slice(None, src)
         .run()

@@ -517,16 +517,21 @@ where
 }
 
 impl<'a, R> Linter<'a, R> {
-    pub fn new(reporter: R) -> Self {
+    pub fn with_lints<'b: 'a>(
+        reporter: R,
+        lints: impl Iterator<Item = (&'b str, Box<dyn Lint>)>,
+    ) -> Self {
         Self {
             reporter,
             sources: Default::default(),
             fetch: Box::<fetch::DefaultFetch>::default(),
             modifiers: default_modifiers(),
-            lints: default_lints()
-                .map(|(slug, lint)| (slug, (None, lint)))
-                .collect(),
+            lints: lints.map(|(slug, lint)| (slug, (None, lint))).collect(),
         }
+    }
+
+    pub fn new(reporter: R) -> Self {
+        Self::with_lints(reporter, default_lints())
     }
 
     pub fn warn<T>(self, slug: &'a str, lint: T) -> Self

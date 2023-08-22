@@ -23,7 +23,7 @@ impl<S> Lint for RequiredIfEq<S>
 where
     S: Debug + Display + AsRef<str>,
 {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let then_opt = ctx.preamble().by_name(self.then.as_ref());
         let when_opt = ctx.preamble().by_name(self.when.as_ref());
 

@@ -286,12 +286,12 @@ impl<S> Lint for DefaultLint<S>
 where
     S: std::fmt::Debug + AsRef<str>,
 {
-    fn find_resources<'a>(&self, ctx: &FetchContext<'a>) -> Result<(), super::Error> {
+    fn find_resources(&self, ctx: &FetchContext<'_>) -> Result<(), super::Error> {
         let lint = self.map_to_str();
         lint.as_inner().find_resources(ctx)
     }
 
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), super::Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), super::Error> {
         let lint = self.map_to_str();
         lint.as_inner().lint(slug, ctx)
     }

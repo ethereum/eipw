@@ -183,20 +183,20 @@ impl<'a> FetchContext<'a> {
 }
 
 pub trait Lint: Debug {
-    fn find_resources<'a>(&self, _ctx: &FetchContext<'a>) -> Result<(), Error> {
+    fn find_resources(&self, _ctx: &FetchContext<'_>) -> Result<(), Error> {
         Ok(())
     }
 
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error>;
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error>;
 }
 
 impl Lint for Box<dyn Lint> {
-    fn find_resources<'a>(&self, ctx: &FetchContext<'a>) -> Result<(), Error> {
+    fn find_resources(&self, ctx: &FetchContext<'_>) -> Result<(), Error> {
         let lint: &dyn Lint = self.deref();
         lint.find_resources(ctx)
     }
 
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let lint: &dyn Lint = self.deref();
         lint.lint(slug, ctx)
     }

@@ -32,7 +32,7 @@ impl<S> Lint for JsonSchema<S>
 where
     S: Debug + Display + AsRef<str>,
 {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let value: serde_json::Value =
             serde_json::from_str(self.schema.as_ref()).map_err(Error::custom)?;
 

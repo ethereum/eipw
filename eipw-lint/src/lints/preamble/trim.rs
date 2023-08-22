@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 pub struct Trim;
 
 impl Lint for Trim {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let mut no_space = Vec::new();
 
         for field in ctx.preamble().fields() {

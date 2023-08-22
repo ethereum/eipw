@@ -18,11 +18,13 @@ use comrak::nodes::Ast;
 use comrak::{Arena, ComrakExtensionOptions, ComrakOptions};
 
 use crate::lints::{Context, DefaultLint, Error as LintError, FetchContext, InnerContext, Lint};
-use crate::modifiers::Modifier;
+use crate::modifiers::{DefaultModifier, Modifier};
 use crate::preamble::Preamble;
 use crate::reporters::Reporter;
 
 use educe::Educe;
+
+use serde::{Deserialize, Serialize};
 
 use snafu::{ensure, ResultExt, Snafu};
 
@@ -53,19 +55,25 @@ pub enum Error {
     },
 }
 
-fn default_modifiers() -> Vec<Box<dyn Modifier>> {
+fn default_modifiers_enum() -> Vec<DefaultModifier<&'static str>> {
     vec![
-        Box::new(modifiers::SetDefaultAnnotation {
+        DefaultModifier::SetDefaultAnnotation(modifiers::SetDefaultAnnotation {
             name: "status",
             value: "Stagnant",
             annotation_type: AnnotationType::Warning,
         }),
-        Box::new(modifiers::SetDefaultAnnotation {
+        DefaultModifier::SetDefaultAnnotation(modifiers::SetDefaultAnnotation {
             name: "status",
             value: "Withdrawn",
             annotation_type: AnnotationType::Warning,
         }),
     ]
+}
+
+pub fn default_modifiers() -> impl Iterator<Item = Box<dyn Modifier>> {
+    default_modifiers_enum().into_iter().map(|m| match m {
+        DefaultModifier::SetDefaultAnnotation(m) => Box::new(m) as Box<dyn Modifier>,
+    })
 }
 
 pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
@@ -487,9 +495,67 @@ impl<'a> Source<'a> {
 
 #[derive(Debug, Clone)]
 #[non_exhaustive]
-pub struct Settings<'a> {
+pub struct LintSettings<'a> {
     _p: std::marker::PhantomData<&'a dyn Lint>,
     pub default_annotation_type: AnnotationType,
+}
+
+struct NeverIter<T> {
+    _p: std::marker::PhantomData<fn() -> T>,
+    q: std::convert::Infallible,
+}
+
+impl<T> Iterator for NeverIter<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<T> {
+        match self.q {}
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[non_exhaustive]
+pub struct Options<M, L> {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    modifiers: Option<M>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    lints: Option<L>,
+}
+
+impl<M, L> Default for Options<M, L> {
+    fn default() -> Self {
+        Self {
+            modifiers: None,
+            lints: None,
+        }
+    }
+}
+
+impl<M, L, K> Options<Vec<M>, HashMap<K, L>>
+where
+    M: 'static + Clone + Modifier,
+    L: 'static + Clone + Lint,
+    K: AsRef<str>,
+{
+    pub fn to_iters(
+        &self,
+    ) -> Options<
+        impl Iterator<Item = Box<dyn Modifier>> + '_,
+        impl Iterator<Item = (&'_ str, Box<dyn Lint>)>,
+    > {
+        let modifiers = self
+            .modifiers
+            .as_ref()
+            .map(|m| m.iter().map(|n| Box::new(n.clone()) as Box<dyn Modifier>));
+
+        let lints = self.lints.as_ref().map(|l| {
+            l.iter()
+                .map(|(k, v)| (k.as_ref(), Box::new(v.clone()) as Box<dyn Lint>))
+        });
+
+        Options { modifiers, lints }
+    }
 }
 
 #[derive(Educe)]
@@ -517,21 +583,58 @@ where
 }
 
 impl<'a, R> Linter<'a, R> {
-    pub fn with_lints<'b: 'a>(
-        reporter: R,
-        lints: impl Iterator<Item = (&'b str, Box<dyn Lint>)>,
-    ) -> Self {
+    pub fn with_options<'b, M, L>(reporter: R, options: Options<M, L>) -> Self
+    where
+        'b: 'a,
+        L: Iterator<Item = (&'b str, Box<dyn Lint>)>,
+        M: Iterator<Item = Box<dyn Modifier>>,
+    {
+        let modifiers = match options.modifiers {
+            Some(m) => m.collect(),
+            None => default_modifiers().collect(),
+        };
+
+        let lints = match options.lints {
+            Some(l) => l.map(|(slug, lint)| (slug, (None, lint))).collect(),
+            None => default_lints()
+                .map(|(slug, lint)| (slug, (None, lint)))
+                .collect(),
+        };
+
         Self {
             reporter,
             sources: Default::default(),
             fetch: Box::<fetch::DefaultFetch>::default(),
-            modifiers: default_modifiers(),
-            lints: lints.map(|(slug, lint)| (slug, (None, lint))).collect(),
+            modifiers,
+            lints,
         }
     }
 
+    pub fn with_modifiers(reporter: R, modifiers: impl Iterator<Item = Box<dyn Modifier>>) -> Self {
+        Self::with_options(
+            reporter,
+            Options {
+                lints: Option::<NeverIter<_>>::None,
+                modifiers: Some(modifiers),
+            },
+        )
+    }
+
+    pub fn with_lints<'b: 'a>(
+        reporter: R,
+        lints: impl Iterator<Item = (&'b str, Box<dyn Lint>)>,
+    ) -> Self {
+        Self::with_options(
+            reporter,
+            Options {
+                modifiers: Option::<NeverIter<_>>::None,
+                lints: Some(lints),
+            },
+        )
+    }
+
     pub fn new(reporter: R) -> Self {
-        Self::with_lints(reporter, default_lints())
+        Self::with_options::<NeverIter<_>, NeverIter<_>>(reporter, Options::default())
     }
 
     pub fn warn<T>(self, slug: &'a str, lint: T) -> Self
@@ -706,7 +809,7 @@ where
                 None => continue,
             };
 
-            let mut settings = Settings {
+            let mut settings = LintSettings {
                 _p: std::marker::PhantomData,
                 default_annotation_type: AnnotationType::Error,
             };
@@ -858,11 +961,46 @@ mod tests {
     use super::*;
 
     #[test]
-    fn serialize_deserialize() {
+    fn lints_serialize_deserialize() {
         type DefaultLints<S> = HashMap<S, DefaultLint<S>>;
         let config: DefaultLints<&str> = default_lints_enum().collect();
 
         let serialized = toml::to_string_pretty(&config).unwrap();
         toml::from_str::<DefaultLints<String>>(&serialized).unwrap();
+    }
+
+    #[test]
+    fn modifiers_serialize_deserialize() {
+        #[derive(Debug, Serialize, Deserialize)]
+        struct Wrapper<S> {
+            modifiers: Vec<DefaultModifier<S>>,
+        }
+
+        let config = Wrapper {
+            modifiers: default_modifiers_enum(),
+        };
+
+        let serialized = toml::to_string_pretty(&config).unwrap();
+        toml::from_str::<Wrapper<String>>(&serialized).unwrap();
+    }
+
+    #[test]
+    fn options_serialize_deserialize() {
+        let options = Options {
+            lints: Some(default_lints_enum().collect::<HashMap<_, _>>()),
+            modifiers: Some(default_modifiers_enum()),
+        };
+
+        type StringOptions =
+            Options<Vec<DefaultModifier<String>>, HashMap<String, DefaultLint<String>>>;
+
+        let serialized = toml::to_string_pretty(&options).unwrap();
+        let actual = toml::from_str::<StringOptions>(&serialized).unwrap();
+        let iters = actual.to_iters();
+
+        #[allow(unused_must_use)]
+        {
+            Linter::with_options(reporters::Null, iters);
+        }
     }
 }

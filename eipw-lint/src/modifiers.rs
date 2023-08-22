@@ -5,11 +5,13 @@
  */
 
 pub mod default_annotation;
+mod known_modifiers;
 
 use crate::lints::Context;
-use crate::Settings;
+use crate::LintSettings;
 
 pub use self::default_annotation::SetDefaultAnnotation;
+pub use self::known_modifiers::DefaultModifier;
 
 use snafu::Snafu;
 
@@ -35,5 +37,5 @@ impl Error {
 }
 
 pub trait Modifier: Debug {
-    fn modify(&self, context: &Context, settings: &mut Settings) -> Result<(), Error>;
+    fn modify(&self, context: &Context, settings: &mut LintSettings) -> Result<(), Error>;
 }

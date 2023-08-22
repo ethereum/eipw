@@ -1,9 +1,9 @@
 [package]
 name = "eipw-lint"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 license = "MPL-2.0"
-rust-version = "1.65"
+rust-version = "1.69"
 repository = "https://github.com/ethereum/eipw"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

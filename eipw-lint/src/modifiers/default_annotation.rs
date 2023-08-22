@@ -9,25 +9,42 @@ use annotate_snippets::snippet::AnnotationType;
 use std::fmt::Debug;
 
 use crate::lints::Context;
-use crate::Settings;
+use crate::LintSettings;
+
+use serde::{Deserialize, Serialize};
 
 use super::{Error, Modifier};
 
-#[derive(Debug)]
-pub struct SetDefaultAnnotation<'a> {
-    pub name: &'a str,
-    pub value: &'a str,
+#[derive(Serialize, Deserialize)]
+#[serde(remote = "AnnotationType", rename_all = "kebab-case")]
+enum AnnotationTypeDef {
+    Error,
+    Warning,
+    Info,
+    Note,
+    Help,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct SetDefaultAnnotation<S> {
+    pub name: S,
+    pub value: S,
+
+    #[serde(with = "AnnotationTypeDef")]
     pub annotation_type: AnnotationType,
 }
 
-impl<'a> Modifier for SetDefaultAnnotation<'a> {
-    fn modify(&self, context: &Context, settings: &mut Settings) -> Result<(), Error> {
-        let value = match context.preamble().by_name(self.name) {
+impl<S> Modifier for SetDefaultAnnotation<S>
+where
+    S: Debug + AsRef<str>,
+{
+    fn modify(&self, context: &Context, settings: &mut LintSettings) -> Result<(), Error> {
+        let value = match context.preamble().by_name(self.name.as_ref()) {
             Some(v) => v.value().trim(),
             None => return Ok(()),
         };
 
-        if value == self.value {
+        if value == self.value.as_ref() {
             settings.default_annotation_type = self.annotation_type;
         }
 

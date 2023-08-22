@@ -315,6 +315,88 @@ async fn lint_one_with_default_lints() {
 }
 
 #[wasm_bindgen_test]
+async fn lint_one_with_default_modifiers() {
+    let mut path = PathBuf::from("tests");
+    path.push("eips");
+    path.push("eip-1000.md");
+
+    let path = path.to_str().unwrap();
+
+    let opts = json!(
+        {
+            "default_modifiers": [
+                {
+                    "kind": "set-default-annotation",
+                    "name": "status",
+                    "value": "Last Call",
+                    "annotation_type": "info",
+                }
+            ]
+       }
+    );
+
+    let opts_js = opts
+        .serialize(&serde_wasm_bindgen::Serializer::json_compatible())
+        .unwrap();
+    let opts = Object::try_from(&opts_js).unwrap().to_owned();
+
+    let result = lint(vec![JsValue::from_str(path)], Some(opts))
+        .await
+        .ok()
+        .unwrap();
+
+    let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
+    let expected = json! {
+    [
+       {
+          "formatted": "info[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`\n  --> tests/eips/eip-1000.md:12:10\n   |\n12 | requires: 20\n   |          --- info: has a less advanced status\n   |\n   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`\n   = help: see https://ethereum.github.io/eipw/preamble-requires-status/",
+          "footer": [
+             {
+                "annotation_type": "Help",
+                "id": null,
+                "label": "valid `status` values for this proposal are: `Draft`, `Stagnant`"
+             },
+             {
+                "annotation_type": "Help",
+                "id": null,
+                "label": "see https://ethereum.github.io/eipw/preamble-requires-status/"
+             }
+          ],
+          "opt": {
+             "anonymized_line_numbers": false,
+             "color": false
+          },
+          "slices": [
+             {
+                "annotations": [
+                   {
+                      "annotation_type": "Info",
+                      "label": "has a less advanced status",
+                      "range": [
+                         9,
+                         12
+                      ]
+                   }
+                ],
+                "fold": false,
+                "line_start": 12,
+                "origin": "tests/eips/eip-1000.md",
+                "source": "requires: 20"
+             }
+          ],
+          "title": {
+             "annotation_type": "Info",
+             "id": "preamble-requires-status",
+             "label": "preamble header `requires` contains items not stable enough for a `status` of `Last Call`"
+          }
+       }
+    ]
+    };
+
+    assert_eq!(expected, actual);
+}
+
+#[wasm_bindgen_test]
 async fn format_one() {
     let mut path = PathBuf::from("tests");
     path.push("eips");

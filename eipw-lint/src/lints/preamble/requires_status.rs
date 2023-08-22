@@ -40,7 +40,7 @@ impl<S> Lint for RequiresStatus<S>
 where
     S: Display + Debug + AsRef<str>,
 {
-    fn find_resources<'a>(&self, ctx: &FetchContext<'a>) -> Result<(), Error> {
+    fn find_resources(&self, ctx: &FetchContext<'_>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.requires.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
@@ -59,7 +59,7 @@ where
         Ok(())
     }
 
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.requires.as_ref()) {
             None => return Ok(()),
             Some(s) => s,

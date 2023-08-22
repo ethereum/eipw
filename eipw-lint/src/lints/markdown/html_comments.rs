@@ -27,7 +27,7 @@ impl<S> Lint for HtmlComments<S>
 where
     S: Display + Debug + AsRef<str> + for<'eq> PartialEq<&'eq str>,
 {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.name.as_ref()) {
             None => return Ok(()),
             Some(s) => s.value().trim(),

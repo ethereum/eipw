@@ -16,7 +16,7 @@ use std::collections::hash_map::{Entry, HashMap};
 pub struct NoDuplicates;
 
 impl Lint for NoDuplicates {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let mut defined = HashMap::new();
 
         for field in ctx.preamble().fields() {

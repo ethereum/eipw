@@ -48,7 +48,7 @@ impl<S> Lint for SectionOrder<S>
 where
     S: Debug + Display + AsRef<str> + for<'eq> PartialEq<&'eq str>,
 {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         // Collect the headings.
         let headings: Vec<_> = ctx
             .body()

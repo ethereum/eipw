@@ -57,7 +57,7 @@ async fn eipv() -> std::io::Result<()> {
         println!("Testing {}...", entry.path().display());
         let reports = Linter::<Text<String>>::default()
             .allow("preamble-file-name")
-            .check_file(&input_path)
+            .check_file(input_path)
             .run()
             .await
             .unwrap()

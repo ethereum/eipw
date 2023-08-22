@@ -844,8 +844,8 @@ where
     }
 }
 
-fn process<'r, 'a>(
-    reporter: &'r dyn Reporter,
+fn process<'a>(
+    reporter: &dyn Reporter,
     arena: &'a Arena<Node<'a, RefCell<Ast>>>,
     origin: Option<&'a str>,
     source: &'a str,

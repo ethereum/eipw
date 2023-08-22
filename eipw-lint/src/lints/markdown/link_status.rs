@@ -68,7 +68,7 @@ impl<S> Lint for LinkStatus<S>
 where
     S: Debug + Display + AsRef<str>,
 {
-    fn find_resources<'a>(&self, ctx: &FetchContext<'a>) -> Result<(), Error> {
+    fn find_resources(&self, ctx: &FetchContext<'_>) -> Result<(), Error> {
         Self::find_links(ctx.body())
             .map(|x| x.1)
             .collect::<HashSet<_>>()
@@ -78,7 +78,7 @@ where
         Ok(())
     }
 
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let mut map = HashMap::new();
         for (tier, values) in self.flow.iter().enumerate() {
             for value in values {

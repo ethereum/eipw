@@ -20,7 +20,7 @@ impl<S> Lint for Uint<S>
 where
     S: Display + Debug + AsRef<str>,
 {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.0.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
@@ -66,7 +66,7 @@ impl<S> Lint for UintList<S>
 where
     S: Debug + Display + AsRef<str>,
 {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let field = match ctx.preamble().by_name(self.0.as_ref()) {
             None => return Ok(()),
             Some(s) => s,

@@ -38,7 +38,7 @@ impl<S> Lint for Regex<S>
 where
     S: Display + Debug + AsRef<str>,
 {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let pattern = self.pattern.as_ref();
         let re = TextRegex::new(pattern).map_err(Error::custom)?;
 

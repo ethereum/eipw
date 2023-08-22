@@ -31,7 +31,7 @@ impl<S> Lint for RelativeLinks<S>
 where
     S: Debug + Display + AsRef<str>,
 {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
 
         let exceptions = RegexSet::new(&self.exceptions).map_err(Error::custom)?;

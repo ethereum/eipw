@@ -6,9 +6,9 @@
 
 use eipw_lint::fetch::Fetch;
 use eipw_lint::lints::{DefaultLint, Lint};
-use eipw_lint::modifiers::DefaultModifier;
+use eipw_lint::modifiers::{DefaultModifier, Modifier};
 use eipw_lint::reporters::{AdditionalHelp, Json};
-use eipw_lint::{default_lints, Linter};
+use eipw_lint::{default_lints, Linter, Options};
 
 use js_sys::{JsString, Object};
 
@@ -130,17 +130,25 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     if let Some(options) = options {
         opts = serde_wasm_bindgen::from_value(options.deref().clone())?;
 
+        let mut options = Options::default();
+
         if let Some(ref lints) = opts.default_lints {
-            linter = Linter::with_lints(
-                reporter,
+            options.lints = Some(
                 lints
                     .iter()
                     .map(|(k, v)| (k.as_str(), Box::new(v.clone()) as Box<dyn Lint>)),
             );
-        } else {
-            linter = Linter::new(reporter);
         }
 
+        if let Some(ref modifiers) = opts.default_modifiers {
+            options.modifiers = Some(
+                modifiers
+                    .iter()
+                    .map(|m| Box::new(m.clone()) as Box<dyn Modifier>),
+            );
+        }
+
+        linter = Linter::with_options(reporter, options);
         linter = opts.apply(linter);
     } else {
         linter = Linter::new(reporter);

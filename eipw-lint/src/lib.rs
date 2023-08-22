@@ -517,10 +517,10 @@ impl<T> Iterator for NeverIter<T> {
 #[non_exhaustive]
 pub struct Options<M, L> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    modifiers: Option<M>,
+    pub modifiers: Option<M>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    lints: Option<L>,
+    pub lints: Option<L>,
 }
 
 impl<M, L> Default for Options<M, L> {

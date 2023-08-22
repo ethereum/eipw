@@ -8,7 +8,8 @@ use annotate_snippets::snippet::Snippet;
 
 use clap::{Parser, ValueEnum};
 
-use eipw_lint::lints::{DefaultLint, Lint};
+use eipw_lint::lints::DefaultLint;
+use eipw_lint::modifiers::DefaultModifier;
 use eipw_lint::reporters::count::Count;
 use eipw_lint::reporters::{AdditionalHelp, Json, Reporter, Text};
 use eipw_lint::{default_lints, Linter};
@@ -90,13 +91,16 @@ fn list_lints() {
     println!();
 }
 
+type Options =
+    eipw_lint::Options<Vec<DefaultModifier<String>>, HashMap<String, DefaultLint<String>>>;
+
 #[cfg(target_arch = "wasm32")]
-async fn read_config(_path: &Path) -> Lints {
+async fn read_config(_path: &Path) -> Options {
     todo!()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-async fn read_config(path: &Path) -> Lints {
+async fn read_config(path: &Path) -> Options {
     let contents = tokio::fs::read_to_string(path)
         .await
         .expect("couldn't read config file");
@@ -173,17 +177,12 @@ async fn run(opts: Opts) -> Result<(), usize> {
     });
     let reporter = Count::new(reporter);
 
-    let lints: Lints;
+    let options: Options;
     let mut linter;
     if let Some(ref path) = opts.config {
-        lints = read_config(path).await;
-        linter = Linter::with_lints(
-            reporter,
-            lints
-                .lints
-                .iter()
-                .map(|(k, v)| (k.as_str(), Box::new(v.clone()) as Box<dyn Lint>)),
-        );
+        options = read_config(path).await;
+        let options_iter = options.to_iters();
+        linter = Linter::with_options(reporter, options_iter);
     } else {
         linter = Linter::new(reporter);
     }

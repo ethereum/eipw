@@ -6,6 +6,7 @@
 
 use eipw_lint::fetch::Fetch;
 use eipw_lint::lints::{DefaultLint, Lint};
+use eipw_lint::modifiers::DefaultModifier;
 use eipw_lint::reporters::{AdditionalHelp, Json};
 use eipw_lint::{default_lints, Linter};
 
@@ -80,6 +81,9 @@ struct Opts {
 
     #[serde(default)]
     default_lints: Option<HashMap<String, DefaultLint<String>>>,
+
+    #[serde(default)]
+    default_modifiers: Option<Vec<DefaultModifier<String>>>,
 }
 
 impl Opts {

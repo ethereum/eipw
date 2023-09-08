@@ -12,7 +12,7 @@ use eipw_lint::lints::DefaultLint;
 use eipw_lint::modifiers::DefaultModifier;
 use eipw_lint::reporters::count::Count;
 use eipw_lint::reporters::{AdditionalHelp, Json, Reporter, Text};
-use eipw_lint::{default_lints, Linter};
+use eipw_lint::{default_lints, default_lints_enum, default_modifiers_enum, Linter};
 
 use serde::{Deserialize, Serialize};
 
@@ -21,12 +21,16 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug, Parser)]
 struct Opts {
+    /// Print the default configuration.
+    #[clap(exclusive(true), long)]
+    defaults: bool,
+
     /// List all available lints.
     #[clap(exclusive(true), long)]
     list_lints: bool,
 
     /// Files and/or directories to check.
-    #[clap(required_unless_present("list_lints"))]
+    #[clap(required_unless_present_any(["list_lints", "defaults"]))]
     sources: Vec<PathBuf>,
 
     /// Output format.
@@ -81,6 +85,20 @@ impl Reporter for EitherReporter {
     }
 }
 
+fn defaults() {
+    let modifiers = default_modifiers_enum();
+    let lints = default_lints_enum();
+
+    let mut options = Options::<&str>::default();
+
+    options.modifiers = Some(modifiers);
+    options.lints = Some(lints.collect());
+
+    let output = toml::to_string_pretty(&options).unwrap();
+
+    println!("{output}\n");
+}
+
 fn list_lints() {
     println!("Available lints:");
 
@@ -91,8 +109,7 @@ fn list_lints() {
     println!();
 }
 
-type Options =
-    eipw_lint::Options<Vec<DefaultModifier<String>>, HashMap<String, DefaultLint<String>>>;
+type Options<S = String> = eipw_lint::Options<Vec<DefaultModifier<S>>, HashMap<S, DefaultLint<S>>>;
 
 #[cfg(target_arch = "wasm32")]
 async fn read_config(_path: &Path) -> Options {
@@ -160,6 +177,11 @@ struct Lints {
 async fn run(opts: Opts) -> Result<(), usize> {
     if opts.list_lints {
         list_lints();
+        return Ok(());
+    }
+
+    if opts.defaults {
+        defaults();
         return Ok(());
     }
 

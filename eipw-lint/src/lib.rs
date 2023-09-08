@@ -55,7 +55,9 @@ pub enum Error {
     },
 }
 
-fn default_modifiers_enum() -> Vec<DefaultModifier<&'static str>> {
+#[doc(hidden)]
+/// No stability guaranteed.
+pub fn default_modifiers_enum() -> Vec<DefaultModifier<&'static str>> {
     vec![
         DefaultModifier::SetDefaultAnnotation(modifiers::SetDefaultAnnotation {
             name: "status",
@@ -80,7 +82,9 @@ pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
     default_lints_enum().map(|(name, lint)| (name, lint.boxed()))
 }
 
-fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&'static str>)> {
+#[doc(hidden)]
+/// No stability guaranteed.
+pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&'static str>)> {
     use self::DefaultLint::*;
     use lints::preamble::regex;
     use lints::{markdown, preamble};

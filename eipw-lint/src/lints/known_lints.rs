@@ -66,6 +66,7 @@ pub enum DefaultLint<S> {
     MarkdownSectionRequired {
         sections: markdown::SectionRequired<S>,
     },
+    MarkdownHeadingsSpace(markdown::HeadingsSpace),
 }
 
 impl<S> DefaultLint<S>
@@ -108,6 +109,7 @@ where
             Self::MarkdownRelativeLinks(l) => Box::new(l),
             Self::MarkdownSectionOrder { sections } => Box::new(sections),
             Self::MarkdownSectionRequired { sections } => Box::new(sections),
+            Self::MarkdownHeadingsSpace(l) => Box::new(l),
         }
     }
 }
@@ -146,6 +148,7 @@ where
             Self::MarkdownRelativeLinks(l) => l,
             Self::MarkdownSectionOrder { sections } => sections,
             Self::MarkdownSectionRequired { sections } => sections,
+            Self::MarkdownHeadingsSpace(l) => l,
         }
     }
 }
@@ -289,6 +292,7 @@ where
             Self::MarkdownSectionRequired { sections } => DefaultLint::MarkdownSectionRequired {
                 sections: markdown::SectionRequired(sections.0.iter().map(AsRef::as_ref).collect()),
             },
+            Self::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
         }
     }
 }

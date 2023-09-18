@@ -457,6 +457,10 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
                 ),
             }),
         ),
+        (
+            "markdown-headings-space",
+            MarkdownHeadingsSpace(markdown::HeadingsSpace{}),
+        )
     ]
     .into_iter()
 }

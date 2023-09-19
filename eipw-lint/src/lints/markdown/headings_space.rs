@@ -21,7 +21,7 @@ use std::fmt::Debug;
 pub struct HeadingsSpace;
 
 impl Lint for HeadingsSpace {
-    fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         // Match for text nodes starting with leading '#' chars (upto 6)
         // Markdown does not recognise these nodes as valid Headings without the space
         let heading_pattern = Regex::new("^#{1,6}").unwrap();
@@ -36,11 +36,11 @@ impl Lint for HeadingsSpace {
                 } => {
                     if let Some(matched_text) = heading_pattern.find(text) {
                         let heading_level = matched_text.end();
-                            Some((
-                                text.clone(),
-                                node.data.borrow().sourcepos.start.line,
-                                heading_level,
-                            ))
+                        Some((
+                            text.clone(),
+                            node.data.borrow().sourcepos.start.line,
+                            heading_level,
+                        ))
                     } else {
                         None
                     }
@@ -49,10 +49,10 @@ impl Lint for HeadingsSpace {
             })
             .collect();
 
-        let slices = invalid_headings
+        let slices: Vec<_> = invalid_headings
             .iter()
             .map(|(text, line_start, heading_level)| Slice {
-                line_start: line_start.clone(),
+                line_start: *line_start,
                 origin: ctx.origin(),
                 source: text,
                 fold: false,
@@ -64,16 +64,19 @@ impl Lint for HeadingsSpace {
             })
             .collect();
 
-        ctx.report(Snippet {
-            title: Some(Annotation {
-                id: Some(slug),
-                annotation_type: ctx.annotation_type(),
-                label: Some("Space missing in header"),
-            }),
-            footer: vec![],
-            slices,
-            opt: Default::default(),
-        })?;
+        if !slices.is_empty() {
+            ctx.report(Snippet {
+                title: Some(Annotation {
+                    id: Some(slug),
+                    annotation_type: ctx.annotation_type(),
+                    label: Some("Space missing in header"),
+                }),
+                footer: vec![],
+                slices,
+                opt: Default::default(),
+            })?;
+        }
+
         Ok(())
     }
 }

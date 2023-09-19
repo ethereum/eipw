@@ -20,7 +20,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-headings-space", HeadingsSpace{})
+        .deny("markdown-headings-space", HeadingsSpace {})
         .check_slice(None, src)
         .run()
         .await
@@ -52,7 +52,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-headings-space", HeadingsSpace{})
+        .deny("markdown-headings-space", HeadingsSpace {})
         .check_slice(None, src)
         .run()
         .await

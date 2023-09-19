@@ -9,6 +9,7 @@ use annotate_snippets::snippet::{Annotation, Slice, Snippet};
 use annotate_snippets::snippet::SourceAnnotation;
 use comrak::nodes::Ast;
 use comrak::nodes::NodeValue;
+use regex::Regex;
 
 use crate::lints::{Context, Error, Lint};
 
@@ -21,17 +22,21 @@ pub struct HeadingsSpace;
 
 impl Lint for HeadingsSpace {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
+        // Match for text nodes starting with with 1 to 6 '#' chars 
+        // as Markdown does not recognise headings without space
+        let heading_pattern = Regex::new("^#{1,6}").unwrap();
         let false_headings: Vec<_> = ctx
             .body()
             .descendants()
             .filter_map(|node| match &*node.data.borrow() {
-                // Collect all Text nodes as Markdown does not recognise headings without space
+                // Collect all matching Text nodes 
                 Ast {
                     value: NodeValue::Text(text),
                     ..
                 } => {
-                    if text.starts_with("#") {
-                        Some((text.clone(), node.data.borrow().sourcepos.start.line))
+                    if let Some(matched_text) = heading_pattern.find(text) {
+                        let heading_level = matched_text.len();
+                        Some((text.clone(), node.data.borrow().sourcepos.start.line, heading_level))
                     } else {
                         None
                     }
@@ -42,8 +47,7 @@ impl Lint for HeadingsSpace {
 
         let slices = false_headings
             .iter()
-            .map(|(text, line_start)| {
-                let error_idx = text.rfind("#").unwrap();
+            .map(|(text, line_start, heading_level)| {
                 Slice {
                     line_start: line_start.clone(),
                     origin: ctx.origin(),
@@ -52,7 +56,7 @@ impl Lint for HeadingsSpace {
                     annotations: vec![SourceAnnotation {
                         annotation_type: ctx.annotation_type(),
                         label: "space required here",
-                        range: (error_idx, error_idx + 1),
+                        range: (*heading_level - 1, *heading_level),
                     }],
                 }
             })

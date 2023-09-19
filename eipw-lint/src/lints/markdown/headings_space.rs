@@ -22,21 +22,25 @@ pub struct HeadingsSpace;
 
 impl Lint for HeadingsSpace {
     fn lint<'a, 'b>(&self, slug: &'a str, ctx: &Context<'a, 'b>) -> Result<(), Error> {
-        // Match for text nodes starting with with 1 to 6 '#' chars 
-        // as Markdown does not recognise headings without space
+        // Match for text nodes starting with leading '#' chars (upto 6)
+        // Markdown does not recognise these nodes as valid Headings without the space
         let heading_pattern = Regex::new("^#{1,6}").unwrap();
-        let false_headings: Vec<_> = ctx
+        let invalid_headings: Vec<_> = ctx
             .body()
             .descendants()
             .filter_map(|node| match &*node.data.borrow() {
-                // Collect all matching Text nodes 
+                // Collect all matching Text nodes
                 Ast {
                     value: NodeValue::Text(text),
                     ..
                 } => {
                     if let Some(matched_text) = heading_pattern.find(text) {
-                        let heading_level = matched_text.len();
-                        Some((text.clone(), node.data.borrow().sourcepos.start.line, heading_level))
+                        let heading_level = matched_text.end();
+                            Some((
+                                text.clone(),
+                                node.data.borrow().sourcepos.start.line,
+                                heading_level,
+                            ))
                     } else {
                         None
                     }
@@ -45,20 +49,18 @@ impl Lint for HeadingsSpace {
             })
             .collect();
 
-        let slices = false_headings
+        let slices = invalid_headings
             .iter()
-            .map(|(text, line_start, heading_level)| {
-                Slice {
-                    line_start: line_start.clone(),
-                    origin: ctx.origin(),
-                    source: text,
-                    fold: false,
-                    annotations: vec![SourceAnnotation {
-                        annotation_type: ctx.annotation_type(),
-                        label: "space required here",
-                        range: (*heading_level - 1, *heading_level),
-                    }],
-                }
+            .map(|(text, line_start, heading_level)| Slice {
+                line_start: line_start.clone(),
+                origin: ctx.origin(),
+                source: text,
+                fold: false,
+                annotations: vec![SourceAnnotation {
+                    annotation_type: ctx.annotation_type(),
+                    label: "space required here",
+                    range: (*heading_level - 1, *heading_level),
+                }],
             })
             .collect();
 

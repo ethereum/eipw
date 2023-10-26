@@ -59,7 +59,7 @@ pub enum DefaultLint<S> {
         pattern: markdown::LinkFirst<S>,
     },
     MarkdownLinkStatus(markdown::LinkStatus<S>),
-    MarkdownProposalRef(markdown::ProposalRef),
+    MarkdownProposalRef(markdown::ProposalRef<S>),
     MarkdownRegex(markdown::Regex<S>),
     MarkdownRelativeLinks(markdown::RelativeLinks<S>),
     MarkdownSectionOrder {
@@ -261,7 +261,12 @@ where
                     .map(|v| v.iter().map(AsRef::as_ref).collect())
                     .collect(),
             }),
-            Self::MarkdownProposalRef(_) => DefaultLint::MarkdownProposalRef(markdown::ProposalRef),
+            Self::MarkdownProposalRef(l) => {
+                DefaultLint::MarkdownProposalRef(markdown::ProposalRef {
+                    prefix: l.prefix.as_ref(),
+                    suffix: l.suffix.as_ref(),
+                })
+            }
             Self::MarkdownRegex(l) => DefaultLint::MarkdownRegex(markdown::Regex {
                 message: l.message.as_ref(),
                 mode: l.mode,

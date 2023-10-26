@@ -16,22 +16,32 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use std::collections::HashSet;
+use std::fmt::{Debug, Display};
 use std::path::PathBuf;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct ProposalRef;
+pub struct ProposalRef<S> {
+    pub prefix: S,
+    pub suffix: S,
+}
 
-impl ProposalRef {
-    fn find_refs<'a>(node: &'a AstNode<'a>) -> Result<Vec<(usize, PathBuf, String)>, Error> {
-        let mut visitor = Visitor::default();
+impl<S> ProposalRef<S>
+where
+    S: AsRef<str>,
+{
+    fn find_refs<'a>(&self, node: &'a AstNode<'a>) -> Result<Vec<(usize, PathBuf, String)>, Error> {
+        let mut visitor = Visitor::new(self.prefix.as_ref(), self.suffix.as_ref());
         node.traverse().visit(&mut visitor)?;
         Ok(visitor.refs)
     }
 }
 
-impl Lint for ProposalRef {
+impl<S> Lint for ProposalRef<S>
+where
+    S: Display + Debug + AsRef<str>,
+{
     fn find_resources(&self, ctx: &FetchContext<'_>) -> Result<(), Error> {
-        Self::find_refs(ctx.body())?
+        self.find_refs(ctx.body())?
             .into_iter()
             .map(|x| x.1)
             .collect::<HashSet<_>>()
@@ -42,7 +52,7 @@ impl Lint for ProposalRef {
     }
 
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
-        for (start_line, url, text) in Self::find_refs(ctx.body())? {
+        for (start_line, url, text) in self.find_refs(ctx.body())? {
             let eip = match ctx.eip(&url) {
                 Ok(eip) => eip,
                 Err(e) => {
@@ -108,22 +118,26 @@ impl Lint for ProposalRef {
     }
 }
 
-struct Visitor {
+struct Visitor<'a> {
     re: Regex,
     refs: Vec<(usize, PathBuf, String)>,
+    prefix: &'a str,
+    suffix: &'a str,
 }
 
-impl Default for Visitor {
-    fn default() -> Self {
+impl<'a> Visitor<'a> {
+    fn new(prefix: &'a str, suffix: &'a str) -> Self {
         Self {
             // NB: This regex is used to calculate a path, so be careful of directory traversal.
             re: Regex::new(r"(?i)\b(?:eip|erc)-([0-9]+)\b").unwrap(),
             refs: Default::default(),
+            prefix,
+            suffix,
         }
     }
 }
 
-impl tree::Visitor for Visitor {
+impl<'a> tree::Visitor for Visitor<'a> {
     type Error = Error;
 
     fn enter_front_matter(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
@@ -151,7 +165,7 @@ impl tree::Visitor for Visitor {
             let whole = found.get(0).unwrap().as_str();
             let number_txt = found.get(1).unwrap().as_str();
 
-            let filename = format!("eip-{}.md", number_txt);
+            let filename = format!("{}{}{}", self.prefix, number_txt, self.suffix);
 
             self.refs
                 .push((ast.sourcepos.start.line, filename.into(), whole.into()));

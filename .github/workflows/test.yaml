@@ -34,16 +34,16 @@ jobs:
           profile: minimal
           toolchain: 1.69.0
           override: true
-      - run: cargo install wasm-pack --version 0.12.1
+      - run: cargo install wasm-pack --version 0.12.1 --locked
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --no-default-features
+          args: --all --no-default-features --locked
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --all-features
-      - run: wasm-pack test --node --all
+          args: --all --all-features --locked
+      - run: wasm-pack test --node --all --locked
 
   fmt:
     name: Rustfmt

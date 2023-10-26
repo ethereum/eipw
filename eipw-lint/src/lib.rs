@@ -350,7 +350,10 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
         //
         (
             "markdown-refs",
-            MarkdownProposalRef(markdown::ProposalRef),
+            MarkdownProposalRef(markdown::ProposalRef {
+                prefix: "eip-",
+                suffix: ".md",
+            }),
         ),
         (
             "markdown-html-comments",

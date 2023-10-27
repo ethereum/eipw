@@ -19,6 +19,8 @@ pub struct RequiresStatus<S> {
     pub requires: S,
     pub status: S,
     pub flow: Vec<Vec<S>>,
+    pub prefix: S,
+    pub suffix: S,
 }
 
 impl<S> RequiresStatus<S>
@@ -52,7 +54,7 @@ where
             .map(str::trim)
             .map(str::parse::<u64>)
             .filter_map(Result::ok)
-            .map(|n| format!("eip-{}.md", n))
+            .map(|n| format!("{}{}{}", self.prefix, n, self.suffix))
             .map(PathBuf::from)
             .for_each(|p| ctx.fetch(p));
 
@@ -88,7 +90,7 @@ where
             offset += item_count + 1;
 
             let key = match item.trim().parse::<u64>() {
-                Ok(k) => PathBuf::from(format!("eip-{}.md", k)),
+                Ok(k) => PathBuf::from(format!("{}{}{}", self.prefix, k, self.suffix)),
                 _ => continue,
             };
 

@@ -315,6 +315,8 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
             PreambleRequiresStatus(preamble::RequiresStatus {
                 requires: "requires",
                 status: "status",
+                prefix: "eip-",
+                suffix: ".md",
                 flow: vec![
                     vec!["Draft", "Stagnant"],
                     vec!["Review"],

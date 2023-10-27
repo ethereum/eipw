@@ -216,6 +216,8 @@ where
                 DefaultLint::PreambleRequiresStatus(preamble::RequiresStatus {
                     requires: l.requires.as_ref(),
                     status: l.status.as_ref(),
+                    suffix: l.suffix.as_ref(),
+                    prefix: l.prefix.as_ref(),
                     flow: l
                         .flow
                         .iter()

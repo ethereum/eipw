@@ -22,6 +22,8 @@ use std::path::PathBuf;
 pub struct LinkStatus<S> {
     pub status: S,
     pub flow: Vec<Vec<S>>,
+    pub prefix: S,
+    pub suffix: S,
 }
 
 impl<S> LinkStatus<S>
@@ -38,9 +40,18 @@ where
             .unwrap_or(0)
     }
 
-    fn find_links<'a>(node: &'a AstNode<'a>) -> impl 'a + Iterator<Item = (usize, PathBuf)> {
-        let re = Regex::new("(?i)eip-([0-9]+).md$").unwrap();
+    fn find_links<'a>(&self, node: &'a AstNode<'a>) -> impl 'a + Iterator<Item = (usize, PathBuf)> {
+        let escaped_prefix = regex::escape(self.prefix.as_ref());
+        let escaped_suffix = regex::escape(self.suffix.as_ref());
 
+        let re = Regex::new(&format!(
+            "(?i){}([0-9]+){}$",
+            escaped_prefix, escaped_suffix
+        ))
+        .unwrap();
+
+        let prefix = self.prefix.as_ref().to_owned();
+        let suffix = self.suffix.as_ref().to_owned();
         node.descendants()
             // Find all URLs and the lines they appear on.
             .filter_map(|start| match &*start.data.borrow() {
@@ -57,7 +68,7 @@ where
                 re.captures(&url).map(|c| {
                     (
                         start_line,
-                        format!("eip-{}.md", c.get(1).unwrap().as_str()).into(),
+                        format!("{}{}{}", prefix, c.get(1).unwrap().as_str(), suffix,).into(),
                     )
                 })
             })
@@ -69,7 +80,7 @@ where
     S: Debug + Display + AsRef<str>,
 {
     fn find_resources(&self, ctx: &FetchContext<'_>) -> Result<(), Error> {
-        Self::find_links(ctx.body())
+        self.find_links(ctx.body())
             .map(|x| x.1)
             .collect::<HashSet<_>>()
             .into_iter()
@@ -89,7 +100,7 @@ where
         let my_tier = self.tier(&map, ctx);
         let mut min = usize::MAX;
 
-        for (start_line, url) in Self::find_links(ctx.body()) {
+        for (start_line, url) in self.find_links(ctx.body()) {
             let eip = match ctx.eip(&url) {
                 Ok(eip) => eip,
                 Err(e) => {

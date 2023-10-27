@@ -443,6 +443,8 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
         (
             "markdown-link-status",
             MarkdownLinkStatus(markdown::LinkStatus {
+                prefix: "eip-",
+                suffix: ".md",
                 status: "status",
                 flow: vec![
                     vec!["Draft", "Stagnant"],

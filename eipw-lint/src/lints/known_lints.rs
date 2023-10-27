@@ -258,6 +258,8 @@ where
                 pattern: markdown::LinkFirst(pattern.0.as_ref()),
             },
             Self::MarkdownLinkStatus(l) => DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
+                prefix: l.prefix.as_ref(),
+                suffix: l.suffix.as_ref(),
                 status: l.status.as_ref(),
                 flow: l
                     .flow

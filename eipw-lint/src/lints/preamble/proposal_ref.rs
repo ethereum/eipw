@@ -16,8 +16,11 @@ use std::fmt::{Debug, Display};
 use std::path::Path;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[serde(transparent)]
-pub struct ProposalRef<S>(pub S);
+pub struct ProposalRef<S> {
+    pub name: S,
+    pub prefix: S,
+    pub suffix: S,
+}
 
 impl<S> ProposalRef<S> {
     fn regex() -> Regex {
@@ -31,7 +34,7 @@ where
     S: Debug + Display + AsRef<str>,
 {
     fn find_resources(&self, ctx: &FetchContext<'_>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.0.as_ref()) {
+        let field = match ctx.preamble().by_name(self.name.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };
@@ -40,14 +43,14 @@ where
             .captures_iter(field.value())
             .map(|x| x.get(1).unwrap().as_str())
             .map(|x| x.parse::<u64>().unwrap())
-            .map(|n| format!("eip-{}.md", n))
+            .map(|n| format!("{}{}{}", self.prefix, n, self.suffix))
             .for_each(|p| ctx.fetch(p.into()));
 
         Ok(())
     }
 
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
-        let field = match ctx.preamble().by_name(self.0.as_ref()) {
+        let field = match ctx.preamble().by_name(self.name.as_ref()) {
             None => return Ok(()),
             Some(s) => s,
         };
@@ -67,7 +70,7 @@ where
             let end = end_text.chars().count() + name_count + 1;
 
             let number = capture.get(1).unwrap();
-            let url = format!("eip-{}.md", number.as_str());
+            let url = format!("{}{}{}", self.prefix, number.as_str(), self.suffix);
 
             let eip = match ctx.eip(Path::new(&url)) {
                 Ok(eip) => eip,

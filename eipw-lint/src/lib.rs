@@ -111,11 +111,19 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
         })),
         (
             "preamble-refs-title",
-            PreambleProposalRef { name: preamble::ProposalRef("title") },
+            PreambleProposalRef(preamble::ProposalRef {
+                name: "title",
+                prefix: "eip-",
+                suffix: ".md",
+            }),
         ),
         (
             "preamble-refs-description",
-            PreambleProposalRef { name: preamble::ProposalRef("description") },
+            PreambleProposalRef(preamble::ProposalRef {
+                name: "description",
+                prefix: "eip-",
+                suffix: ".md",
+            }),
         ),
         (
             "preamble-re-title-erc-dash",

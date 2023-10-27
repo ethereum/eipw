@@ -32,9 +32,7 @@ pub enum DefaultLint<S> {
     PreambleOrder {
         names: preamble::Order<S>,
     },
-    PreambleProposalRef {
-        name: preamble::ProposalRef<S>,
-    },
+    PreambleProposalRef(preamble::ProposalRef<S>),
     PreambleRegex(preamble::Regex<S>),
     PreambleRequireReferenced(preamble::RequireReferenced<S>),
     PreambleRequired {
@@ -90,7 +88,7 @@ where
             Self::PreambleNoDuplicates(l) => Box::new(l),
             Self::PreambleOneOf(l) => Box::new(l),
             Self::PreambleOrder { names } => Box::new(names),
-            Self::PreambleProposalRef { name } => Box::new(name),
+            Self::PreambleProposalRef(l) => Box::new(l),
             Self::PreambleRegex(l) => Box::new(l),
             Self::PreambleRequireReferenced(l) => Box::new(l),
             Self::PreambleRequired { names } => Box::new(names),
@@ -128,7 +126,7 @@ where
             Self::PreambleNoDuplicates(l) => l,
             Self::PreambleOneOf(l) => l,
             Self::PreambleOrder { names } => names,
-            Self::PreambleProposalRef { name } => name,
+            Self::PreambleProposalRef(l) => l,
             Self::PreambleRegex(l) => l,
             Self::PreambleRequireReferenced(l) => l,
             Self::PreambleRequired { names } => names,
@@ -187,9 +185,13 @@ where
             Self::PreambleOrder { names } => DefaultLint::PreambleOrder {
                 names: preamble::Order(names.0.iter().map(AsRef::as_ref).collect()),
             },
-            Self::PreambleProposalRef { name } => DefaultLint::PreambleProposalRef {
-                name: preamble::ProposalRef(name.0.as_ref()),
-            },
+            Self::PreambleProposalRef(l) => {
+                DefaultLint::PreambleProposalRef(preamble::ProposalRef {
+                    name: l.name.as_ref(),
+                    prefix: l.prefix.as_ref(),
+                    suffix: l.suffix.as_ref(),
+                })
+            }
             Self::PreambleRegex(l) => DefaultLint::PreambleRegex(preamble::Regex {
                 message: l.message.as_ref(),
                 mode: l.mode,

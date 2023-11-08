@@ -385,6 +385,7 @@ dependencies = [
  "chrono",
  "comrak",
  "educe",
+ "eipw-preamble",
  "jsonschema",
  "regex",
  "scraper",
@@ -411,6 +412,16 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-bindgen-test",
+]
+
+[[package]]
+name = "eipw-preamble"
+version = "0.1.0"
+dependencies = [
+ "annotate-snippets",
+ "assert_matches",
+ "regex",
+ "snafu",
 ]
 
 [[package]]

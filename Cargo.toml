@@ -1,5 +1,5 @@
 [workspace]
-members = [ "eipw-lint", "eipw-lint-js" ]
+members = [ "eipw-preamble", "eipw-lint", "eipw-lint-js" ]
 
 [package]
 name = "eipw"

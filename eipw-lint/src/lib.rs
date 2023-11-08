@@ -7,7 +7,6 @@
 pub mod fetch;
 pub mod lints;
 pub mod modifiers;
-pub mod preamble;
 pub mod reporters;
 pub mod tree;
 
@@ -19,10 +18,11 @@ use comrak::{Arena, ComrakExtensionOptions, ComrakOptions};
 
 use crate::lints::{Context, DefaultLint, Error as LintError, FetchContext, InnerContext, Lint};
 use crate::modifiers::{DefaultModifier, Modifier};
-use crate::preamble::Preamble;
 use crate::reporters::Reporter;
 
 use educe::Educe;
+
+use eipw_preamble::{Preamble, SplitError};
 
 use serde::{Deserialize, Serialize};
 
@@ -871,8 +871,7 @@ fn process<'a>(
 ) -> Result<Option<InnerContext<'a>>, Error> {
     let (preamble_source, body_source) = match Preamble::split(source) {
         Ok(v) => v,
-        Err(preamble::SplitError::MissingStart { .. })
-        | Err(preamble::SplitError::LeadingGarbage { .. }) => {
+        Err(SplitError::MissingStart { .. }) | Err(SplitError::LeadingGarbage { .. }) => {
             let mut footer = Vec::new();
             if source.as_bytes().get(3) == Some(&b'\r') {
                 footer.push(Annotation {
@@ -906,7 +905,7 @@ fn process<'a>(
                 })?;
             return Ok(None);
         }
-        Err(preamble::SplitError::MissingEnd { .. }) => {
+        Err(SplitError::MissingEnd { .. }) => {
             reporter
                 .report(Snippet {
                     title: Some(Annotation {

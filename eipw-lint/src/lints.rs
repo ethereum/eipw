@@ -12,10 +12,11 @@ use annotate_snippets::snippet::{AnnotationType, Snippet};
 
 use comrak::nodes::AstNode;
 
-use crate::preamble::Preamble;
 use crate::reporters::{self, Reporter};
 
 use educe::Educe;
+
+use eipw_preamble::Preamble;
 
 pub use self::known_lints::DefaultLint;
 

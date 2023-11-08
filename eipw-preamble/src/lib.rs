@@ -3,6 +3,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+//! This crate comprises the preamble parsing logic for `eipw`, the EIP
+//! validator.
+//!
+//! See [`Preamble`] for more details.
+#![warn(missing_docs)]
 
 use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
 
@@ -12,26 +17,32 @@ use snafu::{ensure, Backtrace, OptionExt, Snafu};
 
 use std::collections::HashMap;
 
+/// Errors that can arise while parsing a preamble. See [`Preamble::parse'].
 #[derive(Debug, Snafu)]
-pub(crate) struct ParseErrors<'a> {
+pub struct ParseErrors<'a> {
     backtrace: Backtrace,
     errors: Vec<Snippet<'a>>,
 }
 
 impl<'a> ParseErrors<'a> {
+    /// Consumes the error and returns the diagnostic messages (annotations)
+    /// that caused it.
     pub fn into_errors(self) -> Vec<Snippet<'a>> {
         self.errors
     }
 }
 
+/// Errors that can arise from [`Preamble::split`].
 #[derive(Debug, Snafu)]
 #[snafu(module)]
-#[non_exhaustive]
-pub(crate) enum SplitError {
+pub enum SplitError {
+    /// Bytes appeared before the first delimiter.
     #[snafu(context(suffix(false)))]
     LeadingGarbage,
+    /// The first delimiter was not found.
     #[snafu(context(suffix(false)))]
     MissingStart,
+    /// The second delimiter was not found.
     #[snafu(context(suffix(false)))]
     MissingEnd,
 }
@@ -63,13 +74,15 @@ impl<'a> Fields<'a> {
     }
 }
 
+/// An ordered list of fields from a preamble.
 #[derive(Debug, Default, Clone)]
 pub struct Preamble<'a> {
     fields: Fields<'a>,
 }
 
 impl<'a> Preamble<'a> {
-    pub(crate) fn split(text: &'a str) -> Result<(&'a str, &'a str), SplitError> {
+    /// Divides the given text into a preamble portion and a body portion.
+    pub fn split(text: &'a str) -> Result<(&'a str, &'a str), SplitError> {
         let re_marker = Regex::new(r"(^|\n)---(\n|$)").unwrap();
 
         let mut iter = re_marker.find_iter(text);
@@ -85,7 +98,9 @@ impl<'a> Preamble<'a> {
         Ok((preamble, body))
     }
 
-    pub(crate) fn parse(origin: Option<&'a str>, text: &'a str) -> Result<Self, ParseErrors<'a>> {
+    /// Parse some preamble text (usually extracted with [`Preamble::split`])
+    /// for easy access.
+    pub fn parse(origin: Option<&'a str>, text: &'a str) -> Result<Self, ParseErrors<'a>> {
         let lines = text.split('\n');
         let mut result: Result<Fields<'a>, Vec<Snippet<'a>>> = Ok(Default::default());
 
@@ -156,19 +171,24 @@ impl<'a> Preamble<'a> {
         })
     }
 
+    /// Provides an iterator over the fields from the preamble, in the order
+    /// they appeared in the source text.
     pub fn fields(&self) -> impl '_ + Iterator<Item = Field<'a>> {
         self.fields.iter()
     }
 
+    /// Get a field by its name, or `None` if it isn't present.
     pub fn by_name(&self, name: &str) -> Option<Field<'a>> {
         self.fields.by_name(name)
     }
 
+    /// Get a field by its position in the source file (zero-indexed.)
     pub fn by_index(&self, index: usize) -> Option<Field<'a>> {
         self.fields.by_index(index)
     }
 }
 
+/// A field from a [`Preamble`] that includes its position in a source file.
 #[derive(Debug, Clone, Copy)]
 pub struct Field<'a> {
     line_start: usize,
@@ -178,18 +198,22 @@ pub struct Field<'a> {
 }
 
 impl<'a> Field<'a> {
+    /// Line the field was defined on.
     pub fn line_start(&self) -> usize {
         self.line_start
     }
 
+    /// Key (before the colon) of this preamble field.
     pub fn name(&self) -> &'a str {
         self.name
     }
 
+    /// Value (after the colon) of this preamble field.
     pub fn value(&self) -> &'a str {
         self.value
     }
 
+    /// File where this field is defined.
     pub fn source(&self) -> &'a str {
         self.source
     }

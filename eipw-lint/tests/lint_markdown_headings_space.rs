@@ -69,3 +69,27 @@ header: value1
 "#
     );
 }
+
+#[tokio::test]
+async fn not_headings() {
+    let src_str = r#"---
+header: value1
+---
+
+*Hello*#world
+`#world`
+"#;
+
+    println!("{}", src_str);
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-headings-space", HeadingsSpace {})
+        .check_slice(None, src_str)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}

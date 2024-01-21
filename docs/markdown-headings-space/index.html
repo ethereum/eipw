@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-headings-space</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-headings-space</code></h1>
+			<p>
+				Markdown headers must have a space after the hash characters.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-headings-space]: Space missing in header
+  |
+5 | ##Banana
+  |  ^ space required here
+  |
+6 | ####Mango
+  |    ^ space required here
+  |
+			</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-headings-space</code> ensures that all headers
+					have a space after the hash characters so that they are valid.
+				</p>
+
+				<p>
+					The lack of a space makes headers invalid, and they will not be rendered as such.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

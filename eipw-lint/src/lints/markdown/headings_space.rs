@@ -7,8 +7,7 @@
 use annotate_snippets::snippet::{Annotation, Slice, Snippet};
 
 use annotate_snippets::snippet::SourceAnnotation;
-use comrak::nodes::Ast;
-use comrak::nodes::NodeValue;
+use comrak::nodes::{Ast, LineColumn, NodeValue, Sourcepos};
 use regex::Regex;
 
 use crate::lints::{Context, Error, Lint};
@@ -32,6 +31,11 @@ impl Lint for HeadingsSpace {
                 // Collect all matching Text nodes
                 Ast {
                     value: NodeValue::Text(text),
+                    sourcepos:
+                        Sourcepos {
+                            start: LineColumn { column: 1, .. }, // Only match text nodes at the start of the line
+                            ..
+                        },
                     ..
                 } => {
                     if let Some(matched_text) = heading_pattern.find(text) {

@@ -80,8 +80,6 @@ header: value1
 `#world`
 "#;
 
-    println!("{}", src_str);
-
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
         .deny("markdown-headings-space", HeadingsSpace {})

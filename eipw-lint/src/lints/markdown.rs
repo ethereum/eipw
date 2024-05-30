@@ -7,6 +7,7 @@
 pub mod headings_space;
 pub mod html_comments;
 pub mod json_schema;
+pub mod link_eip;
 pub mod link_first;
 pub mod link_status;
 pub mod proposal_ref;
@@ -18,6 +19,7 @@ pub mod section_required;
 pub use self::headings_space::HeadingsSpace;
 pub use self::html_comments::HtmlComments;
 pub use self::json_schema::JsonSchema;
+pub use self::link_eip::LinkEip;
 pub use self::link_first::LinkFirst;
 pub use self::link_status::LinkStatus;
 pub use self::proposal_ref::ProposalRef;

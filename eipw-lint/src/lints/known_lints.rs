@@ -53,6 +53,7 @@ pub enum DefaultLint<S> {
 
     MarkdownHtmlComments(markdown::HtmlComments<S>),
     MarkdownJsonSchema(markdown::JsonSchema<S>),
+    MarkdownLinkEip(markdown::LinkEip<S>),
     MarkdownLinkFirst {
         pattern: markdown::LinkFirst<S>,
     },
@@ -102,6 +103,7 @@ where
 
             Self::MarkdownHtmlComments(l) => Box::new(l),
             Self::MarkdownJsonSchema(l) => Box::new(l),
+            Self::MarkdownLinkEip(l) => Box::new(l),
             Self::MarkdownLinkFirst { pattern } => Box::new(pattern),
             Self::MarkdownLinkStatus(l) => Box::new(l),
             Self::MarkdownProposalRef(l) => Box::new(l),
@@ -141,6 +143,7 @@ where
 
             Self::MarkdownHtmlComments(l) => l,
             Self::MarkdownJsonSchema(l) => l,
+            Self::MarkdownLinkEip(l) => l,
             Self::MarkdownLinkFirst { pattern } => pattern,
             Self::MarkdownLinkStatus(l) => l,
             Self::MarkdownProposalRef(l) => l,
@@ -257,6 +260,9 @@ where
                     .map(|(a, b)| (a.as_ref(), b.as_ref()))
                     .collect(),
             }),
+            Self::MarkdownLinkEip (l) => DefaultLint::MarkdownLinkEip(markdown::LinkEip (
+                l.as_ref(),
+            )),
             Self::MarkdownLinkFirst { pattern } => DefaultLint::MarkdownLinkFirst {
                 pattern: markdown::LinkFirst(pattern.0.as_ref()),
             },

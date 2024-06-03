@@ -1,0 +1,12 @@
+error[markdown-no-backticks]: EIP references should not be in backticks
+--> [input.md](http://input.md/)
+|
+15 | This is the abstract for the EIP, which extends `EIP-5678`.
+|
+= info: the pattern in question: `EIP-[0-9]+`
+error[markdown-no-backticks]: EIP references should not be in backticks
+--> [input.md](http://input.md/)
+|
+35 | This is the specification for the EIP, mentioning `EIP-5680` and ERC-5681 again.
+|
+= info: the pattern in question: `EIP-[0-9]+`

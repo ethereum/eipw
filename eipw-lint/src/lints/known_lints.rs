@@ -56,6 +56,9 @@ pub enum DefaultLint<S> {
     MarkdownLinkFirst {
         pattern: markdown::LinkFirst<S>,
     },
+    MarkdownNoBackticks {
+        pattern: markdown::NoBackticks<S>,
+    },
     MarkdownLinkStatus(markdown::LinkStatus<S>),
     MarkdownProposalRef(markdown::ProposalRef<S>),
     MarkdownRegex(markdown::Regex<S>),
@@ -103,6 +106,7 @@ where
             Self::MarkdownHtmlComments(l) => Box::new(l),
             Self::MarkdownJsonSchema(l) => Box::new(l),
             Self::MarkdownLinkFirst { pattern } => Box::new(pattern),
+            Self::MarkdownNoBackticks { pattern } => Box::new(pattern),
             Self::MarkdownLinkStatus(l) => Box::new(l),
             Self::MarkdownProposalRef(l) => Box::new(l),
             Self::MarkdownRegex(l) => Box::new(l),
@@ -142,6 +146,7 @@ where
             Self::MarkdownHtmlComments(l) => l,
             Self::MarkdownJsonSchema(l) => l,
             Self::MarkdownLinkFirst { pattern } => pattern,
+            Self::MarkdownNoBackticks { pattern } => pattern,
             Self::MarkdownLinkStatus(l) => l,
             Self::MarkdownProposalRef(l) => l,
             Self::MarkdownRegex(l) => l,
@@ -259,6 +264,9 @@ where
             }),
             Self::MarkdownLinkFirst { pattern } => DefaultLint::MarkdownLinkFirst {
                 pattern: markdown::LinkFirst(pattern.0.as_ref()),
+            },
+            Self::MarkdownNoBackticks { pattern } => DefaultLint::MarkdownNoBackticks {
+                pattern: markdown::NoBackticks(pattern.0.as_ref()),
             },
             Self::MarkdownLinkStatus(l) => DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
                 prefix: l.prefix.as_ref(),

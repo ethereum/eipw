@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>markdown-no-backticks</title>
+    <link rel="stylesheet" href="../main.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <article>
+      <h1><code>markdown-no-backticks</code></h1>
+      <p>EIP references should not be in backticks.</p>
+
+      <section>
+        <h2>Examples</h2>
+
+        <pre>
+error[markdown-no-backticks]: EIP references should not be in backticks
+ --> input.md
+  |
+5 | `EIP-1234`
+  |
+  = info: the pattern in question: `EIP-[0-9]+`</pre
+        >
+      </section>
+      <section>
+        <h2>Explanation</h2>
+
+        <p>
+          <code>markdown-no-backticks</code> ensures that authors do not
+          circumvent EIP link requirements by putting EIP references in
+          backticks.
+        </p>
+
+        <p>
+          While references like <code>`ERC20`</code> or
+          <code>`IERC7777`</code> are valid as interface names,
+          <code>`EIP-7777`</code> should be rejected since it is not valid code.
+        </p>
+      </section>
+    </article>
+  </body>
+</html>

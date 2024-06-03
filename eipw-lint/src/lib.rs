@@ -425,6 +425,12 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
                 pattern: markdown::LinkFirst(r"(?i)(?:eip|erc)-[0-9]+"),
             }
         ),
+        (
+            "markdown-no-backticks",
+            MarkdownNoBackticks {
+                pattern: markdown::NoBackticks(r"EIP-[0-9]+"),
+            }
+        ),                
         ("markdown-rel-links", MarkdownRelativeLinks(markdown::RelativeLinks {
             exceptions: vec![
                 "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",

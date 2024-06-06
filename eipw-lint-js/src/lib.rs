@@ -174,7 +174,7 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
 
 #[wasm_bindgen]
 pub fn format(snippet: &JsValue) -> Result<String, JsError> {
-    let value: serde_json::Value = serde_wasm_bindgen::from_value(snippet.deref().clone())?;
+    let value: serde_json::Value = serde_wasm_bindgen::from_value(snippet.clone())?;
 
     let obj = match value {
         serde_json::Value::Object(o) => o,

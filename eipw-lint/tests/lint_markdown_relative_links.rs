@@ -80,7 +80,12 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
         .check_slice(None, src)
         .run()
         .await
@@ -109,7 +114,12 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
         .check_slice(None, src)
         .run()
         .await
@@ -294,7 +304,12 @@ Hello [hi][hello]!
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
         .check_slice(None, src)
         .run()
         .await
@@ -424,7 +439,12 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
         .check_slice(None, src)
         .run()
         .await
@@ -538,7 +558,12 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-rel", RelativeLinks { exceptions: &[] })
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
         .check_slice(None, src)
         .run()
         .await

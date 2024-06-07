@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet};
+use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
 
 use comrak::nodes::Ast;
 
@@ -33,6 +33,7 @@ where
 {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
+        let eip_re = Regex::new(r"^https://eips.ethereum.org/EIPS/eip-(\d+)$").unwrap();
 
         let exceptions = RegexSet::new(&self.exceptions).map_err(Error::custom)?;
 
@@ -44,14 +45,33 @@ where
             .into_iter()
             .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
-        for Link { line_start, .. } in links {
+        for Link { address, line_start } in links {
+            let (suggestion, extra_help) = if let Some(caps) = eip_re.captures(&address) {
+                (format!("./eip-{}.md", &caps[1]), true)
+            } else if address == "https://creativecommons.org/publicdomain/zero/1.0/" {
+                ("../LICENSE.md".to_string(), true)
+            } else {
+                (address, false)
+            };
+            
+            let mut footer = vec![];
+
+            let suggestion_label = format!("use `{}` instead", suggestion);
+            if extra_help {
+                footer.push(Annotation {
+                    annotation_type: AnnotationType::Help,
+                    label: Some(&suggestion_label),
+                    id: None,
+                });
+            }
+
             ctx.report(Snippet {
                 title: Some(Annotation {
                     id: Some(slug),
                     annotation_type: ctx.annotation_type(),
                     label: Some("non-relative link or image"),
                 }),
-                footer: vec![],
+                footer,
                 slices: vec![Slice {
                     line_start,
                     fold: false,

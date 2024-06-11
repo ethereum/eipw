@@ -580,3 +580,37 @@ header: value1
 "#
     );
 }
+
+#[tokio::test]
+async fn img_with_scheme_to_eips_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+<img src="https://eips.ethereum.org/assets/eip-712/eth_sign.png">
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <img src="https://eips.ethereum.org/assets/eip-712/eth_sign.png">
+  |
+  = help: use `../assets/eip-712/eth_sign.png` instead
+"#
+    );
+}

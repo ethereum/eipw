@@ -32,8 +32,8 @@ where
     S: Debug + Display + AsRef<str>,
 {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
-        let re = Regex::new("(^/)|(://)").unwrap();
-        let eip_re = Regex::new(r"^https://eips.ethereum.org/EIPS/eip-(\d+)$").unwrap();
+        let re: Regex = Regex::new("(^/)|(://)").unwrap();
+        let eip_re = Regex::new(r"^(https?:)?//eips\.ethereum\.org/EIPS/(eip-\d+)+$").unwrap();
 
         let exceptions = RegexSet::new(&self.exceptions).map_err(Error::custom)?;
 
@@ -47,7 +47,7 @@ where
 
         for Link { address, line_start } in links {
             let (suggestion, extra_help) = if let Some(caps) = eip_re.captures(&address) {
-                (format!("./eip-{}.md", &caps[1]), true)
+                (format!("./{}.md", &caps[2]), true)
             } else if address == "https://creativecommons.org/publicdomain/zero/1.0/" {
                 ("../LICENSE.md".to_string(), true)
             } else {

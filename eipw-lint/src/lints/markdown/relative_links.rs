@@ -53,7 +53,7 @@ where
                 } else {
                     (format!("../{}", relevant_part), true)
                 }
-            } else if address == "https://creativecommons.org/publicdomain/zero/1.0/" {
+            } else if address.contains("//creativecommons.org/publicdomain/zero/1.0/") {
                 ("../LICENSE.md".to_string(), true)
             } else {
                 (address, false)

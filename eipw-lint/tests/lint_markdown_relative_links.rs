@@ -104,6 +104,40 @@ header: value1
 }
 
 #[tokio::test]
+async fn inline_link_with_scheme_to_creativecommons_copyright() {
+    let src = r#"---
+header: value1
+---
+
+[copyright](https://creativecommons.org/publicdomain/zero/1.0/)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | [copyright](https://creativecommons.org/publicdomain/zero/1.0/)
+  |
+  = help: use `../LICENSE.md` instead
+"#
+    );
+}
+
+#[tokio::test]
 async fn inline_link_with_scheme_and_numbers() {
     let src = r#"---
 header: value1
@@ -486,6 +520,40 @@ header: value1
         .into_inner();
 
     assert_eq!(reports, "");
+}
+
+#[tokio::test]
+async fn anchor_link_protocol_relative_to_creativecommons_copyright() {
+    let src = r#"---
+header: value1
+---
+
+<a href="//creativecommons.org/publicdomain/zero/1.0/">copyright</a>
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <a href="//creativecommons.org/publicdomain/zero/1.0/">copyright</a>
+  |
+  = help: use `../LICENSE.md` instead
+"#        
+    );
 }
 
 #[tokio::test]

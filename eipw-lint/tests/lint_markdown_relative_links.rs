@@ -656,7 +656,7 @@ header: value1
 5 | <a href="//creativecommons.org/publicdomain/zero/1.0/">copyright</a>
   |
   = help: use `../LICENSE.md` instead
-"#        
+"#
     );
 }
 

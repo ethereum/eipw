@@ -32,8 +32,8 @@ where
     S: Debug + Display + AsRef<str>,
 {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
-        let re: Regex = Regex::new("(^/)|(://)").unwrap();
-        let eip_re = Regex::new(r"^(https?:)?//eips\.ethereum\.org/(EIPS/eip-\d+|assets/.+)$").unwrap();
+        let re = Regex::new("(^/)|(://)").unwrap();
+        let eip_re = Regex::new(r"^(https?:)?//(?:eips|ercs)\.ethereum\.org/(?:EIPS|ERCS)/(?:eip|erc)-(\d+)|(assets/.+)$").unwrap();
 
         let exceptions = RegexSet::new(&self.exceptions).map_err(Error::custom)?;
 
@@ -47,11 +47,14 @@ where
 
         for Link { address, line_start } in links {
             let (suggestion, extra_help) = if let Some(caps) = eip_re.captures(&address) {
-                let relevant_part = &caps[2];
-                if relevant_part.starts_with("EIPS/") {
-                    (format!("./{}.md", relevant_part.trim_start_matches("EIPS/")), true)
+                if let Some(id_number) = caps.get(2) {
+                    let suggestion = format!("./eip-{}.md", id_number.as_str());
+                    (suggestion, true)
+                } else if let Some(asset_path) = caps.get(3) {
+                    let suggestion = format!("../{}", asset_path.as_str());
+                    (suggestion, true)
                 } else {
-                    (format!("../{}", relevant_part), true)
+                    (address, false)
                 }
             } else if address.contains("//creativecommons.org/publicdomain/zero/1.0/") {
                 ("../LICENSE.md".to_string(), true)

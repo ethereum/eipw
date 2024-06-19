@@ -45,7 +45,11 @@ where
             .into_iter()
             .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
-        for Link { address, line_start } in links {
+        for Link {
+            address,
+            line_start,
+        } in links
+        {
             let (suggestion, extra_help) = if let Some(caps) = eip_re.captures(&address) {
                 if let Some(id_number) = caps.get(2) {
                     let suggestion = format!("./eip-{}.md", id_number.as_str());
@@ -61,7 +65,7 @@ where
             } else {
                 (address, false)
             };
-            
+
             let mut footer = vec![];
 
             let suggestion_label = format!("use `{}` instead", suggestion);

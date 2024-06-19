@@ -104,6 +104,40 @@ header: value1
 }
 
 #[tokio::test]
+async fn inline_link_with_scheme_to_ercs_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+[hello](https://ercs.ethereum.org/ERCS/erc-1234)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | [hello](https://ercs.ethereum.org/ERCS/erc-1234)
+  |
+  = help: use `./eip-1234.md` instead
+"#
+    );
+}
+
+#[tokio::test]
 async fn inline_link_with_scheme_to_creativecommons_copyright() {
     let src = r#"---
 header: value1
@@ -362,6 +396,42 @@ Hello [hi][hello]!
 }
 
 #[tokio::test]
+async fn reference_link_with_scheme_to_ercs_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+Hello [hi][hello]!
+
+[hello]: https://ercs.ethereum.org/ERCS/erc-1234
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | Hello [hi][hello]!
+  |
+  = help: use `./eip-1234.md` instead
+"#
+    );
+}
+
+#[tokio::test]
 async fn inline_autolink() {
     let src = r#"---
 header: value1
@@ -490,6 +560,40 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <a href="//eips.ethereum.org/EIPS/eip-1234">example</a>
+  |
+  = help: use `./eip-1234.md` instead
+"#
+    );
+}
+
+#[tokio::test]
+async fn anchor_link_protocol_relative_to_ercs_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+<a href="//ercs.ethereum.org/ERCS/erc-1234">example</a>
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <a href="//ercs.ethereum.org/ERCS/erc-1234">example</a>
   |
   = help: use `./eip-1234.md` instead
 "#
@@ -650,6 +754,40 @@ header: value1
 }
 
 #[tokio::test]
+async fn img_protocol_relative_to_ercs_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+<img src="//ercs.ethereum.org/assets/erc-712/eth_sign.png">
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <img src="//ercs.ethereum.org/assets/erc-712/eth_sign.png">
+  |
+  = help: use `../assets/erc-712/eth_sign.png` instead
+"#
+    );
+}
+
+#[tokio::test]
 async fn img_with_scheme_to_eips_ethereum_org() {
     let src = r#"---
 header: value1
@@ -679,6 +817,40 @@ header: value1
 5 | <img src="https://eips.ethereum.org/assets/eip-712/eth_sign.png">
   |
   = help: use `../assets/eip-712/eth_sign.png` instead
+"#
+    );
+}
+
+#[tokio::test]
+async fn img_with_scheme_to_ercs_ethereum_org() {
+    let src = r#"---
+header: value1
+---
+
+<img src="https://ercs.ethereum.org/assets/erc-712/eth_sign.png">
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-rel",
+            RelativeLinks {
+                exceptions: Vec::<&str>::new(),
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-rel]: non-relative link or image
+  |
+5 | <img src="https://ercs.ethereum.org/assets/erc-712/eth_sign.png">
+  |
+  = help: use `../assets/erc-712/eth_sign.png` instead
 "#
     );
 }

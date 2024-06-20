@@ -140,8 +140,8 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         Ok(())
     }
 
-    fn enter_image(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {
-        self.check(ast, &link.title)
+    fn enter_image(&mut self, _: &Ast, _: &NodeLink) -> Result<Next, Self::Error> {
+        Ok(Next::SkipChildren)
     }
 
     fn enter_footnote_reference(&mut self, ast: &Ast, refn: &str) -> Result<Next, Self::Error> {

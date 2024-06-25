@@ -53,12 +53,17 @@ pub enum DefaultLint<S> {
 
     MarkdownHtmlComments(markdown::HtmlComments<S>),
     MarkdownJsonSchema(markdown::JsonSchema<S>),
-    MarkdownLinkEip(markdown::LinkEip<S>),
+    MarkdownLinkEip {
+        pattern: markdown::LinkEip<S>
+    },
     MarkdownLinkFirst {
         pattern: markdown::LinkFirst<S>,
     },
     MarkdownNoBackticks {
         pattern: markdown::NoBackticks<S>,
+    },
+    MarkdownLinkOther {
+        pattern: markdown::LinkOther<S>,
     },
     MarkdownLinkStatus(markdown::LinkStatus<S>),
     MarkdownProposalRef(markdown::ProposalRef<S>),
@@ -106,7 +111,8 @@ where
 
             Self::MarkdownHtmlComments(l) => Box::new(l),
             Self::MarkdownJsonSchema(l) => Box::new(l),
-            Self::MarkdownLinkEip(l) => Box::new(l),
+            Self::MarkdownLinkEip { pattern } => Box::new(pattern),
+            Self::MarkdownLinkOther { pattern } => Box::new(pattern),
             Self::MarkdownLinkFirst { pattern } => Box::new(pattern),
             Self::MarkdownNoBackticks { pattern } => Box::new(pattern),
             Self::MarkdownLinkStatus(l) => Box::new(l),
@@ -147,9 +153,10 @@ where
 
             Self::MarkdownHtmlComments(l) => l,
             Self::MarkdownJsonSchema(l) => l,
-            Self::MarkdownLinkEip(l) => l,
+            Self::MarkdownLinkEip { pattern } => pattern,
             Self::MarkdownLinkFirst { pattern } => pattern,
             Self::MarkdownNoBackticks { pattern } => pattern,
+            Self::MarkdownLinkOther { pattern } => pattern,
             Self::MarkdownLinkStatus(l) => l,
             Self::MarkdownProposalRef(l) => l,
             Self::MarkdownRegex(l) => l,
@@ -265,9 +272,12 @@ where
                     .map(|(a, b)| (a.as_ref(), b.as_ref()))
                     .collect(),
             }),
-            Self::MarkdownLinkEip (l) => DefaultLint::MarkdownLinkEip(markdown::LinkEip (
-                l.as_ref(),
-            )),
+            Self::MarkdownLinkEip { pattern } => DefaultLint::MarkdownLinkEip {
+                pattern: markdown::LinkEip(pattern.0.as_ref()),
+            },
+            Self::MarkdownLinkOther { pattern } => DefaultLint::MarkdownLinkOther {
+                pattern: markdown::LinkOther(pattern.0.as_ref()),
+            },
             Self::MarkdownLinkFirst { pattern } => DefaultLint::MarkdownLinkFirst {
                 pattern: markdown::LinkFirst(pattern.0.as_ref()),
             },
@@ -289,7 +299,7 @@ where
                     prefix: l.prefix.as_ref(),
                     suffix: l.suffix.as_ref(),
                 })
-            }
+            },
             Self::MarkdownRegex(l) => DefaultLint::MarkdownRegex(markdown::Regex {
                 message: l.message.as_ref(),
                 mode: l.mode,

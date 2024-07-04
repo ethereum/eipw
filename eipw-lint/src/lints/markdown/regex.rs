@@ -133,11 +133,19 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
         self.check(ast, txt)
     }
 
-    fn enter_link(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {
-        self.check(ast, &link.title)
+    fn enter_link(&mut self, ast: &Ast, _link: &NodeLink) -> Result<Next, Self::Error> {
+        println!("{:#?}", _link);
+
+        if _link.url != _link.title {
+            self.check(ast, &_link.title)
+        } else {
+            // If no check is needed, you might return a default value or handle it differently
+            Ok(Next::TraverseChildren)
+        }
     }
 
     fn enter_image(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {
+        //println!(link)
         self.check(ast, &link.title)
     }
 

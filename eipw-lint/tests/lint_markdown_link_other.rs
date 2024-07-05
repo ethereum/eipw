@@ -18,7 +18,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-other", LinkOther(r"^(EIP|ERC)-(\d+)\s*\S*$".to_string()))
+       .deny("markdown-link-other", LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()))
        .check_slice(None, src)
        .run()
        .await
@@ -30,7 +30,34 @@ header: value1
   |
 4 | [EIP-2](../assets/foo.txt)
   |
-  = info: link destinstion must match text EIP
+  = help: the link destination should target EIP-2, for example `[EIP-2](./eip-2.md)`
+"#
+    );
+}
+
+#[tokio::test]
+async fn link_destination_missing_eip_advanced_text() {
+    let src = r#"---
+header: value1
+---
+[EIP-2: Foo](../assets/foo.txt)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+       .clear_lints()
+       .deny("markdown-link-other", LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()))
+       .check_slice(None, src)
+       .run()
+       .await
+       .unwrap()
+       .into_inner();
+    assert_eq!(
+        reports,
+        r#"error[markdown-link-other]: link text does not match link destination
+  |
+4 | [EIP-2: Foo](../assets/foo.txt)
+  |
+  = help: the link destination should target EIP-2, for example `[EIP-2](./eip-2.md)`
 "#
     );
 }
@@ -45,7 +72,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-other", LinkOther(r"^(EIP|ERC)-(\d+)\s*\S*$".to_string()))
+       .deny("markdown-link-other", LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()))
        .check_slice(None, src)
        .run()
        .await
@@ -56,7 +83,7 @@ header: value1
   |
 4 | [EIP-1](../assets/eip-2/foo.txt)
   |
-  = info: link destinstion must match text EIP
+  = help: the link destination should target EIP-1, for example `[EIP-1](./eip-1.md)`
 "#
     );
 }
@@ -71,7 +98,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-other", LinkOther(r"^(EIP|ERC)-(\d+)\s*\S*$".to_string()))
+       .deny("markdown-link-other", LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()))
        .check_slice(None, src)
        .run()
        .await

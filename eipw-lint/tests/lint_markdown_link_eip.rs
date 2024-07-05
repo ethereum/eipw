@@ -18,7 +18,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"eip-([^.]*)\.md(#.+)?$".to_string()))
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
        .check_slice(None, src)
        .run()
        .await
@@ -30,7 +30,7 @@ header: value1
   |
 4 | [EIP-1](./eip-2.md)
   |
-  = info: link text should match `[EIP|ERC-2]`
+  = help: use `[EIP-2](./eip-2.md)` instead
 "#
     );
 }
@@ -45,7 +45,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"eip-([^.]*)\.md(#.+)?$".to_string()))
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
        .check_slice(None, src)
        .run()
        .await
@@ -57,7 +57,7 @@ header: value1
   |
 4 | [EIP-1: Foo](./eip-1.md)
   |
-  = info: link text should match `[EIP|ERC-1]`
+  = help: use `[EIP-1](./eip-1.md)` instead
 "#
     );
 }
@@ -72,7 +72,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"eip-([^.]*)\.md(#.+)?$".to_string()))
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#.+)?$".to_string()))
        .check_slice(None, src)
        .run()
        .await
@@ -84,7 +84,7 @@ header: value1
   |
 4 | [Another Proposal](./eip-1.md)
   |
-  = info: link text should match `[EIP|ERC-1]`
+  = help: use `[EIP-1](./eip-1.md)` instead
 "#
     );
 }
@@ -99,7 +99,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"eip-([^.]*)\.md(#.+)?$".to_string()))
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
        .check_slice(None, src)
        .run()
        .await
@@ -111,7 +111,61 @@ header: value1
   |
 4 | [EIP-1](./eip-1.md#motivation)
   |
-  = info: link text should match `[EIP|ERC-1<section-description>]`
+  = help: use `[EIP-1: Motivation](./eip-1.md#motivation)` instead
+"#
+    );
+}
+
+#[tokio::test]
+async fn link_text_missing_extended_section_description_with_huphen() {
+    let src = r#"---
+header: value1
+---
+[EIP-1](./eip-1.md#eip-motivation)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+       .clear_lints()
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
+       .check_slice(None, src)
+       .run()
+       .await
+       .unwrap()
+       .into_inner();
+    assert_eq!(
+        reports,
+        r#"error[markdown-link-eip]: link text does not match link destination
+  |
+4 | [EIP-1](./eip-1.md#eip-motivation)
+  |
+  = help: use `[EIP-1: Eip motivation](./eip-1.md#eip-motivation)` instead
+"#
+    );
+}
+
+#[tokio::test]
+async fn link_text_missing_extended_section_description_with_underscore() {
+    let src = r#"---
+header: value1
+---
+[EIP-1](./eip-1.md#eip_motivation)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+       .clear_lints()
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
+       .check_slice(None, src)
+       .run()
+       .await
+       .unwrap()
+       .into_inner();
+    assert_eq!(
+        reports,
+        r#"error[markdown-link-eip]: link text does not match link destination
+  |
+4 | [EIP-1](./eip-1.md#eip_motivation)
+  |
+  = help: use `[EIP-1: Eip motivation](./eip-1.md#eip_motivation)` instead
 "#
     );
 }
@@ -126,7 +180,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"eip-([^.]*)\.md(#.+)?$".to_string()))
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
        .check_slice(None, src)
        .run()
        .await
@@ -138,7 +192,61 @@ header: value1
   |
 4 | [EIP-2: Hello](./eip-1.md#abstract)
   |
-  = info: link text should match `[EIP|ERC-1<section-description>]`
+  = help: use `[EIP-1: Abstract](./eip-1.md#abstract)` instead
+"#
+    );
+}
+
+#[tokio::test]
+async fn eip_number_mismatch_extended_section_description_with_huphen() {
+    let src = r#"---
+header: value1
+---
+[EIP-2: Hello](./eip-1.md#hello-abstract)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+       .clear_lints()
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
+       .check_slice(None, src)
+       .run()
+       .await
+       .unwrap()
+       .into_inner();
+    assert_eq!(
+        reports,
+        r#"error[markdown-link-eip]: link text does not match link destination
+  |
+4 | [EIP-2: Hello](./eip-1.md#hello-abstract)
+  |
+  = help: use `[EIP-1: Hello abstract](./eip-1.md#hello-abstract)` instead
+"#
+    );
+}
+
+#[tokio::test]
+async fn eip_number_mismatch_extended_section_description_with_underscore() {
+    let src = r#"---
+header: value1
+---
+[EIP-2: Hello](./eip-1.md#hello_abstract)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+       .clear_lints()
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
+       .check_slice(None, src)
+       .run()
+       .await
+       .unwrap()
+       .into_inner();
+    assert_eq!(
+        reports,
+        r#"error[markdown-link-eip]: link text does not match link destination
+  |
+4 | [EIP-2: Hello](./eip-1.md#hello_abstract)
+  |
+  = help: use `[EIP-1: Hello abstract](./eip-1.md#hello_abstract)` instead
 "#
     );
 }
@@ -153,7 +261,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"eip-([^.]*)\.md(#.+)?$".to_string()))
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
        .check_slice(None, src)
        .run()
        .await
@@ -165,7 +273,7 @@ header: value1
   |
 4 | [Another Proposal](./eip-1.md#rationale)
   |
-  = info: link text should match `[EIP|ERC-1<section-description>]`
+  = help: use `[EIP-1: Rationale](./eip-1.md#rationale)` instead
 "#
     );
 }
@@ -180,7 +288,7 @@ header: value1
 
     let reports = Linter::<Text<String>>::default()
        .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"eip-([^.]*)\.md(#.+)?$".to_string()))
+       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
        .check_slice(None, src)
        .run()
        .await

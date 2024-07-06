@@ -129,7 +129,29 @@ header: value1
 }
 
 #[tokio::test]
-async fn link_text_missing_extended_section_description_with_huphen() {
+async fn link_text_extended_section_description_with_bold() {
+    let src = r#"---
+header: value1
+---
+[EIP-1: eip motivation**EIP-1: eip motivation**](./eip-1.md#eip-motivation)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+    assert_ne!(reports, "");
+}
+
+#[tokio::test]
+async fn link_text_missing_extended_section_description_with_hyphen() {
     let src = r#"---
 header: value1
 ---

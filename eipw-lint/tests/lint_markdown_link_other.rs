@@ -17,13 +17,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-other", LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-other",
+            LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-other]: link text does not match link destination
@@ -44,13 +47,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-other", LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-other",
+            LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-other]: link text does not match link destination
@@ -71,15 +77,19 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-other", LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
-    assert_eq!(reports, 
-    r#"error[markdown-link-other]: link text does not match link destination
+        .clear_lints()
+        .deny(
+            "markdown-link-other",
+            LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+    assert_eq!(
+        reports,
+        r#"error[markdown-link-other]: link text does not match link destination
   |
 4 | [EIP-1](../assets/eip-2/foo.txt)
   |
@@ -97,12 +107,15 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-other", LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-other",
+            LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(reports, "");
 }

@@ -17,13 +17,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -44,13 +47,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -71,13 +77,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#.+)?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#.+)?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -98,13 +107,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -125,13 +137,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -152,13 +167,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -179,13 +197,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -198,7 +219,7 @@ header: value1
 }
 
 #[tokio::test]
-async fn eip_number_mismatch_extended_section_description_with_huphen() {
+async fn eip_number_mismatch_extended_section_description_with_hyphen() {
     let src = r#"---
 header: value1
 ---
@@ -206,13 +227,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -233,13 +257,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -260,13 +287,16 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(
         reports,
         r#"error[markdown-link-eip]: link text does not match link destination
@@ -287,12 +317,15 @@ header: value1
 "#;
 
     let reports = Linter::<Text<String>>::default()
-       .clear_lints()
-       .deny("markdown-link-eip", LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()))
-       .check_slice(None, src)
-       .run()
-       .await
-       .unwrap()
-       .into_inner();
+        .clear_lints()
+        .deny(
+            "markdown-link-eip",
+            LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$".to_string()),
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
     assert_eq!(reports, "");
 }

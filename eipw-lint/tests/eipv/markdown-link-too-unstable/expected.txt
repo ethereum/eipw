@@ -7,6 +7,6 @@ error[markdown-link-status]: proposal `eip-20.md` is not stable enough for a `st
 error[markdown-link-status]: proposal `eip-2048.md` is not stable enough for a `status` of `Last Call`
   --> input.md
    |
-21 | This is the specification for the EIP, [for some reason](./eip-2048.md).
+21 | This is the specification for the EIP, [EIP-2048](./eip-2048.md).
    |
    = help: because of this link, this proposal's `status` must be one of: `Draft`, `Stagnant`

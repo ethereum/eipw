@@ -54,7 +54,7 @@ pub enum DefaultLint<S> {
     MarkdownHtmlComments(markdown::HtmlComments<S>),
     MarkdownJsonSchema(markdown::JsonSchema<S>),
     MarkdownLinkEip {
-        pattern: markdown::LinkEip<S>
+        pattern: markdown::LinkEip<S>,
     },
     MarkdownLinkFirst {
         pattern: markdown::LinkFirst<S>,
@@ -299,7 +299,7 @@ where
                     prefix: l.prefix.as_ref(),
                     suffix: l.suffix.as_ref(),
                 })
-            },
+            }
             Self::MarkdownRegex(l) => DefaultLint::MarkdownRegex(markdown::Regex {
                 message: l.message.as_ref(),
                 mode: l.mode,

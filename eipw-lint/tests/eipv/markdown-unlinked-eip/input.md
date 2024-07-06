@@ -19,7 +19,7 @@ This is also the abstract for the EIP, which extends ERC-1236.
 ## Motivation
 This is the motivation for the EIP, which is separate from [EIP-1235](./eip-1235.md).
 
-This is also the abstract for the EIP, which extends [ERC-1237](./eip-1236.md).
+This is also the abstract for the EIP, which extends [ERC-1237](./eip-1237.md).
 
 ## Specification
 This is the specification for the EIP, mentioning EIP-1235 and ERC-1237 again.

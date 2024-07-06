@@ -147,7 +147,14 @@ header: value1
         .await
         .unwrap()
         .into_inner();
-    assert_ne!(reports, "");
+    assert_eq!(reports,
+        r#"error[markdown-link-eip]: link text does not match link destination
+  |
+4 | [EIP-1**EIP-1**](./eip-1.md)
+  |
+  = help: use `[EIP-1](./eip-1.md)` instead
+"#
+    );
 }
 
 #[tokio::test]
@@ -169,7 +176,14 @@ header: value1
         .await
         .unwrap()
         .into_inner();
-    assert_ne!(reports, "");
+    assert_eq!(reports,
+        r#"error[markdown-link-eip]: link text does not match link destination
+  |
+4 | [EIP-1: eip motivation**EIP-1: eip motivation**](./eip-1.md#eip-motivation)
+  |
+  = help: use `[EIP-1: Eip motivation](./eip-1.md#eip-motivation)` instead
+"#
+    );
 }
 
 #[tokio::test]

@@ -33,6 +33,7 @@ where
             re,
             slug,
             link_depth: 0,
+            text_depth: 0,
             current_link: Link {
                 url: String::new(),
                 text: String::new(),
@@ -55,6 +56,7 @@ struct Visitor<'a, 'b, 'c> {
     re: Regex,
     slug: &'c str,
     link_depth: usize,
+    text_depth: usize,
     current_link: Link,
 }
 
@@ -91,7 +93,7 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
         };
         let text_re = Regex::new(&dynamic_pattern).map_err(Error::custom)?;
 
-        if text_re.is_match(&self.current_link.text) {
+        if text_re.is_match(&self.current_link.text) && self.text_depth <= 1 {
             return Ok(Next::TraverseChildren);
         };
 
@@ -157,8 +159,9 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         Ok(Next::TraverseChildren)
     }
 
-    fn depart_link(&mut self, _: &Ast, _: &NodeLink) -> Result<(), Self::Error> {
+    fn depart_link(&mut self, ast: &Ast, _: &NodeLink) -> Result<(), Self::Error> {
         if self.link_depth > 0 {
+            self.check(ast)?;
             self.link_depth -= 1;
         }
         Ok(())
@@ -166,8 +169,8 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
 
     fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
         if self.link_depth > 0 {
-            self.current_link.text = txt.to_owned();
-            self.check(ast)?;
+            self.text_depth += 1;
+            self.current_link.text.push_str(txt);
         }
         Ok(Next::SkipChildren)
     }

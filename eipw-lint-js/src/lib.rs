@@ -23,6 +23,138 @@ use std::pin::Pin;
 
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen(typescript_custom_section)]
+const TS_APPEND_CONTENT: &'static str = r#"
+ export type Author<S> = S;
+ 
+ export type Date<S> = S;
+ 
+ export type DefaultLint<S> =
+     | {kind: "preamble-author"; name: Author<S>}
+     | {kind: "preamble-date"; name: Date<S>}
+     | ({kind: "preamble-file-name"} & FileName<S>)
+     | ({kind: "preamble-length"} & Length<S>)
+     | {kind: "preamble-list"; name: List<S>}
+     | ({kind: "preamble-no-duplicates"} & NoDuplicates)
+     | ({kind: "preamble-one-of"} & OneOf<S>)
+     | {kind: "preamble-order"; names: Order<S>}
+     | ({kind: "preamble-proposal-ref"} & ProposalRef<S>)
+     | ({kind: "preamble-regex"} & Regex<S>)
+     | ({kind: "preamble-require-referenced"} & RequireReferenced<S>)
+     | {kind: "preamble-required"; names: Required<S>}
+     | ({kind: "preamble-required-if-eq"} & RequiredIfEq<S>)
+     | ({kind: "preamble-requires-status"} & RequiresStatus<S>)
+     | ({kind: "preamble-trim"} & Trim)
+     | {kind: "preamble-uint"; name: Uint<S>}
+     | {kind: "preamble-uint-list"; name: UintList<S>}
+     | {kind: "preamble-url"; name: Url<S>}
+     | ({kind: "markdown-html-comments"} & HtmlComments<S>)
+     | ({kind: "markdown-json-schema"} & JsonSchema<S>)
+     | {kind: "markdown-link-first"; pattern: LinkFirst<S>}
+     | ({kind: "markdown-link-status"} & LinkStatus<S>)
+     | ({kind: "markdown-proposal-ref"} & ProposalRef<S>)
+     | ({kind: "markdown-regex"} & Regex<S>)
+     | ({kind: "markdown-relative-links"} & RelativeLinks<S>)
+     | {kind: "markdown-section-order"; sections: SectionOrder<S>}
+     | {kind: "markdown-section-required"; sections: SectionRequired<S>}
+     | ({kind: "markdown-headings-space"} & HeadingsSpace);
+ 
+ export type DefaultModifier<S> = {
+     kind: "set-default-annotation";
+ } & SetDefaultAnnotation<S>;
+ 
+ export type FileName<S> = {name: S; prefix: S; suffix: S};
+ 
+ export type HeadingsSpace = null;
+ 
+ export type HtmlComments<S> = {name: S; warn_for: Array<S>};
+ 
+ export type JsonSchema<S> = {
+     language: S;
+     additional_schemas: Array<[S, S]>;
+     schema: S;
+     help: S;
+ };
+ 
+ export type Length<S> = {name: S; min: number | null; max: number | null};
+ 
+ export type LinkFirst<S> = S;
+ 
+ export type LinkStatus<S> = {
+     status: S;
+     flow: Array<Array<S>>;
+     prefix: S;
+     suffix: S;
+ };
+ 
+ export type List<S> = S;
+ 
+ export type Mode = "includes" | "excludes";
+ 
+ export type NoDuplicates = null;
+ 
+ export type OneOf<S> = {name: S; values: Array<S>};
+ 
+ export type Opts = {
+     allow: Array<string>;
+     warn: Array<string>;
+     deny: Array<string>;
+     default_lints: {[key: string]: DefaultLint<string>} | null;
+     default_modifiers: Array<DefaultModifier<string>> | null;
+ };
+ 
+ export type Order<S> = Array<S>;
+ 
+ export type ProposalRef<S> = {name: S; prefix: S; suffix: S};
+ 
+ export type Regex<S> = {name: S; mode: Mode; pattern: S; message: S};
+ 
+ export type RelativeLinks<S> = {exceptions: Array<S>};
+ 
+ export type RequireReferenced<S> = {name: S; requires: S};
+ 
+ export type Required<S> = Array<S>;
+ 
+ export type RequiredIfEq<S> = {when: S; equals: S; then: S};
+ 
+ export type RequiresStatus<S> = {
+     requires: S;
+     status: S;
+     flow: Array<Array<S>>;
+     prefix: S;
+     suffix: S;
+ };
+ 
+ export type SectionOrder<S> = Array<S>;
+ 
+ export type SectionRequired<S> = Array<S>;
+ 
+ type AnnotationTypeDef = "Error" | "Warning" | "Info" | "Note" | "Help";
+ 
+ export type SetDefaultAnnotation<S> = {
+     name: S;
+     value: S;
+     annotation_type: AnnotationTypeDef;
+ };
+ 
+ export type Trim = null;
+ 
+ export type Uint<S> = S;
+ 
+ export type UintList<S> = S;
+ 
+ export type Url<S> = S;
+ 
+ export type SnippetDef = {
+     formatted: string;
+     [key: string]: any;
+ };
+ 
+ export function lint(sources: string[], options?: Opts): Promise<SnippetDef>;
+ 
+ export function format(snippet: SnippetDef[]): string;
+ "#;
+
 #[derive(Debug)]
 struct Error(String);
 
@@ -112,7 +244,7 @@ impl Opts {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(skip_typescript)]
 pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsValue, JsError> {
     let sources: Vec<_> = sources
         .into_iter()
@@ -172,7 +304,7 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     Ok(js_value)
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(skip_typescript)]
 pub fn format(snippet: &JsValue) -> Result<String, JsError> {
     let value: serde_json::Value = serde_wasm_bindgen::from_value(snippet.clone())?;
 

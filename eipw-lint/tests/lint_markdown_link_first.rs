@@ -81,3 +81,26 @@ header: value1
 
     assert_eq!(reports, "");
 }
+
+#[tokio::test]
+async fn self_reference_unlinked() {
+    let src = r#"---
+eip: 1234
+---
+
+EIP-1234
+
+EIP-1234
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-link-first", LinkFirst("EIP-1234"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}

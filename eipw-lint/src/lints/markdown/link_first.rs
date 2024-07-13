@@ -56,8 +56,19 @@ struct Visitor<'a, 'b, 'c> {
 
 impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
     fn check(&self, ast: &Ast, text: &str) -> Result<Next, Error> {
+        let self_reference = {
+            let (name, number) = self
+                .ctx
+                .preamble()
+                .by_name("eip")
+                .map(|field| (field.name().trim(), field.value().trim()))
+                .unwrap_or(("", ""));
+            let pattern = format!(r"(?i){}-{}$", name, number);
+            Regex::new(&pattern).unwrap().is_match(text)
+        };
+
         for matched in self.re.find_iter(text) {
-            if self.linked.contains(matched.as_str()) {
+            if self.linked.contains(matched.as_str()) || self_reference {
                 continue;
             }
 

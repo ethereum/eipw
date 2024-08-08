@@ -9,15 +9,15 @@
  use eipw_lint::Linter;
  
  #[tokio::test]
- async fn eip_in_backticks() {
-     let src = r#"---
- header: value1
- ---
- hello
- 
- `EIP-1234`
- "#;
- 
+ async fn eip_in_backticks() { 
+    let src = r#"---
+header: value1
+---
+hello
+    
+`EIP-1234`
+"#;
+
      let reports = Linter::<Text<String>>::default()
          .clear_lints()
          .deny("markdown-no-backticks", NoBackticks(r"EIP-[0-9]+"))

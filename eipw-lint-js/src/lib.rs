@@ -96,11 +96,11 @@ const TS_APPEND_CONTENT: &'static str = r#"
  export type OneOf<S> = {name: S; values: Array<S>};
  
  export type Opts = {
-     allow: Array<string>;
-     warn: Array<string>;
-     deny: Array<string>;
-     default_lints: {[key: string]: DefaultLint<string>} | null;
-     default_modifiers: Array<DefaultModifier<string>> | null;
+     allow?: Array<string>;
+     warn?: Array<string>;
+     deny?: Array<string>;
+     default_lints?: {[key: string]: DefaultLint<string>} | null;
+     default_modifiers?: Array<DefaultModifier<string>> | null;
  };
  
  export type Order<S> = Array<S>;
@@ -129,7 +129,7 @@ const TS_APPEND_CONTENT: &'static str = r#"
  
  export type SectionRequired<S> = Array<S>;
  
- type AnnotationTypeDef = "Error" | "Warning" | "Info" | "Note" | "Help";
+ type AnnotationTypeDef = "error" | "warning" | "info" | "note" | "help";
  
  export type SetDefaultAnnotation<S> = {
      name: S;
@@ -150,9 +150,9 @@ const TS_APPEND_CONTENT: &'static str = r#"
      [key: string]: any;
  };
  
- export function lint(sources: string[], options?: Opts): Promise<SnippetDef>;
+ export function lint(sources: string[], options?: Opts): Promise<SnippetDef[]>;
  
- export function format(snippet: SnippetDef[]): string;
+ export function format(snippet: SnippetDef): string;
  "#;
 
 #[derive(Debug)]

@@ -125,4 +125,8 @@ cd eipw-lint-js
 wasm-pack test --node
 wasm-pack build -t nodejs
 wasm-pack publish -t nodejs
+# for type test
+cd type-checks
+npm install
+npm run test
 ```

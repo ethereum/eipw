@@ -59,4 +59,3 @@ hello
  
      assert_eq!(reports, "");
  }
- 

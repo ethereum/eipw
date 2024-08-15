@@ -50,34 +50,38 @@
  }
  
  impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
-     fn check(&mut self, ast: &Ast, text: &str) -> Result<Next, Error> {
-         for _matched in self.re.find_iter(text) {
-             self.found_backticks = true;
-             let footer_label = format!("the pattern in question: `{}`", self.pattern);
-             let source = self.ctx.source_for_text(ast.sourcepos.start.line, text);
-             self.ctx.report(Snippet {
-                 title: Some(Annotation {
-                     annotation_type: self.ctx.annotation_type(),
-                     id: Some(self.slug),
-                     label: Some("EIP references should not be in backticks"),
-                 }),
-                 slices: vec![Slice {
-                     fold: false,
-                     line_start: ast.sourcepos.start.line,
-                     origin: self.ctx.origin(),
-                     source: &source,
-                     annotations: vec![],
-                 }],
-                 footer: vec![Annotation {
-                     id: None,
-                     annotation_type: AnnotationType::Info,
-                     label: Some(&footer_label),
-                 }],
-                 opt: Default::default(),
-             })?;
-         }
-         Ok(Next::TraverseChildren)
-     }
+    fn check(&mut self, ast: &Ast, text: &str) -> Result<Next, Error> {
+        if text.starts_with('`') && text.ends_with('`') {
+            let inner_text = &text[1..text.len() - 1];
+            if self.re.is_match(inner_text) {
+                self.found_backticks = true;
+                let footer_label = format!("the pattern in question: `{}`", self.pattern);
+                let source = self.ctx.source_for_text(ast.sourcepos.start.line, text);
+                self.ctx.report(Snippet {
+                    opt: Default::default(),
+                    title: Some(Annotation {
+                        annotation_type: self.ctx.annotation_type(),
+                        id: Some(self.slug),
+                        label: Some("EIP references should not be in backticks"),
+                    }),
+                    slices: vec![Slice {
+                        fold: false,
+                        line_start: ast.sourcepos.start.line,
+                        origin: self.ctx.origin(),
+                        source: &source,
+                        annotations: vec![],
+                    }],
+                    footer: vec![Annotation {
+                        annotation_type: AnnotationType::Help,
+                        id: None,
+                        label: Some(&footer_label),
+                    }],
+                })?;
+                return Ok(Next::SkipChildren);
+            }
+        }
+        Ok(Next::TraverseChildren)
+    }
  }
  
  impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {

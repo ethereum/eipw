@@ -8,45 +8,56 @@
  use eipw_lint::reporters::Text;
  use eipw_lint::Linter;
  
- #[tokio::test]
- async fn eip_in_backticks() { 
+#[tokio::test]
+async fn eip_in_backticks() { 
     let src = r#"---
 header: value1
 ---
+
 hello
     
 `EIP-1234`
 "#;
-
-     let reports = Linter::<Text<String>>::default()
-         .clear_lints()
-         .deny("markdown-no-backticks", NoBackticks(r"EIP-[0-9]+"))
-         .check_slice(None, src)
-         .run()
-         .await
-         .unwrap()
-         .into_inner();
  
-     assert_eq!(
-         reports,
-         r#"error[markdown-no-backticks]: EIP references should not be in backticks
-    |
-  5 | `EIP-1234`
-    |
-    = info: the pattern in question: `EIP-[0-9]+`
-  "#
-     );
- }
+    let linter = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-no-backticks", NoBackticks(r"EIP-[0-9]+"));
+
+    println!("Source text:\n{}", src);
+    println!("Linter configuration: {:?}", linter);
+
+    let reports = linter
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    println!("Actual reports: {:?}", reports);
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-no-backticks]: EIP references should not be in backticks
+  --> 7:1
+   |
+ 7 | `EIP-1234`
+   | ^^^^^^^^^^
+   |
+   = info: the pattern in question: `EIP-[0-9]+`
+"#
+    );
+}
  
  #[tokio::test]
  async fn valid_code_in_backticks() {
-     let src = r#"---
- header: value1
- ---
- hello
- 
- `ERC20` and `IERC7777`
- "#;
+    let src = r#"---
+header: value1
+---
+
+hello
+
+`ERC20` and `IERC7777`
+"#;
  
      let reports = Linter::<Text<String>>::default()
          .clear_lints()

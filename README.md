@@ -68,13 +68,14 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `markdown-json-cite`                | All `csl-json` code blocks adhere to the correct schema.                                      |
 | `markdown-link-first`               | First mention of an EIP must be a link.                                                       |
 | `markdown-link-status`              | EIPs linked in the body have statuses further along than the current proposal.                |
+| `markdown-no-backticks`             | No proposals are referenced inside backticks (eg. \`EIP-1234\`).                              |
 | `markdown-order-section`            | There are no extra sections and the sections are in the correct order.                        |
 | `markdown-re-eip-dash`              | Other EIPs are referenced using EIP-X, not EIPX or EIP X.                                     |
 | `markdown-re-erc-dash`              | Other ERCs are referenced using ERC-X, not ERCX or ERC X.                                     |
 | `markdown-refs`                     | ERCs are referenced using ERC-X, while other proposals use EIP-X.                             |
 | `markdown-rel-links`                | All URLs in the page are relative.                                                            |
 | `markdown-req-section`              | Required sections are present in the body of the proposal.                                    |
-| `markdown-headings-space`           | Headers have a space after the leading '#' characters                                           |
+| `markdown-headings-space`           | Headers have a space after the leading '#' characters                                         |
 | `preamble-author`                   | The author header is correctly formatted, and there is at least one GitHub user listed.       |
 | `preamble-date-created`             | The `created` header is a date.                                                               |
 | `preamble-date-last-call-deadline`  | The `last-call-deadline` header is a date.                                                    |

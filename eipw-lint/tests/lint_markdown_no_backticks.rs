@@ -33,12 +33,10 @@ hello
     assert_eq!(
         reports,
         r#"error[markdown-no-backticks]: EIP references should not be in backticks
-  --> 7:1
-   |
- 7 | `EIP-1234`
-   | ^^^^^^^^^^
-   |
-   = info: the pattern in question: `EIP-[0-9]+`
+  |
+7 | `EIP-1234`
+  |
+  = info: the pattern in question: `EIP-[0-9]+`
 "#
     );
 }

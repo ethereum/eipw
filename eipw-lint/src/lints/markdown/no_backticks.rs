@@ -51,10 +51,8 @@ struct Visitor<'a, 'b, 'c> {
 
 impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
     fn check(&mut self, ast: &Ast, text: &str) -> Result<Next, Error> {
-        println!("Checking text: {}", text);
         // Remove the condition that checks for backticks at the start and end
         if self.re.is_match(text) {
-            println!("Regex matched!");
             self.found_backticks = true;
             let footer_label = format!("the pattern in question: `{}`", self.pattern);
             let source = self.ctx.source_for_text(ast.sourcepos.start.line, text);

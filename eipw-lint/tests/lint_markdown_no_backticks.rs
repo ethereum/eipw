@@ -23,17 +23,12 @@ hello
         .clear_lints()
         .deny("markdown-no-backticks", NoBackticks(r"EIP-[0-9]+"));
 
-    println!("Source text:\n{}", src);
-    println!("Linter configuration: {:?}", linter);
-
     let reports = linter
         .check_slice(None, src)
         .run()
         .await
         .unwrap()
         .into_inner();
-
-    println!("Actual reports: {:?}", reports);
 
     assert_eq!(
         reports,

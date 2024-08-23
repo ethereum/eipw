@@ -30,7 +30,7 @@ These are the backwards compatibility concerns for the `EIP1234`.
 These are the test cases for the EIP.
 
 ## Reference Implementation
-This is the implementation for the EIP, but `EIP-721` should be allowed.
+This is the implementation for the EIP, but `EIP721` should be allowed.
 
 ## Security Considerations
 These are the security considerations for the EIP.

@@ -4,21 +4,21 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
- use eipw_lint::lints::markdown::NoBackticks;
- use eipw_lint::reporters::Text;
- use eipw_lint::Linter;
- 
+use eipw_lint::lints::markdown::NoBackticks;
+use eipw_lint::reporters::Text;
+use eipw_lint::Linter;
+
 #[tokio::test]
-async fn eip_in_backticks() { 
+async fn eip_in_backticks() {
     let src = r#"---
 header: value1
 ---
 
 hello
-    
+
 `EIP-1234`
 "#;
- 
+
     let linter = Linter::<Text<String>>::default()
         .clear_lints()
         .deny("markdown-no-backticks", NoBackticks(r"EIP-[0-9]+"));
@@ -47,9 +47,9 @@ hello
 "#
     );
 }
- 
- #[tokio::test]
- async fn valid_code_in_backticks() {
+
+#[tokio::test]
+async fn valid_code_in_backticks() {
     let src = r#"---
 header: value1
 ---
@@ -58,15 +58,15 @@ hello
 
 `ERC20` and `IERC7777`
 "#;
- 
-     let reports = Linter::<Text<String>>::default()
-         .clear_lints()
-         .deny("markdown-no-backticks", NoBackticks(r"EIP-[0-9]+"))
-         .check_slice(None, src)
-         .run()
-         .await
-         .unwrap()
-         .into_inner();
- 
-     assert_eq!(reports, "");
- }
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-no-backticks", NoBackticks(r"EIP-[0-9]+"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}

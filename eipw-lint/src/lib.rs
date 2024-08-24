@@ -326,10 +326,11 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
                 prefix: "eip-",
                 suffix: ".md",
                 flow: vec![
+                    vec!["Withdrawn"],
                     vec!["Draft", "Stagnant"],
                     vec!["Review"],
                     vec!["Last Call"],
-                    vec!["Final", "Withdrawn", "Living"],
+                    vec!["Final", "Living"],
                 ]
             }),
         ),

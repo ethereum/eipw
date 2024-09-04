@@ -59,6 +59,9 @@ pub enum DefaultLint<S> {
     MarkdownNoBackticks {
         pattern: markdown::NoBackticks<S>,
     },
+    MarkdownPreventUrlsNoBackticks {
+        pattern: markdown::PreventUrlsNoBackticks<S>,
+    },
     MarkdownLinkStatus(markdown::LinkStatus<S>),
     MarkdownProposalRef(markdown::ProposalRef<S>),
     MarkdownRegex(markdown::Regex<S>),
@@ -107,6 +110,7 @@ where
             Self::MarkdownJsonSchema(l) => Box::new(l),
             Self::MarkdownLinkFirst { pattern } => Box::new(pattern),
             Self::MarkdownNoBackticks { pattern } => Box::new(pattern),
+            Self::MarkdownPreventUrlsNoBackticks { pattern} => Box::new(pattern),
             Self::MarkdownLinkStatus(l) => Box::new(l),
             Self::MarkdownProposalRef(l) => Box::new(l),
             Self::MarkdownRegex(l) => Box::new(l),
@@ -147,6 +151,7 @@ where
             Self::MarkdownJsonSchema(l) => l,
             Self::MarkdownLinkFirst { pattern } => pattern,
             Self::MarkdownNoBackticks { pattern } => pattern,
+            Self::MarkdownPreventUrlsNoBackticks { pattern } => pattern,
             Self::MarkdownLinkStatus(l) => l,
             Self::MarkdownProposalRef(l) => l,
             Self::MarkdownRegex(l) => l,
@@ -268,6 +273,11 @@ where
             Self::MarkdownNoBackticks { pattern } => DefaultLint::MarkdownNoBackticks {
                 pattern: markdown::NoBackticks(pattern.0.as_ref()),
             },
+            Self::MarkdownPreventUrlsNoBackticks { pattern } => {
+                DefaultLint::MarkdownPreventUrlsNoBackticks(markdown::PreventUrlsNoBackticks {
+                    pattern: pattern.0.as_ref(),
+                })
+            }
             Self::MarkdownLinkStatus(l) => DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
                 prefix: l.prefix.as_ref(),
                 suffix: l.suffix.as_ref(),

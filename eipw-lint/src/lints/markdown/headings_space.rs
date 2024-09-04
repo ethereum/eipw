@@ -20,6 +20,7 @@ use std::fmt::Debug;
 pub struct HeadingsSpace;
 
 impl Lint for HeadingsSpace {
+    
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         // Match for text nodes starting with leading '#' chars (upto 6)
         // Markdown does not recognise these nodes as valid Headings without the space

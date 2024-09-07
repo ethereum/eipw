@@ -432,11 +432,16 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
             }
         ),
         (
-            "markdown-prevent-url",
-            MarkdownPreventUrl {
-                pattern: markdown::PreventUrl(r"`[^`]+`"),
-            }
-        ), 
+            "markdown-prevent-url", MarkdownPreventUrlsNoBackticks(markdown::PreventUrlsNoBackticks {
+                allowed_domains: vec![
+                    r"(.+\.)?example.com",
+                    r"(.+\.)?invalid",
+                    r"(.+\.)?example.net",
+                    r"(.+\.)?example.org",
+                    r"(.+\.)?test",
+                    r"(.+\.)?example",
+                ]
+            })), 
         ("markdown-rel-links", MarkdownRelativeLinks(markdown::RelativeLinks {
             exceptions: vec![
                 "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",

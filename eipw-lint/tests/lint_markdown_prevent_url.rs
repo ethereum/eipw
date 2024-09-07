@@ -4,22 +4,29 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
- use crate::lints::PreventUrlsNoBackticks;
- use crate::reporters::Text; // Assuming you have a similar reporter in your crate
- use crate::Linter;
+ use eipw_lint::lints::markdown::PreventUrlsNoBackticks;
+ use eipw_lint::reporters::Text;
+ use eipw_lint::Linter;
  
  #[tokio::test]
- async fn url_with_backticks() {
+ async fn url_in_backticks() {
      let src = r#"---
  header: value1
  ---
  
- Check this URL: `http://example.com/page?query=foo`
+ This is a test with a URL in backticks:
+ 
+ `https://notallowed.com`
  "#;
  
      let linter = Linter::<Text<String>>::default()
          .clear_lints()
-         .deny("markdown-prevent-url", PreventUrlsNoBackticks(r"https://example\.com"));
+         .deny(
+             "markdown-prevent-url",
+             PreventUrlsNoBackticks {
+                 allowed_domains: Vec::<&str>::new(),
+             },
+         );
  
      let reports = linter
          .check_slice(None, src)
@@ -30,27 +37,34 @@
  
      assert_eq!(
          reports,
-         r#"error[markdown-prevent-url]: URL containing backticks or not from allowed domain found
+         r#"error[markdown-prevent-url]: URLs are not allowed in backticks
    |
- 4 | Check this URL: `http://example.com/page?query=foo`
+ 8 | `https://notallowed.com`
    |
-   = info: avoid using backticks in URLs: `http://example.com/page?query=foo`
+   = info: This URL must be hyperlinked or from an allowed domain: `https://notallowed.com`
  "#
      );
  }
  
  #[tokio::test]
- async fn valid_url_no_backticks() {
+ async fn valid_url_not_in_backticks() {
      let src = r#"---
  header: value1
  ---
  
- Check this URL: http://example.com/page?query=foo
+ This is a valid URL in plain text:
+ 
+ https://example.com
  "#;
  
      let reports = Linter::<Text<String>>::default()
          .clear_lints()
-         .deny("markdown-prevent-url", PreventUrlsNoBackticks(r"https://example\.com"))
+         .deny(
+             "markdown-prevent-url",
+             PreventUrlsNoBackticks {
+                 allowed_domains: Vec::<&str>::new(),
+             },
+         )
          .check_slice(None, src)
          .run()
          .await
@@ -58,59 +72,5 @@
          .into_inner();
  
      assert_eq!(reports, "");
- }
- 
- #[tokio::test]
- async fn url_with_allowed_domain_no_backticks() {
-     let src = r#"---
- header: value1
- ---
- 
- Check this URL: http://example.com/page?query=foo
- "#;
- 
-     let linter = Linter::<Text<String>>::default()
-         .clear_lints()
-         .deny("markdown-prevent-url", PreventUrlsNoBackticks(r"example\.com"));
- 
-     let reports = linter
-         .check_slice(None, src)
-         .run()
-         .await
-         .unwrap()
-         .into_inner();
- 
-     assert_eq!(reports, "");
- }
- 
- #[tokio::test]
- async fn url_with_disallowed_domain() {
-     let src = r#"---
- header: value1
- ---
- 
- Check this URL: http://notallowed.com/page?query=foo
- "#;
- 
-     let linter = Linter::<Text<String>>::default()
-         .clear_lints()
-         .deny("markdown-prevent-url", PreventUrlsNoBackticks(r"allowed\.com"));
- 
-     let reports = linter
-         .check_slice(None, src)
-         .run()
-         .await
-         .unwrap()
-         .into_inner();
- 
-     assert_eq!(
-         reports,
-         r#"error[markdown-prevent-url]: URL containing backticks or not from allowed domain found
-   |
- 4 | Check this URL: http://notallowed.com/page?query=foo
-   |
-   = info: avoid using backticks in URLs: `http://notallowed.com/page?query=foo`
- "#
-     );
  }
  

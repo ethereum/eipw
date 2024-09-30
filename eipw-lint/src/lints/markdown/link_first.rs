@@ -30,11 +30,19 @@ where
         let pattern = self.0.as_ref();
         let re = Regex::new(pattern).map_err(Error::custom)?;
 
+        let own_number = ctx
+            .preamble()
+            .by_name("eip")
+            .map(|field| field.value().trim())
+            .map(str::parse)
+            .and_then(Result::ok);
+
         let mut visitor = Visitor {
             ctx,
             re,
             pattern,
             slug,
+            own_number,
             linked: Default::default(),
             link_depth: 0,
         };
@@ -52,23 +60,30 @@ struct Visitor<'a, 'b, 'c> {
     slug: &'c str,
     linked: HashSet<String>,
     link_depth: usize,
+    own_number: Option<u32>,
 }
 
 impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
     fn check(&self, ast: &Ast, text: &str) -> Result<Next, Error> {
-        let self_reference = {
-            let (name, number) = self
-                .ctx
-                .preamble()
-                .by_name("eip")
-                .map(|field| (field.name().trim(), field.value().trim()))
-                .unwrap_or(("", ""));
-            let pattern = format!(r"(?i){}-{}$", name, number);
-            Regex::new(&pattern).unwrap().is_match(text)
-        };
+        for matched in self.re.captures_iter(text) {
+            let self_reference = match self.own_number {
+                None => false,
+                Some(own_number) => matched
+                    .get(1)
+                    .unwrap()
+                    .as_str()
+                    .parse()
+                    .map(|n: u32| n == own_number)
+                    .unwrap_or(false),
+            };
 
-        for matched in self.re.find_iter(text) {
-            if self.linked.contains(matched.as_str()) || self_reference {
+            if self_reference {
+                continue;
+            }
+
+            let matched_str = matched.get(0).unwrap().as_str();
+
+            if self.linked.contains(matched_str) {
                 continue;
             }
 

@@ -27,7 +27,6 @@ pub struct RelativeLinks<S> {
     pub exceptions: Vec<S>,
 }
 
-
 impl<S> Lint for RelativeLinks<S>
 where
     S: Debug + Display + AsRef<str>,

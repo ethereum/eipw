@@ -29,7 +29,8 @@ This is the rationale for the EIP, which extends [EIP-1234](./eip-1234.md) and
 [ERC-1236](./eip-1236.md).
 
 ## Backwards Compatibility
-These are the backwards compatibility concerns.
+These are the backwards compatibility concerns. This reference EIP-1 is a self
+reference and shouldn't generate an error.
 
 ## Test Cases
 These are the test cases for the EIP.

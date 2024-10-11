@@ -13,7 +13,7 @@ use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
 use crate::SnippetExt;
 
-use jsonschema::{CompilationOptions, JSONSchema};
+use jsonschema::{Resource, ValidationOptions, Validator};
 
 use serde::{Deserialize, Serialize};
 
@@ -37,18 +37,19 @@ where
         let value: serde_json::Value =
             serde_json::from_str(self.schema.as_ref()).map_err(Error::custom)?;
 
-        let mut options = CompilationOptions::default();
+        let mut options = ValidationOptions::default();
 
         options.with_draft(jsonschema::Draft::Draft7);
 
         for (url, json_text) in &self.additional_schemas {
             let value: serde_json::Value =
                 serde_json::from_str(json_text.as_ref()).map_err(Error::custom)?;
-            options.with_document(url.to_string(), value);
+            let resource = Resource::from_contents(value).map_err(Error::custom)?;
+            options.with_resource(url.to_string(), resource);
         }
 
         let schema = options
-            .compile(&value)
+            .build(&value)
             .map_err(|e| Whatever::without_source(e.to_string()))
             .map_err(Error::custom)?;
 
@@ -71,7 +72,7 @@ struct Visitor<'a, 'b, 'c> {
     language: &'c str,
     slug: &'c str,
     help: &'c str,
-    schema: JSONSchema,
+    schema: Validator,
 }
 
 impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {

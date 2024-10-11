@@ -6,7 +6,10 @@
 
 use annotate_snippets::{Level, Snippet};
 
-use comrak::nodes::{Ast, NodeCode, NodeCodeBlock, NodeHtmlBlock, NodeLink};
+use comrak::nodes::{
+    Ast, NodeCode, NodeCodeBlock, NodeFootnoteDefinition, NodeFootnoteReference, NodeHtmlBlock,
+    NodeLink,
+};
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
@@ -135,8 +138,12 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_footnote_definition(&mut self, ast: &Ast, defn: &str) -> Result<Next, Self::Error> {
-        self.check(ast, defn)
+    fn enter_footnote_definition(
+        &mut self,
+        ast: &Ast,
+        defn: &NodeFootnoteDefinition,
+    ) -> Result<Next, Self::Error> {
+        self.check(ast, &defn.name)
     }
 
     fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
@@ -164,7 +171,11 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_footnote_reference(&mut self, ast: &Ast, refn: &str) -> Result<Next, Self::Error> {
-        self.check(ast, refn)
+    fn enter_footnote_reference(
+        &mut self,
+        ast: &Ast,
+        refn: &NodeFootnoteReference,
+    ) -> Result<Next, Self::Error> {
+        self.check(ast, &refn.name)
     }
 }

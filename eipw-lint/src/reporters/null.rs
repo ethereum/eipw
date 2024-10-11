@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::Snippet;
+use annotate_snippets::Message;
 
 use super::{Error, Reporter};
 
@@ -12,7 +12,7 @@ use super::{Error, Reporter};
 pub struct Null;
 
 impl Reporter for Null {
-    fn report(&self, _snippet: Snippet<'_>) -> Result<(), Error> {
+    fn report(&self, _message: Message<'_>) -> Result<(), Error> {
         Ok(())
     }
 }

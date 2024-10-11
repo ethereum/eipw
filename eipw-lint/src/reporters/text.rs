@@ -4,8 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::display_list::DisplayList;
-use annotate_snippets::snippet::Snippet;
+use annotate_snippets::{Message, Renderer};
 
 use std::cell::RefCell;
 use std::fmt::{Debug, Write};
@@ -21,8 +20,13 @@ impl<W> Reporter for Text<W>
 where
     W: Write,
 {
-    fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
-        writeln!(self.inner.borrow_mut(), "{}", DisplayList::from(snippet)).map_err(Error::new)
+    fn report(&self, message: Message<'_>) -> Result<(), Error> {
+        writeln!(
+            self.inner.borrow_mut(),
+            "{}",
+            Renderer::plain().render(message)
+        )
+        .map_err(Error::new)
     }
 }
 

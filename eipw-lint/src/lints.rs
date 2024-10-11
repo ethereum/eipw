@@ -8,7 +8,7 @@ mod known_lints;
 pub mod markdown;
 pub mod preamble;
 
-use annotate_snippets::snippet::{AnnotationType, Snippet};
+use annotate_snippets::{Level, Message};
 
 use comrak::nodes::AstNode;
 
@@ -80,7 +80,7 @@ where
     pub(crate) eips: &'b HashMap<&'b Path, Result<InnerContext<'b>, &'b crate::Error>>,
     #[educe(Debug(ignore))]
     pub(crate) reporter: &'b dyn Reporter,
-    pub(crate) annotation_type: AnnotationType,
+    pub(crate) annotation_level: Level,
 }
 
 impl<'a, 'b> Context<'a, 'b>
@@ -128,12 +128,12 @@ where
         self.inner.origin
     }
 
-    pub fn annotation_type(&self) -> AnnotationType {
-        self.annotation_type
+    pub fn annotation_level(&self) -> Level {
+        self.annotation_level
     }
 
-    pub fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
-        self.reporter.report(snippet)?;
+    pub fn report(&self, message: Message<'_>) -> Result<(), Error> {
+        self.reporter.report(message)?;
         Ok(())
     }
 
@@ -157,7 +157,7 @@ where
             inner: inner.clone(),
             eips: self.eips,
             reporter: self.reporter,
-            annotation_type: self.annotation_type,
+            annotation_level: self.annotation_level,
         })
     }
 }

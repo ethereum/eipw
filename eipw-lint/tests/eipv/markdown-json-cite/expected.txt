@@ -5,8 +5,8 @@ error[markdown-json-cite]: code block of type `csl-json` does not conform to req
 43 | ||     {
 44 | ||         "type": "article",
 45 | ||         "id": "1",
-46 |  |         "URL": "3"
+46 | ||         "URL": "3"
    | ||__________________^ "3" is not a "uri"
-   |  |__________________^ "DOI" is a required property
+   | ||__________________^ "DOI" is a required property
    |
    = help: see https://github.com/ethereum/eipw/blob/master/eipw-lint/src/lints/markdown/json_schema/citation.json

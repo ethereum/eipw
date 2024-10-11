@@ -4,13 +4,15 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet};
+use annotate_snippets::Snippet;
 
-use annotate_snippets::snippet::SourceAnnotation;
 use comrak::nodes::{Ast, LineColumn, NodeValue, Sourcepos};
 use regex::Regex;
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    LevelExt, SnippetExt,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -55,30 +57,26 @@ impl Lint for HeadingsSpace {
 
         let slices: Vec<_> = invalid_headings
             .iter()
-            .map(|(text, line_start, heading_level)| Slice {
-                line_start: *line_start,
-                origin: ctx.origin(),
-                source: text,
-                fold: false,
-                annotations: vec![SourceAnnotation {
-                    annotation_type: ctx.annotation_type(),
-                    label: "space required here",
-                    range: (*heading_level - 1, *heading_level),
-                }],
+            .map(|(text, line_start, heading_level)| {
+                Snippet::source(text)
+                    .line_start(*line_start)
+                    .fold(false)
+                    .origin_opt(ctx.origin())
+                    .annotation(
+                        ctx.annotation_level()
+                            .span_utf8(text, heading_level - 1, 1)
+                            .label("space required here"),
+                    )
             })
             .collect();
 
         if !slices.is_empty() {
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    id: Some(slug),
-                    annotation_type: ctx.annotation_type(),
-                    label: Some("Space missing in header"),
-                }),
-                footer: vec![],
-                slices,
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level()
+                    .title("Space missing in header")
+                    .id(slug)
+                    .snippets(slices),
+            )?;
         }
 
         Ok(())

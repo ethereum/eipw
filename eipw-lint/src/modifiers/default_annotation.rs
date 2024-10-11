@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::AnnotationType;
+use annotate_snippets::Level;
 
 use std::fmt::Debug;
 
@@ -16,8 +16,8 @@ use serde::{Deserialize, Serialize};
 use super::{Error, Modifier};
 
 #[derive(Serialize, Deserialize)]
-#[serde(remote = "AnnotationType", rename_all = "kebab-case")]
-enum AnnotationTypeDef {
+#[serde(remote = "Level", rename_all = "kebab-case")]
+enum LevelDef {
     Error,
     Warning,
     Info,
@@ -30,8 +30,8 @@ pub struct SetDefaultAnnotation<S> {
     pub name: S,
     pub value: S,
 
-    #[serde(with = "AnnotationTypeDef")]
-    pub annotation_type: AnnotationType,
+    #[serde(with = "LevelDef")]
+    pub annotation_level: Level,
 }
 
 impl<S> Modifier for SetDefaultAnnotation<S>
@@ -45,7 +45,7 @@ where
         };
 
         if value == self.value.as_ref() {
-            settings.default_annotation_type = self.annotation_type;
+            settings.default_annotation_level = self.annotation_level;
         }
 
         Ok(())

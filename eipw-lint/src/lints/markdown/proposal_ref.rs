@@ -4,12 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet};
+use annotate_snippets::Snippet;
 
 use comrak::nodes::{Ast, AstNode, NodeCode, NodeCodeBlock, NodeHtmlBlock};
 
 use crate::lints::{Context, Error, FetchContext, Lint};
 use crate::tree::{self, Next, TraverseExt};
+use crate::SnippetExt;
 
 use regex::Regex;
 
@@ -57,21 +58,14 @@ where
                 Ok(eip) => eip,
                 Err(e) => {
                     let label = format!("unable to read file `{}`: {}", url.display(), e);
-                    ctx.report(Snippet {
-                        title: Some(Annotation {
-                            id: Some(slug),
-                            label: Some(&label),
-                            annotation_type: ctx.annotation_type(),
-                        }),
-                        slices: vec![Slice {
-                            fold: false,
-                            line_start: start_line,
-                            origin: ctx.origin(),
-                            source: ctx.line(start_line),
-                            annotations: vec![],
-                        }],
-                        ..Default::default()
-                    })?;
+                    ctx.report(
+                        ctx.annotation_level().title(&label).id(slug).snippet(
+                            Snippet::source(ctx.line(start_line))
+                                .fold(false)
+                                .origin_opt(ctx.origin())
+                                .line_start(start_line),
+                        ),
+                    )?;
                     continue;
                 }
             };
@@ -97,21 +91,14 @@ where
                 category_msg, prefix,
             );
 
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: ctx.annotation_type(),
-                    id: Some(slug),
-                    label: Some(&label),
-                }),
-                slices: vec![Slice {
-                    fold: false,
-                    line_start: start_line,
-                    origin: ctx.origin(),
-                    source: ctx.line(start_line),
-                    annotations: vec![],
-                }],
-                ..Default::default()
-            })?;
+            ctx.report(
+                ctx.annotation_level().title(&label).id(slug).snippet(
+                    Snippet::source(ctx.line(start_line))
+                        .line_start(start_line)
+                        .fold(false)
+                        .origin_opt(ctx.origin()),
+                ),
+            )?;
         }
 
         Ok(())

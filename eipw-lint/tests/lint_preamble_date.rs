@@ -83,7 +83,7 @@ hello world"#;
         r#"error[preamble-date]: preamble header `header` is not a date in the `YYYY-MM-DD` format
   |
 2 | header: 12-13-2022
-  |        ^^^^^^^^^^^ trailing input
+  |        ^^^^^^^^^^^ input is out of range
   |
 "#,
     );
@@ -110,7 +110,7 @@ hello world"#;
         r#"error[preamble-date]: preamble header `heáder` is not a date in the `YYYY-MM-DD` format
   |
 2 | heáder: 12-13-2022
-  |        ^^^^^^^^^^^ trailing input
+  |        ^^^^^^^^^^^ input is out of range
   |
 "#,
     );

@@ -10,7 +10,7 @@ pub mod modifiers;
 pub mod reporters;
 pub mod tree;
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use annotate_snippets::{Annotation, Level, Snippet};
 
 use comrak::arena_tree::Node;
 use comrak::nodes::Ast;
@@ -62,12 +62,12 @@ pub fn default_modifiers_enum() -> Vec<DefaultModifier<&'static str>> {
         DefaultModifier::SetDefaultAnnotation(modifiers::SetDefaultAnnotation {
             name: "status",
             value: "Stagnant",
-            annotation_type: AnnotationType::Warning,
+            annotation_level: Level::Warning,
         }),
         DefaultModifier::SetDefaultAnnotation(modifiers::SetDefaultAnnotation {
             name: "status",
             value: "Withdrawn",
-            annotation_type: AnnotationType::Warning,
+            annotation_level: Level::Warning,
         }),
     ]
 }
@@ -526,7 +526,7 @@ impl<'a> Source<'a> {
 #[non_exhaustive]
 pub struct LintSettings<'a> {
     _p: std::marker::PhantomData<&'a dyn Lint>,
-    pub default_annotation_type: AnnotationType,
+    pub default_annotation_level: Level,
 }
 
 struct NeverIter<T> {
@@ -591,7 +591,7 @@ where
 #[educe(Debug)]
 #[must_use]
 pub struct Linter<'a, R> {
-    lints: HashMap<&'a str, (Option<AnnotationType>, Box<dyn Lint>)>,
+    lints: HashMap<&'a str, (Option<Level>, Box<dyn Lint>)>,
     modifiers: Vec<Box<dyn Modifier>>,
     sources: Vec<Source<'a>>,
 
@@ -670,14 +670,14 @@ impl<'a, R> Linter<'a, R> {
     where
         T: 'static + Lint,
     {
-        self.add_lint(Some(AnnotationType::Warning), slug, lint)
+        self.add_lint(Some(Level::Warning), slug, lint)
     }
 
     pub fn deny<T>(self, slug: &'a str, lint: T) -> Self
     where
         T: 'static + Lint,
     {
-        self.add_lint(Some(AnnotationType::Error), slug, lint)
+        self.add_lint(Some(Level::Error), slug, lint)
     }
 
     pub fn modify<T>(mut self, modifier: T) -> Self
@@ -688,7 +688,7 @@ impl<'a, R> Linter<'a, R> {
         self
     }
 
-    fn add_lint<T>(mut self, level: Option<AnnotationType>, slug: &'a str, lint: T) -> Self
+    fn add_lint<T>(mut self, level: Option<Level>, slug: &'a str, lint: T) -> Self
     where
         T: 'static + Lint,
     {
@@ -840,7 +840,7 @@ where
 
             let mut settings = LintSettings {
                 _p: std::marker::PhantomData,
-                default_annotation_type: AnnotationType::Error,
+                default_annotation_level: Level::Error,
             };
 
             for modifier in &self.modifiers {
@@ -848,19 +848,20 @@ where
                     inner: inner.clone(),
                     reporter: &self.reporter,
                     eips: &parsed_eips,
-                    annotation_type: settings.default_annotation_type,
+                    annotation_level: settings.default_annotation_level,
                 };
 
                 modifier.modify(&context, &mut settings)?;
             }
 
-            for (slug, (annotation_type, lint)) in &lints {
-                let annotation_type = annotation_type.unwrap_or(settings.default_annotation_type);
+            for (slug, (annotation_level, lint)) in &lints {
+                let annotation_level =
+                    annotation_level.unwrap_or(settings.default_annotation_level);
                 let context = Context {
                     inner: inner.clone(),
                     reporter: &self.reporter,
                     eips: &parsed_eips,
-                    annotation_type,
+                    annotation_level,
                 };
 
                 lint.lint(slug, &context).with_context(|_| LintSnafu {
@@ -884,31 +885,22 @@ fn process<'a>(
         Err(SplitError::MissingStart { .. }) | Err(SplitError::LeadingGarbage { .. }) => {
             let mut footer = Vec::new();
             if source.as_bytes().get(3) == Some(&b'\r') {
-                footer.push(Annotation {
-                    id: None,
-                    label: Some(
-                        "found a carriage return (CR), use Unix-style line endings (LF) instead",
-                    ),
-                    annotation_type: AnnotationType::Help,
-                });
+                footer.push(Level::Help.title(
+                    "found a carriage return (CR), use Unix-style line endings (LF) instead",
+                ));
             }
             reporter
-                .report(Snippet {
-                    title: Some(Annotation {
-                        id: None,
-                        label: Some("first line must be `---` exactly"),
-                        annotation_type: AnnotationType::Error,
-                    }),
-                    slices: vec![Slice {
-                        fold: false,
-                        line_start: 1,
-                        origin,
-                        source: source.lines().next().unwrap_or_default(),
-                        annotations: vec![],
-                    }],
-                    footer,
-                    ..Default::default()
-                })
+                .report(
+                    Level::Error
+                        .title("first line must be `---` exactly")
+                        .snippet(
+                            Snippet::source(source.lines().next().unwrap_or_default())
+                                .origin_opt(origin)
+                                .fold(false)
+                                .line_start(1),
+                        )
+                        .footers(footer),
+                )
                 .map_err(LintError::from)
                 .with_context(|_| LintSnafu {
                     origin: origin.map(PathBuf::from),
@@ -917,14 +909,10 @@ fn process<'a>(
         }
         Err(SplitError::MissingEnd { .. }) => {
             reporter
-                .report(Snippet {
-                    title: Some(Annotation {
-                        id: None,
-                        label: Some("preamble must be followed by a line containing `---` exactly"),
-                        annotation_type: AnnotationType::Error,
-                    }),
-                    ..Default::default()
-                })
+                .report(
+                    Level::Error
+                        .title("preamble must be followed by a line containing `---` exactly"),
+                )
                 .map_err(LintError::from)
                 .with_context(|_| LintSnafu {
                     origin: origin.map(PathBuf::from),
@@ -982,6 +970,45 @@ fn process<'a>(
         preamble,
         origin,
     }))
+}
+
+trait SnippetExt<'a> {
+    fn origin_opt(self, origin: Option<&'a str>) -> Self;
+}
+
+impl<'a> SnippetExt<'a> for Snippet<'a> {
+    fn origin_opt(self, origin: Option<&'a str>) -> Self {
+        match origin {
+            Some(origin) => self.origin(origin),
+            None => self,
+        }
+    }
+}
+
+trait LevelExt {
+    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation;
+}
+
+impl LevelExt for Level {
+    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation {
+        let end = ceil_char_boundary(text, start + min_len);
+        self.span(start..end)
+    }
+}
+
+/// Remove and replace with str::ceil_char_boundary if round_char_boundary stabilizes.
+fn ceil_char_boundary(text: &str, index: usize) -> usize {
+    if index > text.len() {
+        return text.len();
+    }
+
+    for pos in index..=text.len() {
+        if text.is_char_boundary(pos) {
+            return pos;
+        }
+    }
+
+    unreachable!();
 }
 
 #[cfg(test)]

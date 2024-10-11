@@ -4,14 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::Snippet;
+use annotate_snippets::Message;
 
 use clap::{Parser, ValueEnum};
 
 use eipw_lint::lints::DefaultLint;
 use eipw_lint::modifiers::DefaultModifier;
-use eipw_lint::reporters::count::Count;
-use eipw_lint::reporters::{AdditionalHelp, Json, Reporter, Text};
+use eipw_lint::reporters::{Reporter, Text};
 use eipw_lint::{default_lints, default_lints_enum, default_modifiers_enum, Linter};
 
 use serde::{Deserialize, Serialize};
@@ -61,7 +60,6 @@ struct Opts {
 #[derive(ValueEnum, Clone, Debug)]
 enum Format {
     Text,
-    Json,
 }
 
 impl Default for Format {
@@ -72,14 +70,12 @@ impl Default for Format {
 
 #[derive(Debug)]
 enum EitherReporter {
-    Json(Json),
     Text(Text<String>),
 }
 
 impl Reporter for EitherReporter {
-    fn report(&self, snippet: Snippet<'_>) -> Result<(), eipw_lint::reporters::Error> {
+    fn report(&self, snippet: Message<'_>) -> Result<(), eipw_lint::reporters::Error> {
         match self {
-            Self::Json(j) => j.report(snippet),
             Self::Text(s) => s.report(snippet),
         }
     }
@@ -185,19 +181,11 @@ async fn run(opts: Opts) -> Result<(), usize> {
         return Ok(());
     }
 
-    let stdout = std::io::stdout();
-
     let sources = collect_sources(opts.sources).await.unwrap();
 
     let reporter = match opts.format {
-        Format::Json => EitherReporter::Json(Json::default()),
         Format::Text => EitherReporter::Text(Text::default()),
     };
-
-    let reporter = AdditionalHelp::new(reporter, |t: &str| {
-        Ok(format!("see https://ethereum.github.io/eipw/{}/", t))
-    });
-    let reporter = Count::new(reporter);
 
     let options: Options;
     let mut linter;
@@ -239,18 +227,11 @@ async fn run(opts: Opts) -> Result<(), usize> {
 
     let reporter = linter.run().await.unwrap();
 
-    let n_errors = reporter.counts().error;
-
-    match reporter.into_inner().into_inner() {
-        EitherReporter::Json(j) => serde_json::to_writer_pretty(&stdout, &j).unwrap(),
+    match reporter {
         EitherReporter::Text(t) => print!("{}", t.into_inner()),
     }
 
-    if n_errors > 0 {
-        Err(n_errors)
-    } else {
-        Ok(())
-    }
+    Ok(())
 }
 
 fn main() {

@@ -4,38 +4,25 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::{Level, Message, Snippet};
 
 use regex::RegexSet;
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    LevelExt, SnippetExt,
+};
 
 use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
 
-fn footer() -> Vec<Annotation<'static>> {
+fn footer() -> Vec<Message<'static>> {
     vec![
-        Annotation {
-            annotation_type: AnnotationType::Help,
-            id: None,
-            label: Some("Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email."),
-        },
-        Annotation {
-            annotation_type: AnnotationType::Help,
-            id: None,
-            label: Some("Try `Random J. User (@username)` for an author with a GitHub username."),
-        },
-        Annotation {
-            annotation_type: AnnotationType::Help,
-            id: None,
-            label: Some("Try `Random J. User <test@example.com>` for an author with an email."),
-        },
-        Annotation {
-            annotation_type: AnnotationType::Help,
-            id: None,
-            label: Some("Try `Random J. User` for an author without contact information."),
-        },
+        Level::Help.title("Try `Random J. User (@username) <test@example.com>` for an author with a GitHub username plus email."),
+        Level::Help.title("Try `Random J. User (@username)` for an author with a GitHub username."),
+        Level::Help.title("Try `Random J. User <test@example.com>` for an author with an email."),
+        Level::Help.title("Try `Random J. User` for an author without contact information."),
     ]
 }
 
@@ -76,7 +63,7 @@ where
 
         for item in items {
             let current = offset;
-            let item_count = item.chars().count();
+            let item_count = item.len();
             offset += item_count + 1;
             let trimmed = item.trim();
 
@@ -88,31 +75,26 @@ where
                 continue;
             }
 
-            let name_count = field.name().chars().count();
+            let name_count = field.name().len();
 
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: ctx.annotation_type(),
-                    id: Some(slug),
-                    label: Some("authors in the preamble must match the expected format"),
-                }),
-                slices: vec![Slice {
-                    fold: false,
-                    line_start: field.line_start(),
-                    origin: ctx.origin(),
-                    source: field.source(),
-                    annotations: vec![SourceAnnotation {
-                        annotation_type: ctx.annotation_type(),
-                        label: "unrecognized author",
-                        range: (
-                            name_count + current + 1,
-                            name_count + current + 1 + item_count,
-                        ),
-                    }],
-                }],
-                footer: footer(),
-                opt: Default::default(),
-            })?;
+            let start = name_count + current + 1;
+            ctx.report(
+                ctx.annotation_level()
+                    .title("authors in the preamble must match the expected format")
+                    .id(slug)
+                    .snippet(
+                        Snippet::source(field.source())
+                            .fold(false)
+                            .line_start(field.line_start())
+                            .origin_opt(ctx.origin())
+                            .annotation(
+                                ctx.annotation_level()
+                                    .span_utf8(field.source(), start, item_count)
+                                    .label("unrecognized author"),
+                            ),
+                    )
+                    .footers(footer()),
+            )?;
         }
 
         if !has_username {
@@ -120,22 +102,14 @@ where
                 "preamble header `{}` must contain at least one GitHub username",
                 self.0
             );
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: ctx.annotation_type(),
-                    id: Some(slug),
-                    label: Some(&label),
-                }),
-                slices: vec![Slice {
-                    fold: false,
-                    line_start: field.line_start(),
-                    origin: ctx.origin(),
-                    source: field.source(),
-                    annotations: vec![],
-                }],
-                footer: vec![],
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level().title(&label).id(slug).snippet(
+                    Snippet::source(field.source())
+                        .line_start(field.line_start())
+                        .origin_opt(ctx.origin())
+                        .fold(false),
+                ),
+            )?;
         }
 
         Ok(())

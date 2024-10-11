@@ -9,7 +9,7 @@
 //! See [`Preamble`] for more details.
 #![warn(missing_docs)]
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use annotate_snippets::{Level, Message, Snippet};
 
 use regex::Regex;
 
@@ -21,13 +21,13 @@ use std::collections::HashMap;
 #[derive(Debug, Snafu)]
 pub struct ParseErrors<'a> {
     backtrace: Backtrace,
-    errors: Vec<Snippet<'a>>,
+    errors: Vec<Message<'a>>,
 }
 
 impl<'a> ParseErrors<'a> {
     /// Consumes the error and returns the diagnostic messages (annotations)
     /// that caused it.
-    pub fn into_errors(self) -> Vec<Snippet<'a>> {
+    pub fn into_errors(self) -> Vec<Message<'a>> {
         self.errors
     }
 }
@@ -102,7 +102,7 @@ impl<'a> Preamble<'a> {
     /// for easy access.
     pub fn parse(origin: Option<&'a str>, text: &'a str) -> Result<Self, ParseErrors<'a>> {
         let lines = text.split('\n');
-        let mut result: Result<Fields<'a>, Vec<Snippet<'a>>> = Ok(Default::default());
+        let mut result: Result<Fields<'a>, Vec<Message<'a>>> = Ok(Default::default());
 
         for (index, line) in lines.enumerate() {
             let line_start = index + 1 + 1; // Lines start at one, plus `---\n`.
@@ -139,27 +139,19 @@ impl<'a> Preamble<'a> {
         origin: Option<&'a str>,
         line_start: usize,
         line: &'a str,
-    ) -> Result<Field<'a>, Snippet<'a>> {
+    ) -> Result<Field<'a>, Message<'a>> {
         let mut parts = line.splitn(2, ':');
         let name = parts.next().unwrap();
         let value = match parts.next() {
             Some(v) => v,
             None => {
-                return Err(Snippet {
-                    title: Some(Annotation {
-                        label: Some("missing delimiter `:` in preamble field"),
-                        id: None,
-                        annotation_type: AnnotationType::Error,
-                    }),
-                    slices: vec![Slice {
-                        source: line,
-                        line_start,
-                        origin,
-                        annotations: vec![],
-                        fold: false,
-                    }],
-                    ..Default::default()
-                });
+                let mut snippet = Snippet::source(line).line_start(line_start).fold(false);
+                if let Some(origin) = origin {
+                    snippet = snippet.origin(origin);
+                }
+                return Err(Level::Error
+                    .title("missing delimiter `:` in preamble field")
+                    .snippet(snippet));
             }
         };
 
@@ -221,7 +213,7 @@ impl<'a> Field<'a> {
 
 #[cfg(test)]
 mod tests {
-    use annotate_snippets::display_list::DisplayList;
+    use annotate_snippets::Renderer;
     use assert_matches::assert_matches;
 
     use super::*;
@@ -294,8 +286,9 @@ mod tests {
         let result = Preamble::parse(None, input).unwrap_err();
         assert_eq!(result.errors.len(), 1);
 
-        let snippet = result.into_errors().pop().unwrap();
-        let actual = DisplayList::from(snippet).to_string();
+        let message = result.into_errors().pop().unwrap();
+        let renderer = Renderer::plain();
+        let actual = renderer.render(message).to_string();
         let expected = r#"error: missing delimiter `:` in preamble field
   |
 3 | banana split

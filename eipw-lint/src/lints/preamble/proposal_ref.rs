@@ -4,9 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::Snippet;
 
 use crate::lints::{Context, Error, FetchContext, Lint};
+use crate::{LevelExt, SnippetExt};
 
 use regex::Regex;
 
@@ -58,16 +59,16 @@ where
         let regex = Self::regex();
         let captures = regex.captures_iter(field.value());
 
-        let name_count = field.name().chars().count();
+        let name_count = field.name().len();
 
         for capture in captures {
             let whole = capture.get(0).unwrap();
 
             let start_text = &field.value()[..whole.start()];
-            let start = start_text.chars().count() + name_count + 1;
+            let start = start_text.len() + name_count + 1;
 
             let end_text = &field.value()[..whole.end()];
-            let end = end_text.chars().count() + name_count + 1;
+            let end = end_text.len() + name_count + 1;
 
             let number = capture.get(1).unwrap();
             let url = format!("{}{}{}", self.prefix, number.as_str(), self.suffix);
@@ -76,25 +77,19 @@ where
                 Ok(eip) => eip,
                 Err(e) => {
                     let label = format!("unable to read file `{}`: {}", url, e);
-                    ctx.report(Snippet {
-                        title: Some(Annotation {
-                            id: Some(slug),
-                            label: Some(&label),
-                            annotation_type: ctx.annotation_type(),
-                        }),
-                        slices: vec![Slice {
-                            fold: false,
-                            line_start: field.line_start(),
-                            origin: ctx.origin(),
-                            source: field.source(),
-                            annotations: vec![SourceAnnotation {
-                                annotation_type: ctx.annotation_type(),
-                                label: "referenced here",
-                                range: (start, end),
-                            }],
-                        }],
-                        ..Default::default()
-                    })?;
+                    ctx.report(
+                        ctx.annotation_level().title(&label).id(slug).snippet(
+                            Snippet::source(field.source())
+                                .line_start(field.line_start())
+                                .fold(false)
+                                .origin_opt(ctx.origin())
+                                .annotation(
+                                    ctx.annotation_level()
+                                        .span_utf8(field.source(), start, end - start)
+                                        .label("referenced here"),
+                                ),
+                        ),
+                    )?;
                     continue;
                 }
             };
@@ -120,25 +115,19 @@ where
                 category_msg, prefix,
             );
 
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: ctx.annotation_type(),
-                    id: Some(slug),
-                    label: Some(&label),
-                }),
-                slices: vec![Slice {
-                    fold: false,
-                    line_start: field.line_start(),
-                    origin: ctx.origin(),
-                    source: field.source(),
-                    annotations: vec![SourceAnnotation {
-                        annotation_type: ctx.annotation_type(),
-                        label: "referenced here",
-                        range: (start, end),
-                    }],
-                }],
-                ..Default::default()
-            })?;
+            ctx.report(
+                ctx.annotation_level().title(&label).id(slug).snippet(
+                    Snippet::source(field.source())
+                        .fold(false)
+                        .origin_opt(ctx.origin())
+                        .line_start(field.line_start())
+                        .annotation(
+                            ctx.annotation_level()
+                                .span_utf8(field.source(), start, end - start)
+                                .label("referenced here"),
+                        ),
+                ),
+            )?;
         }
 
         Ok(())

@@ -4,9 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::{Level, Snippet};
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    LevelExt, SnippetExt,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -47,30 +50,26 @@ where
             .preamble()
             .fields()
             .filter(|f| !self.0.iter().any(|e| e == &f.name()))
-            .map(|f| Slice {
-                line_start: f.line_start(),
-                fold: false,
-                origin: ctx.origin(),
-                source: f.source(),
-                annotations: vec![SourceAnnotation {
-                    annotation_type: ctx.annotation_type(),
-                    label: "unrecognized header",
-                    range: (0, f.name().chars().count()),
-                }],
+            .map(|f| {
+                Snippet::source(f.source())
+                    .line_start(f.line_start())
+                    .fold(false)
+                    .origin_opt(ctx.origin())
+                    .annotation(
+                        ctx.annotation_level()
+                            .span_utf8(f.source(), 0, f.name().len())
+                            .label("unrecognized header"),
+                    )
             })
             .collect();
 
         if !unknowns.is_empty() {
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    id: Some(slug),
-                    annotation_type: ctx.annotation_type(),
-                    label: Some("preamble has extra header(s)"),
-                }),
-                footer: vec![],
-                slices: unknowns,
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level()
+                    .title("preamble has extra header(s)")
+                    .id(slug)
+                    .snippets(unknowns),
+            )?;
         }
 
         let present: Vec<_> = ctx.preamble().fields().map(|f| f.name()).collect();
@@ -99,29 +98,21 @@ where
                     )
                     .unwrap();
 
-                    footer.push(Annotation {
-                        annotation_type: AnnotationType::Help,
-                        id: None,
-                        label: Some(&footer_label),
-                    });
+                    footer.push(Level::Help.title(&footer_label));
                 }
 
-                ctx.report(Snippet {
-                    title: Some(Annotation {
-                        id: Some(slug),
-                        annotation_type: ctx.annotation_type(),
-                        label: Some(&label),
-                    }),
-                    footer,
-                    slices: vec![Slice {
-                        line_start: field.line_start(),
-                        origin: ctx.origin(),
-                        source: field.source(),
-                        fold: false,
-                        annotations: vec![],
-                    }],
-                    opt: Default::default(),
-                })?;
+                ctx.report(
+                    ctx.annotation_level()
+                        .title(&label)
+                        .id(slug)
+                        .footers(footer)
+                        .snippet(
+                            Snippet::source(field.source())
+                                .origin_opt(ctx.origin())
+                                .fold(false)
+                                .line_start(field.line_start()),
+                        ),
+                )?;
             }
         }
 

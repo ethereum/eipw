@@ -4,16 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-pub mod additional_help;
-pub mod count;
-pub mod json;
 pub mod null;
 pub mod text;
 
-use annotate_snippets::snippet::Snippet;
+use annotate_snippets::Message;
 
-pub use self::additional_help::AdditionalHelp;
-pub use self::json::Json;
 pub use self::null::Null;
 pub use self::text::Text;
 
@@ -48,5 +43,5 @@ impl Error {
 }
 
 pub trait Reporter {
-    fn report(&self, snippet: Snippet<'_>) -> Result<(), Error>;
+    fn report(&self, snippet: Message<'_>) -> Result<(), Error>;
 }

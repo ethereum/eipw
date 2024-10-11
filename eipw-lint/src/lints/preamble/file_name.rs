@@ -4,9 +4,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::{Level, Snippet};
 
 use crate::lints::{Context, Error, Lint};
+use crate::{LevelExt, SnippetExt};
 
 use serde::{Deserialize, Serialize};
 
@@ -46,33 +47,26 @@ where
         let label = format!("file name must reflect the preamble header `{}`", self.name);
         let footer_label = format!("this file's name should be `{}`", expected);
 
-        let name_count = field.name().chars().count();
-        let value_count = field.value().chars().count();
+        let name_count = field.name().len();
+        let value_count = field.value().len();
 
-        ctx.report(Snippet {
-            title: Some(Annotation {
-                annotation_type: ctx.annotation_type(),
-                id: Some(slug),
-                label: Some(&label),
-            }),
-            slices: vec![Slice {
-                fold: false,
-                line_start: field.line_start(),
-                origin: ctx.origin(),
-                source: field.source(),
-                annotations: vec![SourceAnnotation {
-                    annotation_type: ctx.annotation_type(),
-                    label: "this value",
-                    range: (name_count + 1, value_count + name_count + 1),
-                }],
-            }],
-            footer: vec![Annotation {
-                annotation_type: AnnotationType::Help,
-                id: None,
-                label: Some(&footer_label),
-            }],
-            opt: Default::default(),
-        })?;
+        ctx.report(
+            ctx.annotation_level()
+                .title(&label)
+                .id(slug)
+                .snippet(
+                    Snippet::source(field.source())
+                        .fold(false)
+                        .line_start(field.line_start())
+                        .origin_opt(ctx.origin())
+                        .annotation(
+                            ctx.annotation_level()
+                                .span_utf8(field.source(), name_count + 1, value_count)
+                                .label("this value"),
+                        ),
+                )
+                .footer(Level::Help.title(&footer_label)),
+        )?;
 
         Ok(())
     }

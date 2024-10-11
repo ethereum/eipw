@@ -4,11 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use annotate_snippets::{Level, Snippet};
 
 use comrak::nodes::{Ast, NodeHeading, NodeValue};
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    SnippetExt,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -79,26 +82,18 @@ where
             .collect::<Vec<_>>()
             .join("`, `");
         let label = format!("body is missing section(s): `{}`", missing_txt);
-        ctx.report(Snippet {
-            title: Some(Annotation {
-                annotation_type: ctx.annotation_type(),
-                id: Some(slug),
-                label: Some(&label),
-            }),
-            slices: vec![Slice {
-                fold: true,
-                annotations: vec![],
-                origin: ctx.origin(),
-                source: ctx.body_source(),
-                line_start: ctx.body().data.borrow().sourcepos.start.line,
-            }],
-            footer: vec![Annotation {
-                id: None,
-                label: Some("must be at the second level (`## Heading`)"),
-                annotation_type: AnnotationType::Help,
-            }],
-            opt: Default::default(),
-        })?;
+        ctx.report(
+            ctx.annotation_level()
+                .title(&label)
+                .id(slug)
+                .snippet(
+                    Snippet::source(ctx.body_source())
+                        .fold(true)
+                        .origin_opt(ctx.origin())
+                        .line_start(ctx.body().data.borrow().sourcepos.start.line),
+                )
+                .footer(Level::Help.title("must be at the second level (`## Heading`)")),
+        )?;
 
         Ok(())
     }

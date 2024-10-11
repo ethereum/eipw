@@ -4,9 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet};
+use annotate_snippets::Snippet;
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    SnippetExt,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -31,22 +34,14 @@ where
 
         if !missing.is_empty() {
             let label = format!("preamble is missing header(s): `{}`", missing);
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    id: Some(slug),
-                    annotation_type: ctx.annotation_type(),
-                    label: Some(&label),
-                }),
-                footer: vec![],
-                slices: vec![Slice {
-                    fold: true,
-                    annotations: vec![],
-                    line_start: 1,
-                    source: ctx.line(1),
-                    origin: ctx.origin(),
-                }],
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level().title(&label).id(slug).snippet(
+                    Snippet::source(ctx.line(1))
+                        .line_start(1)
+                        .origin_opt(ctx.origin())
+                        .fold(true),
+                ),
+            )?;
         }
 
         Ok(())

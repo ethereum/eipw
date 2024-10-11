@@ -4,13 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::{Level, Snippet};
 
 use comrak::nodes::{Ast, NodeCodeBlock};
 use jsonschema::output::BasicOutput;
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
+use crate::SnippetExt;
 
 use jsonschema::{CompilationOptions, JSONSchema};
 
@@ -90,27 +91,26 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
                     .ctx
                     .source_for_text(ast.sourcepos.start.line, &node.literal);
                 let slice_label = e.to_string();
-                self.ctx.report(Snippet {
-                    title: Some(Annotation {
-                        annotation_type: self.ctx.annotation_type(),
-                        id: Some(self.slug),
-                        label: Some(&label),
-                    }),
-                    slices: vec![Slice {
-                        fold: false,
-                        line_start: ast.sourcepos.start.line,
-                        origin: self.ctx.origin(),
-                        source: &source,
-                        annotations: vec![SourceAnnotation {
-                            // TODO: The serde_json error actually has line/column
-                            //       information. Use it.
-                            annotation_type: self.ctx.annotation_type(),
-                            label: &slice_label,
-                            range: (0, source.len()),
-                        }],
-                    }],
-                    ..Default::default()
-                })?;
+                self.ctx.report(
+                    self.ctx
+                        .annotation_level()
+                        .title(&label)
+                        .id(self.slug)
+                        .snippet(
+                            Snippet::source(&source)
+                                .origin_opt(self.ctx.origin())
+                                // TODO: The serde_json error actually has line/column
+                                //       information. Use it.
+                                .line_start(ast.sourcepos.start.line)
+                                .fold(false)
+                                .annotation(
+                                    self.ctx
+                                        .annotation_level()
+                                        .span(0..source.len())
+                                        .label(&slice_label),
+                                ),
+                        ),
+                )?;
                 return Ok(Next::SkipChildren);
             }
         };
@@ -129,37 +129,26 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
             .source_for_text(ast.sourcepos.start.line, &node.literal);
         let annotations = labels
             .iter()
-            .map(|l| SourceAnnotation {
-                annotation_type: self.ctx.annotation_type(),
-                label: l,
-                range: (0, source.len()),
-            })
-            .collect();
+            .map(|l| self.ctx.annotation_level().span(0..source.len()).label(l));
 
         let label = format!(
             "code block of type `{}` does not conform to required schema",
             info
         );
-        self.ctx.report(Snippet {
-            title: Some(Annotation {
-                annotation_type: self.ctx.annotation_type(),
-                id: Some(self.slug),
-                label: Some(&label),
-            }),
-            slices: vec![Slice {
-                fold: false,
-                line_start: ast.sourcepos.start.line,
-                origin: self.ctx.origin(),
-                source: &source,
-                annotations,
-            }],
-            footer: vec![Annotation {
-                annotation_type: AnnotationType::Help,
-                label: Some(self.help),
-                id: None,
-            }],
-            ..Default::default()
-        })?;
+        self.ctx.report(
+            self.ctx
+                .annotation_level()
+                .title(&label)
+                .id(self.slug)
+                .snippet(
+                    Snippet::source(&source)
+                        .fold(false)
+                        .line_start(ast.sourcepos.start.line)
+                        .origin_opt(self.ctx.origin())
+                        .annotations(annotations),
+                )
+                .footer(Level::Help.title(self.help)),
+        )?;
 
         Ok(Next::SkipChildren)
     }

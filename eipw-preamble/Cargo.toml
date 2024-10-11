@@ -1,16 +1,16 @@
 [package]
 name = "eipw-preamble"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MPL-2.0"
-rust-version = "1.69"
+rust-version = "1.80"
 repository = "https://github.com/ethereum/eipw"
 description = "preamble parser for eipw, the Ethereum Improvement Proposal validator"
 
 [dependencies]
-annotate-snippets = "0.9.1"
-regex = "1.8.4"
-snafu = "0.7.4"
+annotate-snippets = "0.11.4"
+regex = "1.11.0"
+snafu = "0.8.5"
 
 [dev-dependencies]
 assert_matches = "1.5.0"

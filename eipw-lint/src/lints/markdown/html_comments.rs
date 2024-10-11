@@ -4,11 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use annotate_snippets::{Level, Snippet};
 
 use comrak::nodes::NodeValue;
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    SnippetExt,
+};
 
 use scraper::node::Node as HtmlNode;
 use scraper::Html;
@@ -36,10 +39,10 @@ where
         let warn = self.warn_for.iter().any(|e| e == &field);
 
         // Downgrade diagnostic level if header's value is in `warn_for`.
-        let annotation_type = if warn && ctx.annotation_type() == AnnotationType::Error {
-            AnnotationType::Warning
+        let annotation_type = if warn && ctx.annotation_level() == Level::Error {
+            Level::Warning
         } else {
-            ctx.annotation_type()
+            ctx.annotation_level()
         };
 
         let mut slices = vec![];
@@ -56,13 +59,12 @@ where
                     continue;
                 }
 
-                slices.push(Slice {
-                    line_start: data.sourcepos.start.line,
-                    fold: false,
-                    origin: ctx.origin(),
-                    source: ctx.line(data.sourcepos.start.line),
-                    annotations: vec![],
-                });
+                slices.push(
+                    Snippet::source(ctx.line(data.sourcepos.start.line))
+                        .line_start(data.sourcepos.start.line)
+                        .fold(false)
+                        .origin_opt(ctx.origin()),
+                );
             }
         }
 
@@ -86,16 +88,7 @@ where
                 ),
             };
 
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    id: Some(slug),
-                    annotation_type,
-                    label: Some(&label),
-                }),
-                footer: vec![],
-                slices,
-                opt: Default::default(),
-            })?;
+            ctx.report(annotation_type.title(&label).id(slug).snippets(slices))?;
         }
 
         Ok(())

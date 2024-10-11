@@ -4,9 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
+use annotate_snippets::Snippet;
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    LevelExt, SnippetExt,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -33,61 +36,45 @@ impl Lint for Trim {
                 continue;
             }
 
-            let name_count = field.name().chars().count();
-            let value_count = field.value().chars().count();
+            let name_count = field.name().len();
+            let value_count = field.value().len();
 
             let label = format!("preamble header `{}` has extra whitespace", field.name());
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: ctx.annotation_type(),
-                    id: Some(slug),
-                    label: Some(&label),
-                }),
-                slices: vec![Slice {
-                    line_start: field.line_start(),
-                    fold: false,
-                    origin: ctx.origin(),
-                    source: field.source(),
-                    annotations: vec![SourceAnnotation {
-                        annotation_type: ctx.annotation_type(),
-                        label: "value has extra whitespace",
-                        range: (name_count + 1, value_count + name_count + 1),
-                    }],
-                }],
-                footer: vec![],
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level().title(&label).id(slug).snippet(
+                    Snippet::source(field.source())
+                        .fold(false)
+                        .origin_opt(ctx.origin())
+                        .line_start(field.line_start())
+                        .annotation(
+                            ctx.annotation_level()
+                                .span_utf8(field.source(), name_count + 1, value_count)
+                                .label("value has extra whitespace"),
+                        ),
+                ),
+            )?;
         }
 
         if !no_space.is_empty() {
-            let slices = no_space
-                .into_iter()
-                .map(|n| {
-                    let name_count = n.name().chars().count();
-                    Slice {
-                        line_start: n.line_start(),
-                        fold: false,
-                        origin: ctx.origin(),
-                        source: n.source(),
-                        annotations: vec![SourceAnnotation {
-                            annotation_type: ctx.annotation_type(),
-                            label: "space required here",
-                            range: (name_count + 1, name_count + 2),
-                        }],
-                    }
-                })
-                .collect();
+            let slices = no_space.into_iter().map(|n| {
+                let name_count = n.name().len();
+                Snippet::source(n.source())
+                    .line_start(n.line_start())
+                    .fold(false)
+                    .origin_opt(ctx.origin())
+                    .annotation(
+                        ctx.annotation_level()
+                            .span_utf8(n.source(), name_count + 1, 1)
+                            .label("space required here"),
+                    )
+            });
 
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: ctx.annotation_type(),
-                    id: Some(slug),
-                    label: Some("preamble header values must begin with a space"),
-                }),
-                footer: vec![],
-                slices,
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level()
+                    .title("preamble header values must begin with a space")
+                    .id(slug)
+                    .snippets(slices),
+            )?;
         }
 
         Ok(())

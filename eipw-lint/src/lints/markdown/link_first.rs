@@ -4,12 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use annotate_snippets::{Level, Snippet};
 
 use comrak::nodes::{Ast, NodeCode, NodeCodeBlock, NodeHtmlBlock, NodeLink};
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
+use crate::SnippetExt;
 
 use ::regex::Regex;
 
@@ -92,26 +93,19 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
             // TODO: Actually annotate the matches.
 
             let source = self.ctx.source_for_text(ast.sourcepos.start.line, text);
-            self.ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: self.ctx.annotation_type(),
-                    id: Some(self.slug),
-                    label: Some("the first match of the given pattern must be a link"),
-                }),
-                slices: vec![Slice {
-                    fold: false,
-                    line_start: ast.sourcepos.start.line,
-                    origin: self.ctx.origin(),
-                    source: &source,
-                    annotations: vec![],
-                }],
-                footer: vec![Annotation {
-                    id: None,
-                    annotation_type: AnnotationType::Info,
-                    label: Some(&footer_label),
-                }],
-                opt: Default::default(),
-            })?;
+            self.ctx.report(
+                self.ctx
+                    .annotation_level()
+                    .title("the first match of the given pattern must be a link")
+                    .id(self.slug)
+                    .snippet(
+                        Snippet::source(&source)
+                            .origin_opt(self.ctx.origin())
+                            .line_start(ast.sourcepos.start.line)
+                            .fold(false),
+                    )
+                    .footer(Level::Info.title(&footer_label)),
+            )?;
         }
 
         Ok(Next::TraverseChildren)

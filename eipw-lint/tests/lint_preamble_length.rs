@@ -89,8 +89,8 @@ hello world"#;
             "preamble-len-title",
             Length {
                 name: "title",
-                min: Some(10),
-                max: None,
+                max: Some(3),
+                min: None,
             },
         )
         .check_slice(None, src)
@@ -101,10 +101,44 @@ hello world"#;
 
     assert_eq!(
         reports,
-        r#"error[preamble-len-title]: preamble header `title` value is too short (min 10)
+        r#"error[preamble-len-title]: preamble header `title` value is too long (max 3)
   |
 2 | title: value0
-  |       ^^^^^^^ too short
+  |       ^^^^^^^ too long
+  |
+"#,
+    );
+}
+
+#[tokio::test]
+async fn one() {
+    let src = r#"---
+title:v
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "preamble-len-title",
+            Length {
+                name: "title",
+                max: Some(3),
+                min: Some(2),
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[preamble-len-title]: preamble header `title` value is too short (min 2)
+  |
+2 | title:v
+  |       ^ too short
   |
 "#,
     );

@@ -14,7 +14,7 @@ use annotate_snippets::{Annotation, Level, Snippet};
 
 use comrak::arena_tree::Node;
 use comrak::nodes::Ast;
-use comrak::{Arena, ComrakExtensionOptions, ComrakOptions};
+use comrak::Arena;
 
 use crate::lints::{Context, DefaultLint, Error as LintError, FetchContext, InnerContext, Lint};
 use crate::modifiers::{DefaultModifier, Modifier};
@@ -936,13 +936,13 @@ fn process<'a>(
         }
     };
 
-    let options = ComrakOptions {
-        extension: ComrakExtensionOptions {
-            table: true,
-            autolink: true,
-            footnotes: true,
-            ..Default::default()
-        },
+    let options = comrak::Options {
+        extension: comrak::ExtensionOptionsBuilder::default()
+            .table(true)
+            .autolink(true)
+            .footnotes(true)
+            .build()
+            .unwrap(),
         ..Default::default()
     };
 

@@ -14,6 +14,7 @@ use std::ops::Range;
 #[non_exhaustive]
 pub struct Message<'a> {
     pub level: Level,
+    #[serde(default)]
     pub id: Option<Cow<'a, str>>,
     pub title: Cow<'a, str>,
     pub snippets: Vec<Snippet<'a>>,
@@ -65,6 +66,7 @@ impl<'a, 'b> From<&'b Message<'a>> for ann::Message<'b> {
 #[derive(Debug, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct Snippet<'a> {
+    #[serde(default)]
     pub origin: Option<Cow<'a, str>>,
     pub line_start: usize,
 
@@ -130,6 +132,7 @@ impl<'a, 'b> From<&'b Snippet<'a>> for ann::Snippet<'b> {
 #[non_exhaustive]
 pub struct Annotation<'a> {
     pub range: Range<usize>,
+    #[serde(default)]
     pub label: Option<Cow<'a, str>>,
     pub level: Level,
 }

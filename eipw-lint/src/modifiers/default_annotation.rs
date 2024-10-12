@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::Level;
+use eipw_snippets::Level;
 
 use std::fmt::Debug;
 

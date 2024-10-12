@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::{Level, Message, Snippet};
+use eipw_snippets::{Level, Message, Snippet};
 
 use regex::RegexSet;
 

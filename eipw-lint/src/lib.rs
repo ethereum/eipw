@@ -10,7 +10,7 @@ pub mod modifiers;
 pub mod reporters;
 pub mod tree;
 
-use annotate_snippets::{Annotation, Level, Snippet};
+use eipw_snippets::{Annotation, Level, Snippet};
 
 use comrak::arena_tree::Node;
 use comrak::nodes::Ast;

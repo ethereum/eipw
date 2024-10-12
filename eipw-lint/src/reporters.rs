@@ -7,7 +7,7 @@
 pub mod null;
 pub mod text;
 
-use annotate_snippets::Message;
+use eipw_snippets::Message;
 
 pub use self::null::Null;
 pub use self::text::Text;

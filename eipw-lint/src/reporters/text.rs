@@ -25,7 +25,7 @@ where
         writeln!(
             self.inner.borrow_mut(),
             "{}",
-            Renderer::plain().render(message.into())
+            Renderer::plain().render((&message).into())
         )
         .map_err(Error::new)
     }

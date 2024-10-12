@@ -7,21 +7,22 @@ use annotate_snippets as ann;
 
 use serde::{Deserialize, Serialize};
 
+use std::borrow::Cow;
 use std::ops::Range;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct Message<'a> {
     pub level: Level,
-    pub id: Option<&'a str>,
-    pub title: &'a str,
+    pub id: Option<Cow<'a, str>>,
+    pub title: Cow<'a, str>,
     pub snippets: Vec<Snippet<'a>>,
     pub footer: Vec<Message<'a>>,
 }
 
 impl<'a> Message<'a> {
     pub fn id(mut self, id: &'a str) -> Self {
-        self.id = Some(id);
+        self.id = Some(Cow::Borrowed(id));
         self
     }
 
@@ -46,14 +47,14 @@ impl<'a> Message<'a> {
     }
 }
 
-impl<'a> From<Message<'a>> for ann::Message<'a> {
-    fn from(value: Message<'a>) -> Self {
+impl<'a, 'b> From<&'b Message<'a>> for ann::Message<'b> {
+    fn from(value: &'b Message<'a>) -> Self {
         let msg = ann::Level::from(value.level)
-            .title(value.title)
-            .snippets(value.snippets.into_iter().map(Into::into))
-            .footers(value.footer.into_iter().map(Into::into));
+            .title(&value.title)
+            .snippets(value.snippets.iter().map(Into::into))
+            .footers(value.footer.iter().map(Into::into));
 
-        if let Some(id) = value.id {
+        if let Some(ref id) = value.id {
             msg.id(id)
         } else {
             msg
@@ -64,10 +65,10 @@ impl<'a> From<Message<'a>> for ann::Message<'a> {
 #[derive(Debug, Deserialize, Serialize)]
 #[non_exhaustive]
 pub struct Snippet<'a> {
-    pub origin: Option<&'a str>,
+    pub origin: Option<Cow<'a, str>>,
     pub line_start: usize,
 
-    pub source: &'a str,
+    pub source: Cow<'a, str>,
     pub annotations: Vec<Annotation<'a>>,
 
     pub fold: bool,
@@ -78,7 +79,7 @@ impl<'a> Snippet<'a> {
         Self {
             origin: None,
             line_start: 1,
-            source,
+            source: Cow::Borrowed(source),
             annotations: vec![],
             fold: false,
         }
@@ -90,7 +91,7 @@ impl<'a> Snippet<'a> {
     }
 
     pub fn origin(mut self, origin: &'a str) -> Self {
-        self.origin = Some(origin);
+        self.origin = Some(Cow::Borrowed(origin));
         self
     }
 
@@ -110,14 +111,14 @@ impl<'a> Snippet<'a> {
     }
 }
 
-impl<'a> From<Snippet<'a>> for ann::Snippet<'a> {
-    fn from(value: Snippet<'a>) -> Self {
-        let snip = Self::source(value.source)
+impl<'a, 'b> From<&'b Snippet<'a>> for ann::Snippet<'b> {
+    fn from(value: &'b Snippet<'a>) -> Self {
+        let snip = Self::source(&value.source)
             .line_start(value.line_start)
-            .annotations(value.annotations.into_iter().map(Into::into))
+            .annotations(value.annotations.iter().map(Into::into))
             .fold(value.fold);
 
-        if let Some(origin) = value.origin {
+        if let Some(ref origin) = value.origin {
             snip.origin(origin)
         } else {
             snip
@@ -129,22 +130,22 @@ impl<'a> From<Snippet<'a>> for ann::Snippet<'a> {
 #[non_exhaustive]
 pub struct Annotation<'a> {
     pub range: Range<usize>,
-    pub label: Option<&'a str>,
+    pub label: Option<Cow<'a, str>>,
     pub level: Level,
 }
 
 impl<'a> Annotation<'a> {
     pub fn label(mut self, label: &'a str) -> Self {
-        self.label = Some(label);
+        self.label = Some(Cow::Borrowed(label));
         self
     }
 }
 
-impl<'a> From<Annotation<'a>> for ann::Annotation<'a> {
-    fn from(value: Annotation<'a>) -> Self {
-        let a = ann::Level::from(value.level).span(value.range);
+impl<'a, 'b> From<&'b Annotation<'a>> for ann::Annotation<'b> {
+    fn from(value: &'b Annotation<'a>) -> Self {
+        let a = ann::Level::from(value.level).span(value.range.clone());
 
-        if let Some(label) = value.label {
+        if let Some(ref label) = value.label {
             a.label(label)
         } else {
             a
@@ -166,7 +167,7 @@ impl Level {
         Message {
             level: self,
             id: None,
-            title,
+            title: Cow::Borrowed(title),
             snippets: vec![],
             footer: vec![],
         }
@@ -190,5 +191,52 @@ impl From<Level> for ann::Level {
             Level::Note => Self::Note,
             Level::Help => Self::Help,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn json_round_trip_with_escape_sequence() {
+        let title = "some \u{1f6a8} diagn\\ostic \"a rope of sand\"";
+        let id = "id-\u{1f6a8}-\"-\\";
+        let source = "for \u{1f6a8} do \\ostic \"electric boogaloo\"";
+        let origin = "\u{1f6a8}";
+
+        let annotation = Level::Help.span(0..4).label(title);
+
+        let snippet = Snippet::source(source)
+            .fold(true)
+            .origin(origin)
+            .line_start(123)
+            .annotation(annotation);
+
+        let footer = Level::Help.title(title).id(id);
+
+        let msg = Level::Error
+            .title(title)
+            .id(id)
+            .snippet(snippet)
+            .footer(footer);
+
+        let json = serde_json::to_string_pretty(&msg).unwrap();
+        let actual: Message = serde_json::from_str(&json).unwrap();
+
+        assert_eq!(actual.title, title);
+        assert_eq!(actual.id, Some(Cow::Borrowed(id)));
+        assert_eq!(actual.level, Level::Error);
+        assert_eq!(actual.footer.len(), 1);
+        assert_eq!(actual.footer[0].title, title);
+        assert_eq!(actual.footer[0].id, Some(Cow::Borrowed(id)));
+        assert_eq!(actual.snippets.len(), 1);
+        assert_eq!(actual.snippets[0].source, source);
+        assert_eq!(actual.snippets[0].origin, Some(Cow::Borrowed(origin)));
+        assert_eq!(actual.snippets[0].annotations.len(), 1);
+        assert_eq!(
+            actual.snippets[0].annotations[0].label,
+            Some(Cow::Borrowed(title))
+        );
     }
 }

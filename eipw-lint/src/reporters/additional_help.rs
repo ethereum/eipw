@@ -39,13 +39,13 @@ where
 {
     fn render(&self, message: &Message<'_>) -> Result<Option<String>, Error> {
         let id = match message.id {
-            Some(l) => l,
+            Some(ref l) => l,
             None => return Ok(None),
         };
 
         let mut seen = self.seen.lock().unwrap();
 
-        if !seen.insert(id.to_owned()) {
+        if !seen.insert(id.clone().into_owned()) {
             return Ok(None);
         }
 

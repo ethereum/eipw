@@ -288,7 +288,7 @@ mod tests {
 
         let message = result.into_errors().pop().unwrap();
         let renderer = Renderer::plain();
-        let actual = renderer.render(message.into()).to_string();
+        let actual = renderer.render((&message).into()).to_string();
         let expected = r#"error: missing delimiter `:` in preamble field
   |
 3 | banana split

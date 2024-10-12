@@ -29,7 +29,7 @@ impl Reporter for Json {
         // Because `Message` borrows while deserializing, it breaks with
         // escaped characters, so we pre-format the errors here.
         let renderer = Renderer::plain();
-        let rendered = renderer.render(message.into());
+        let rendered = renderer.render((&message).into());
         let formatted = format!("{}", rendered);
         obj.insert("formatted".into(), Value::String(formatted));
 

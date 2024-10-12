@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::Snippet;
+use eipw_snippets::Snippet;
 
 use crate::lints::{Context, Error, FetchContext, Lint};
 use crate::{LevelExt, SnippetExt};

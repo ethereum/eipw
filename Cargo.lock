@@ -442,9 +442,9 @@ checksum = "12a0bb14ac04a9fcf170d0bbbef949b44cc492f4452bd20c095636956f653642"
 name = "eipw"
 version = "0.9.0"
 dependencies = [
- "annotate-snippets",
  "clap",
  "eipw-lint",
+ "eipw-snippets",
  "getrandom",
  "serde",
  "serde_json",
@@ -457,12 +457,12 @@ dependencies = [
 name = "eipw-lint"
 version = "0.9.0"
 dependencies = [
- "annotate-snippets",
  "assert_matches",
  "chrono",
  "comrak",
  "educe",
  "eipw-preamble",
+ "eipw-snippets",
  "jsonschema",
  "regex",
  "scraper",
@@ -478,9 +478,9 @@ dependencies = [
 name = "eipw-lint-js"
 version = "0.9.0"
 dependencies = [
- "annotate-snippets",
  "console_error_panic_hook",
  "eipw-lint",
+ "eipw-snippets",
  "getrandom",
  "js-sys",
  "serde",
@@ -495,10 +495,17 @@ dependencies = [
 name = "eipw-preamble"
 version = "0.2.0"
 dependencies = [
- "annotate-snippets",
  "assert_matches",
+ "eipw-snippets",
  "regex",
  "snafu",
+]
+
+[[package]]
+name = "eipw-snippets"
+version = "0.1.0"
+dependencies = [
+ "annotate-snippets",
 ]
 
 [[package]]

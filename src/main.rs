@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::Message;
+use eipw_snippets::Message;
 
 use clap::{Parser, ValueEnum};
 

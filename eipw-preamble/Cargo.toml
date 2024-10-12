@@ -8,7 +8,7 @@ repository = "https://github.com/ethereum/eipw"
 description = "preamble parser for eipw, the Ethereum Improvement Proposal validator"
 
 [dependencies]
-annotate-snippets = "0.11.4"
+eipw-snippets = { path = "../eipw-snippets", version = "0.1.0" }
 regex = "1.11.0"
 snafu = "0.8.5"
 

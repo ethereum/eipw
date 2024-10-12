@@ -8,7 +8,7 @@ mod known_lints;
 pub mod markdown;
 pub mod preamble;
 
-use annotate_snippets::{Level, Message};
+use eipw_snippets::{Level, Message};
 
 use comrak::nodes::AstNode;
 

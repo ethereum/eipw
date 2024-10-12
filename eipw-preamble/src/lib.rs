@@ -9,7 +9,7 @@
 //! See [`Preamble`] for more details.
 #![warn(missing_docs)]
 
-use annotate_snippets::{Level, Message, Snippet};
+use eipw_snippets::{Level, Message, Snippet};
 
 use regex::Regex;
 
@@ -213,8 +213,8 @@ impl<'a> Field<'a> {
 
 #[cfg(test)]
 mod tests {
-    use annotate_snippets::Renderer;
     use assert_matches::assert_matches;
+    use eipw_snippets::annotate_snippets::Renderer;
 
     use super::*;
 
@@ -288,7 +288,7 @@ mod tests {
 
         let message = result.into_errors().pop().unwrap();
         let renderer = Renderer::plain();
-        let actual = renderer.render(message).to_string();
+        let actual = renderer.render(message.into()).to_string();
         let expected = r#"error: missing delimiter `:` in preamble field
   |
 3 | banana split

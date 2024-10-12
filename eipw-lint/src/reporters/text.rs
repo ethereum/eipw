@@ -4,7 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::{Message, Renderer};
+use eipw_snippets::annotate_snippets::Renderer;
+use eipw_snippets::Message;
 
 use std::cell::RefCell;
 use std::fmt::{Debug, Write};
@@ -24,7 +25,7 @@ where
         writeln!(
             self.inner.borrow_mut(),
             "{}",
-            Renderer::plain().render(message)
+            Renderer::plain().render(message.into())
         )
         .map_err(Error::new)
     }

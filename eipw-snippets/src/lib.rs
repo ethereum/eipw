@@ -4,9 +4,13 @@
 pub use annotate_snippets;
 
 use annotate_snippets as ann;
+
+use serde::{Deserialize, Serialize};
+
 use std::ops::Range;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Message<'a> {
     pub level: Level,
     pub id: Option<&'a str>,
@@ -57,7 +61,8 @@ impl<'a> From<Message<'a>> for ann::Message<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Snippet<'a> {
     pub origin: Option<&'a str>,
     pub line_start: usize,
@@ -120,7 +125,8 @@ impl<'a> From<Snippet<'a>> for ann::Snippet<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Annotation<'a> {
     pub range: Range<usize>,
     pub label: Option<&'a str>,
@@ -146,7 +152,7 @@ impl<'a> From<Annotation<'a>> for ann::Annotation<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq)]
 pub enum Level {
     Error,
     Warning,

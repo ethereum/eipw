@@ -59,7 +59,7 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
         self.ctx.report(
             self.ctx
                 .annotation_level()
-                .title("EIP references should not be in backticks")
+                .title("proposal references should not be in backticks")
                 .id(self.slug)
                 .snippet(
                     Snippet::source(&source)

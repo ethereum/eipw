@@ -1,4 +1,4 @@
-error[markdown-no-backticks]: EIP references should not be in backticks
+error[markdown-no-backticks]: proposal references should not be in backticks
   --> input.md
    |
 18 | This is the motivation for the EIP, which extends `ERC-721`.

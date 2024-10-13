@@ -18,6 +18,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
+use sysexits::ExitCode;
+
 #[derive(Debug, Parser)]
 struct Opts {
     /// Print the default configuration.
@@ -111,17 +113,29 @@ fn list_lints() {
 type Options<S = String> = eipw_lint::Options<Vec<DefaultModifier<S>>, HashMap<S, DefaultLint<S>>>;
 
 #[cfg(target_arch = "wasm32")]
-async fn read_config(_path: &Path) -> Options {
+async fn read_config(_path: &Path) -> Result<Options, toml::de::Error> {
     todo!()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-async fn read_config(path: &Path) -> Options {
+async fn read_config(path: &Path) -> Result<Options, toml::de::Error> {
     let contents = tokio::fs::read_to_string(path)
         .await
         .expect("couldn't read config file");
 
-    toml::from_str(&contents).expect("couldn't parse config file")
+    toml::from_str(&contents)
+}
+
+async fn try_read_config(path: &Path) -> Result<Options, ExitCode> {
+    let error = match read_config(path).await {
+        Ok(o) => return Ok(o),
+        Err(e) => e,
+    };
+
+    eprintln!("Error(s) encountered in configuration file:");
+    eprintln!("{}", error);
+
+    Err(ExitCode::Config)
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -173,7 +187,7 @@ struct Lints {
 
 #[cfg_attr(target_arch = "wasm32", tokio::main(flavor = "current_thread"))]
 #[cfg_attr(not(target_arch = "wasm32"), tokio::main)]
-async fn run(opts: Opts) -> Result<(), usize> {
+async fn run(opts: Opts) -> Result<(), ExitCode> {
     if opts.list_lints {
         list_lints();
         return Ok(());
@@ -201,7 +215,7 @@ async fn run(opts: Opts) -> Result<(), usize> {
     let options: Options;
     let mut linter;
     if let Some(ref path) = opts.config {
-        options = read_config(path).await;
+        options = try_read_config(path).await?;
         let options_iter = options.to_iters();
         linter = Linter::with_options(reporter, options_iter);
     } else {
@@ -246,17 +260,23 @@ async fn run(opts: Opts) -> Result<(), usize> {
     }
 
     if n_errors > 0 {
-        Err(n_errors)
+        eprintln!("validation failed with {} errors :(", n_errors);
+        Err(ExitCode::DataErr)
     } else {
         Ok(())
     }
 }
 
 fn main() {
-    let opts = Opts::parse();
+    let opts = match Opts::try_parse() {
+        Ok(o) => o,
+        Err(e) => {
+            e.print().unwrap();
+            std::process::exit(ExitCode::Usage.into());
+        }
+    };
 
-    if let Err(n_errors) = run(opts) {
-        eprintln!("validation failed with {} errors :(", n_errors);
-        std::process::exit(1);
+    if let Err(e) = run(opts) {
+        std::process::exit(e.into());
     }
 }

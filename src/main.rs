@@ -21,6 +21,7 @@ use std::path::{Path, PathBuf};
 use sysexits::ExitCode;
 
 #[derive(Debug, Parser)]
+#[command(version, about)]
 struct Opts {
     /// Print the default configuration.
     #[clap(exclusive(true), long)]

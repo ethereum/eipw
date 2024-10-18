@@ -11,7 +11,7 @@ use eipw_lint::Linter;
 #[tokio::test]
 async fn unicode() {
     let src = r#"---
-a1: Bánana
+á1: 1000
 ---
 hello world"#;
 
@@ -20,9 +20,8 @@ hello world"#;
         .deny(
             "preamble-file-name",
             FileName {
-                name: "a1",
-                prefix: "hi-",
-                suffix: ".txt",
+                name: "á1",
+                format: "hi-{}",
             },
         )
         .check_slice(Some("foo.txt"), src)
@@ -33,13 +32,13 @@ hello world"#;
 
     assert_eq!(
         reports,
-        r#"error[preamble-file-name]: file name must reflect the preamble header `a1`
+        r#"error[preamble-file-name]: file name must reflect the preamble header `á1`
  --> foo.txt:2:4
   |
-2 | a1: Bánana
-  |    ^^^^^^^ this value
+2 | á1: 1000
+  |    ^^^^^ this value
   |
-  = help: this file's name should be `hi-Bánana.txt`
+  = help: this file's name should be `hi-1000.md`
 "#
     );
 }
@@ -47,7 +46,7 @@ hello world"#;
 #[tokio::test]
 async fn mismatch() {
     let src = r#"---
-a1: value
+a1: 7
 ---
 hello world"#;
 
@@ -57,8 +56,7 @@ hello world"#;
             "preamble-file-name",
             FileName {
                 name: "a1",
-                prefix: "hi-",
-                suffix: ".txt",
+                format: "hi-{}",
             },
         )
         .check_slice(Some("foo.txt"), src)
@@ -72,10 +70,10 @@ hello world"#;
         r#"error[preamble-file-name]: file name must reflect the preamble header `a1`
  --> foo.txt:2:4
   |
-2 | a1: value
-  |    ^^^^^^ this value
+2 | a1: 7
+  |    ^^ this value
   |
-  = help: this file's name should be `hi-value.txt`
+  = help: this file's name should be `hi-7.md`
 "#
     );
 }
@@ -93,8 +91,7 @@ hello world"#;
             "preamble-file-name",
             FileName {
                 name: "a1",
-                prefix: "hi-",
-                suffix: ".txt",
+                format: "hi-{}.txt",
             },
         )
         .check_slice(Some("hi-value.txt"), src)
@@ -119,8 +116,7 @@ hello world"#;
             "preamble-file-name",
             FileName {
                 name: "a1",
-                prefix: "hi-",
-                suffix: ".txt",
+                format: "hi-{}.txt",
             },
         )
         .check_slice(None, src)

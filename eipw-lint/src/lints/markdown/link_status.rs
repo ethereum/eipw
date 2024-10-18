@@ -17,14 +17,12 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
-use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LinkStatus<S> {
     pub status: S,
     pub flow: Vec<Vec<S>>,
-    pub prefix: S,
-    pub suffix: S,
+    pub pattern: S,
 }
 
 impl<S> LinkStatus<S>
@@ -41,18 +39,12 @@ where
             .unwrap_or(0)
     }
 
-    fn find_links<'a>(&self, node: &'a AstNode<'a>) -> impl 'a + Iterator<Item = (usize, PathBuf)> {
-        let escaped_prefix = regex::escape(self.prefix.as_ref());
-        let escaped_suffix = regex::escape(self.suffix.as_ref());
+    fn find_links<'a>(
+        &self,
+        node: &'a AstNode<'a>,
+    ) -> impl 'a + Iterator<Item = (usize, u32, String)> {
+        let re = Regex::new(self.pattern.as_ref()).unwrap();
 
-        let re = Regex::new(&format!(
-            "(?i){}([0-9]+){}$",
-            escaped_prefix, escaped_suffix
-        ))
-        .unwrap();
-
-        let prefix = self.prefix.as_ref().to_owned();
-        let suffix = self.suffix.as_ref().to_owned();
         node.descendants()
             // Find all URLs and the lines they appear on.
             .filter_map(|start| match &*start.data.borrow() {
@@ -64,12 +56,15 @@ where
                 _ => None,
             })
             .filter_map(move |(start_line, url)| {
-                // This is a bit of a cheat, honestly. Doesn't correctly respect directories, but
-                // also doesn't allow directory traversal.
                 re.captures(&url).map(|c| {
                     (
                         start_line,
-                        format!("{}{}{}", prefix, c.get(1).unwrap().as_str(), suffix,).into(),
+                        c.get(1)
+                            .expect("missing capture group for LinkStatus")
+                            .as_str()
+                            .parse()
+                            .expect("bad numeric regex for LinkStatus"),
+                        c.get(0).unwrap().as_str().into(),
                     )
                 })
             })
@@ -85,7 +80,7 @@ where
             .map(|x| x.1)
             .collect::<HashSet<_>>()
             .into_iter()
-            .for_each(|p| ctx.fetch(p));
+            .for_each(|p| ctx.fetch_proposal(p));
 
         Ok(())
     }
@@ -101,11 +96,11 @@ where
         let my_tier = self.tier(&map, ctx);
         let mut min = usize::MAX;
 
-        for (start_line, url) in self.find_links(ctx.body()) {
-            let eip = match ctx.eip(&url) {
+        for (start_line, number, whole) in self.find_links(ctx.body()) {
+            let eip = match ctx.proposal(number) {
                 Ok(eip) => eip,
                 Err(e) => {
-                    let label = format!("unable to read file `{}`: {}", url.display(), e);
+                    let label = format!("unable to read file `{}`: {}", whole, e);
                     ctx.report(
                         ctx.annotation_level().title(&label).id(slug).snippet(
                             Snippet::source(ctx.line(start_line))
@@ -130,7 +125,7 @@ where
 
             let label = format!(
                 "proposal `{}` is not stable enough for a `{}` of `{}`",
-                url.display(),
+                whole,
                 self.status,
                 ctx.preamble()
                     .by_name(self.status.as_ref())

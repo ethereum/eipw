@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>prevent-urls-no-backticks</title>
+    <link rel="stylesheet" href="../main.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <article>
+      <h1><code>prevent-urls-no-backticks</code></h1>
+      <p>This rule prevents putting URLs in backticks.</p>
+
+      <section>
+        <h2>Examples</h2>
+
+        <pre>
+error[markdown-prevent-url]: URL in backticks or not from allowed domain found
+  |
+5 | Check this URL: `http://example.com/page?query=foo`
+  |</pre
+        >
+      </section>
+
+      <section>
+        <h2>Explanation</h2>
+
+        <p>
+          <code>prevent-urls-no-backticks</code> flags URLs that are in
+          backticks, which can make them less readable or clickable. It is
+          important to avoid URLs in backticks to ensure content
+          integrity.
+        </p>
+
+        <p>
+          Backticks are generally used for code snippets or inline code, not for
+          wrapping URLs. Including them can cause confusion and disrupt the
+          readability or functionality of the URLs.
+        </p>
+
+        <p>
+          This rule ensures that URLs are formatted correctly, and that only
+          specific domains (if configured) are allowed to be used, adding an
+          additional layer of security and ensuring consistent documentation.
+        </p>
+      </section>
+    </article>
+  </body>
+</html>

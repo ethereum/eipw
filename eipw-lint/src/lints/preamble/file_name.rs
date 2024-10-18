@@ -5,6 +5,7 @@
  */
 
 use eipw_snippets::{Level, Snippet};
+use formatx::formatx;
 
 use crate::lints::{Context, Error, Lint};
 use crate::{LevelExt, SnippetExt};
@@ -17,8 +18,7 @@ use std::path::Path;
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct FileName<S> {
     pub name: S,
-    pub prefix: S,
-    pub suffix: S,
+    pub format: S,
 }
 
 impl<S> Lint for FileName<S>
@@ -31,21 +31,38 @@ where
             Some(s) => s,
         };
 
-        let file_name = match ctx.origin() {
+        let file_path = match ctx.origin() {
             None => return Ok(()),
-            Some(o) => Path::new(o)
-                .file_name()
-                .expect("origin did not have a file name"),
+            Some(o) => Path::new(o),
+        };
+        let file_name = file_path
+            .file_name()
+            .expect("origin did not have a file name");
+
+        let number: u32 = match field.value().trim().parse() {
+            Ok(n) => n,
+            Err(_) => return Ok(()),
         };
 
-        let expected = format!("{}{}{}", self.prefix, field.value().trim(), self.suffix);
+        let basename = formatx!(self.format.as_ref(), number).expect("bad format for FileName");
+        let expected = format!("{basename}.md");
 
         if file_name == expected.as_str() {
             return Ok(());
         }
 
+        let mut footer_label = format!("this file's name should be `{expected}`");
+
+        if file_name == "index.md" {
+            match file_path.parent().and_then(Path::file_name) {
+                Some(t) if *t == *basename => return Ok(()),
+                Some(_) | None => {
+                    footer_label = format!("this file should be in a folder `{basename}`");
+                }
+            }
+        }
+
         let label = format!("file name must reflect the preamble header `{}`", self.name);
-        let footer_label = format!("this file's name should be `{}`", expected);
 
         let name_count = field.name().len();
         let value_count = field.value().len();

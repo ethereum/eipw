@@ -14,13 +14,10 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
-use std::path::Path;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct ProposalRef<S> {
     pub name: S,
-    pub prefix: S,
-    pub suffix: S,
 }
 
 impl<S> ProposalRef<S> {
@@ -43,9 +40,8 @@ where
         Self::regex()
             .captures_iter(field.value())
             .map(|x| x.get(1).unwrap().as_str())
-            .map(|x| x.parse::<u64>().unwrap())
-            .map(|n| format!("{}{}{}", self.prefix, n, self.suffix))
-            .for_each(|p| ctx.fetch(p.into()));
+            .map(|x| x.parse::<u32>().unwrap())
+            .for_each(|p| ctx.fetch_proposal(p));
 
         Ok(())
     }
@@ -71,12 +67,12 @@ where
             let end = end_text.len() + name_count + 1;
 
             let number = capture.get(1).unwrap();
-            let url = format!("{}{}{}", self.prefix, number.as_str(), self.suffix);
+            let number = number.as_str().parse().unwrap();
 
-            let eip = match ctx.eip(Path::new(&url)) {
+            let eip = match ctx.proposal(number) {
                 Ok(eip) => eip,
                 Err(e) => {
-                    let label = format!("unable to read file `{}`: {}", url, e);
+                    let label = format!("unable to read proposal `{}`: {}", whole.as_str(), e);
                     ctx.report(
                         ctx.annotation_level().title(&label).id(slug).snippet(
                             Snippet::source(field.source())

@@ -23,6 +23,7 @@ educe = { version = "0.6.0", default-features = false, features = [ "Debug" ] }
 tokio = { optional = true, version = "1.40.0", features = [ "macros" ] }
 scraper = { version = "0.20.0", default-features = false }
 jsonschema = { version = "0.21.0", default-features = false }
+formatx = "0.2.2"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { version = "1.40.0", features = [ "fs", "macros" ] }

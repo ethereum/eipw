@@ -15,6 +15,7 @@ use eipw_snippets::{Annotation, Level, Snippet};
 use comrak::arena_tree::Node;
 use comrak::nodes::Ast;
 use comrak::Arena;
+use formatx::formatx;
 
 use crate::lints::{Context, DefaultLint, Error as LintError, FetchContext, InnerContext, Lint};
 use crate::modifiers::{DefaultModifier, Modifier};
@@ -113,16 +114,12 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
             "preamble-refs-title",
             PreambleProposalRef(preamble::ProposalRef {
                 name: "title",
-                prefix: "eip-",
-                suffix: ".md",
             }),
         ),
         (
             "preamble-refs-description",
             PreambleProposalRef(preamble::ProposalRef {
                 name: "description",
-                prefix: "eip-",
-                suffix: ".md",
             }),
         ),
         (
@@ -323,8 +320,6 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
             PreambleRequiresStatus(preamble::RequiresStatus {
                 requires: "requires",
                 status: "status",
-                prefix: "eip-",
-                suffix: ".md",
                 flow: vec![
                     vec!["Draft", "Stagnant"],
                     vec!["Review"],
@@ -351,8 +346,7 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
             "preamble-file-name",
             PreambleFileName(preamble::FileName {
                 name: "eip",
-                prefix: "eip-",
-                suffix: ".md",
+                format: "eip-{}",
             }),
         ),
         //
@@ -360,10 +354,7 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
         //
         (
             "markdown-refs",
-            MarkdownProposalRef(markdown::ProposalRef {
-                prefix: "eip-",
-                suffix: ".md",
-            }),
+            MarkdownProposalRef(markdown::ProposalRef),
         ),
         (
             "markdown-html-comments",
@@ -449,8 +440,7 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
         (
             "markdown-link-status",
             MarkdownLinkStatus(markdown::LinkStatus {
-                prefix: "eip-",
-                suffix: ".md",
+                pattern: r"(?i)(?:eip|erc)-([0-9]+).md$",
                 status: "status",
                 flow: vec![
                     vec!["Draft", "Stagnant"],
@@ -542,7 +532,13 @@ impl<T> Iterator for NeverIter<T> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[non_exhaustive]
+pub struct FetchOptions {
+    pub proposal_format: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[non_exhaustive]
 pub struct Options<M, L> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -550,6 +546,9 @@ pub struct Options<M, L> {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub lints: Option<L>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fetch: Option<FetchOptions>,
 }
 
 impl<M, L> Default for Options<M, L> {
@@ -557,6 +556,7 @@ impl<M, L> Default for Options<M, L> {
         Self {
             modifiers: None,
             lints: None,
+            fetch: None,
         }
     }
 }
@@ -583,7 +583,11 @@ where
                 .map(|(k, v)| (k.as_ref(), Box::new(v.clone()) as Box<dyn Lint>))
         });
 
-        Options { modifiers, lints }
+        Options {
+            modifiers,
+            lints,
+            fetch: self.fetch.clone(),
+        }
     }
 }
 
@@ -594,6 +598,8 @@ pub struct Linter<'a, R> {
     lints: HashMap<&'a str, (Option<Level>, Box<dyn Lint>)>,
     modifiers: Vec<Box<dyn Modifier>>,
     sources: Vec<Source<'a>>,
+
+    proposal_format: String,
 
     #[educe(Debug(ignore))]
     reporter: R,
@@ -630,12 +636,18 @@ impl<'a, R> Linter<'a, R> {
                 .collect(),
         };
 
+        let proposal_format = options
+            .fetch
+            .map(|o| o.proposal_format)
+            .unwrap_or_else(|| "eip-{}".into());
+
         Self {
             reporter,
             sources: Default::default(),
             fetch: Box::<fetch::DefaultFetch>::default(),
             modifiers,
             lints,
+            proposal_format,
         }
     }
 
@@ -645,6 +657,7 @@ impl<'a, R> Linter<'a, R> {
             Options {
                 lints: Option::<NeverIter<_>>::None,
                 modifiers: Some(modifiers),
+                fetch: Default::default(),
             },
         )
     }
@@ -658,6 +671,7 @@ impl<'a, R> Linter<'a, R> {
             Options {
                 modifiers: Option::<NeverIter<_>>::None,
                 lints: Some(lints),
+                fetch: Default::default(),
             },
         )
     }
@@ -764,7 +778,7 @@ where
                 let context = FetchContext {
                     body: inner.body,
                     preamble: &inner.preamble,
-                    eips: Default::default(),
+                    fetch_proposals: Default::default(),
                 };
 
                 lint.1
@@ -773,34 +787,61 @@ where
                         origin: source_origin.clone(),
                     })?;
 
-                let eips = context.eips.into_inner();
+                let fetch_proposals = context.fetch_proposals.into_inner();
 
                 // For now, string sources shouldn't be allowed to fetch external
                 // resources. The origin field isn't guaranteed to be a file/URL,
                 // and even if it was, we wouldn't know which of those to interpret
                 // it as.
                 ensure!(
-                    eips.is_empty() || !source.is_string(),
+                    fetch_proposals.is_empty() || !source.is_string(),
                     SliceFetchedSnafu {
                         lint: *slug,
                         origin: source_origin.clone(),
                     }
                 );
 
-                for eip in eips.into_iter() {
-                    let root = match source {
-                        Source::File(p) => p.parent().unwrap_or_else(|| Path::new(".")),
-                        _ => unreachable!(),
-                    };
+                if fetch_proposals.is_empty() {
+                    continue;
+                }
 
-                    let path = root.join(eip);
+                let source_path = match source {
+                    Source::File(p) => p,
+                    _ => unreachable!(),
+                };
+                let source_dir = source_path.parent().unwrap_or_else(|| Path::new("."));
+                let root = match source_path.file_name() {
+                    Some(f) if f == "index.md" => source_dir.join(".."),
+                    Some(_) | None => source_dir.to_path_buf(),
+                };
 
-                    let entry = match fetched_eips.entry(path) {
+                for proposal in fetch_proposals.into_iter() {
+                    let entry = match fetched_eips.entry(proposal) {
                         hash_map::Entry::Occupied(_) => continue,
                         hash_map::Entry::Vacant(v) => v,
                     };
+                    let basename =
+                        formatx!(&self.proposal_format, proposal).expect("bad proposal format");
 
-                    let content = Source::File(entry.key()).fetch(&*self.fetch).await;
+                    let mut plain_path = root.join(&basename);
+                    plain_path.set_extension("md");
+                    let plain = Source::File(&plain_path).fetch(&*self.fetch).await;
+
+                    let mut index_path = root.join(&basename);
+                    index_path.push("index.md");
+                    let index = Source::File(&index_path).fetch(&*self.fetch).await;
+
+                    let content = match (plain, index) {
+                        (Ok(_), Ok(_)) => panic!(
+                            "ambiguous proposal between `{}` and `{}`",
+                            plain_path.to_string_lossy(),
+                            index_path.to_string_lossy()
+                        ),
+                        (Ok(c), Err(_)) => Ok(c),
+                        (Err(_), Ok(c)) => Ok(c),
+                        (Err(e), Err(_)) => Err(e),
+                    };
+
                     entry.insert(content);
                 }
             }
@@ -809,11 +850,11 @@ where
         let resources_arena = Arena::new();
         let mut parsed_eips = HashMap::new();
 
-        for (origin, result) in &fetched_eips {
+        for (number, result) in &fetched_eips {
             let source = match result {
                 Ok(o) => o,
                 Err(e) => {
-                    parsed_eips.insert(origin.as_path(), Err(e));
+                    parsed_eips.insert(*number, Err(e));
                     continue;
                 }
             };
@@ -822,7 +863,7 @@ where
                 Some(s) => s,
                 None => return Ok(self.reporter),
             };
-            parsed_eips.insert(origin.as_path(), Ok(inner));
+            parsed_eips.insert(*number, Ok(inner));
         }
 
         let mut lints: Vec<_> = self.lints.iter().collect();
@@ -1044,6 +1085,9 @@ mod tests {
         let options = Options {
             lints: Some(default_lints_enum().collect::<HashMap<_, _>>()),
             modifiers: Some(default_modifiers_enum()),
+            fetch: Some(FetchOptions {
+                proposal_format: "floop".into(),
+            }),
         };
 
         type StringOptions =

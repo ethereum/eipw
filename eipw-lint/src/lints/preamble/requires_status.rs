@@ -13,15 +13,12 @@ use serde::{Deserialize, Serialize};
 
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
-use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RequiresStatus<S> {
     pub requires: S,
     pub status: S,
     pub flow: Vec<Vec<S>>,
-    pub prefix: S,
-    pub suffix: S,
 }
 
 impl<S> RequiresStatus<S>
@@ -53,11 +50,9 @@ where
             .value()
             .split(',')
             .map(str::trim)
-            .map(str::parse::<u64>)
+            .map(str::parse::<u32>)
             .filter_map(Result::ok)
-            .map(|n| format!("{}{}{}", self.prefix, n, self.suffix))
-            .map(PathBuf::from)
-            .for_each(|p| ctx.fetch(p));
+            .for_each(|p| ctx.fetch_proposal(p));
 
         Ok(())
     }
@@ -90,15 +85,15 @@ where
             let current = offset;
             offset += item_count + 1;
 
-            let key = match item.trim().parse::<u64>() {
-                Ok(k) => PathBuf::from(format!("{}{}{}", self.prefix, k, self.suffix)),
+            let key = match item.trim().parse::<u32>() {
+                Ok(k) => k,
                 _ => continue,
             };
 
-            let eip = match ctx.eip(&key) {
+            let eip = match ctx.proposal(key) {
                 Ok(eip) => eip,
                 Err(e) => {
-                    let label = format!("unable to read file `{}`: {}", key.display(), e);
+                    let label = format!("unable to read proposal number `{}`: {}", key, e);
                     ctx.report(
                         ctx.annotation_level().title(&label).id(slug).snippet(
                             Snippet::source(field.source())

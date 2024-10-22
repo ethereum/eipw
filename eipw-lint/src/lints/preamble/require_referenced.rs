@@ -4,9 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
+use eipw_snippets::Snippet;
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    LevelExt, SnippetExt,
+};
 
 use regex::Regex;
 
@@ -66,35 +69,24 @@ where
             self.name, self.requires,
         );
 
-        let name_count = field.name().chars().count();
+        let name_count = field.name().len();
 
-        let annotations = missing
-            .iter()
-            .map(|m| SourceAnnotation {
-                range: (
-                    field.value()[..m.start()].chars().count() + name_count + 1,
-                    field.value()[..m.end()].chars().count() + name_count + 1,
-                ),
-                label: "mentioned here",
-                annotation_type: ctx.annotation_type(),
-            })
-            .collect();
+        let annotations = missing.iter().map(|m| {
+            let start = field.value()[..m.start()].len() + name_count + 1;
+            ctx.annotation_level()
+                .span_utf8(field.source(), start, m.end() - m.start())
+                .label("mentioned here")
+        });
 
-        ctx.report(Snippet {
-            title: Some(Annotation {
-                annotation_type: ctx.annotation_type(),
-                id: Some(slug),
-                label: Some(&label),
-            }),
-            slices: vec![Slice {
-                fold: false,
-                line_start: field.line_start(),
-                origin: ctx.origin(),
-                annotations,
-                source: field.source(),
-            }],
-            ..Default::default()
-        })?;
+        ctx.report(
+            ctx.annotation_level().title(&label).id(slug).snippet(
+                Snippet::source(field.source())
+                    .annotations(annotations)
+                    .fold(false)
+                    .line_start(field.line_start())
+                    .origin_opt(ctx.origin()),
+            ),
+        )?;
 
         Ok(())
     }

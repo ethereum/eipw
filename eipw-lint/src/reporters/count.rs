@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{AnnotationType, Snippet};
+use eipw_snippets::{Level, Message};
 
 use std::cell::RefCell;
 
@@ -18,7 +18,6 @@ pub struct Counts {
     pub info: usize,
     pub note: usize,
     pub help: usize,
-    pub other: usize,
 }
 
 #[derive(Debug, Default)]
@@ -31,19 +30,18 @@ impl<T> Reporter for Count<T>
 where
     T: Reporter,
 {
-    fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
+    fn report(&self, message: Message<'_>) -> Result<(), Error> {
         let mut counts = self.counts.borrow_mut();
 
-        match snippet.title.as_ref().map(|t| t.annotation_type) {
-            Some(AnnotationType::Error) => counts.error += 1,
-            Some(AnnotationType::Warning) => counts.warning += 1,
-            Some(AnnotationType::Info) => counts.info += 1,
-            Some(AnnotationType::Note) => counts.note += 1,
-            Some(AnnotationType::Help) => counts.help += 1,
-            None => counts.other += 1,
+        match message.level {
+            Level::Error => counts.error += 1,
+            Level::Warning => counts.warning += 1,
+            Level::Info => counts.info += 1,
+            Level::Note => counts.note += 1,
+            Level::Help => counts.help += 1,
         }
 
-        self.inner.report(snippet)
+        self.inner.report(message)
     }
 }
 

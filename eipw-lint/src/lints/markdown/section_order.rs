@@ -4,11 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use eipw_snippets::{Level, Snippet};
 
 use comrak::nodes::{Ast, NodeHeading, NodeValue};
 
 use crate::lints::{Context, Error, Lint};
+use crate::SnippetExt;
 
 use serde::{Deserialize, Serialize};
 
@@ -85,26 +86,21 @@ where
         let unknowns: Vec<_> = headings
             .iter()
             .filter(|(_, f)| !self.0.iter().any(|e| e == &f.as_str()))
-            .map(|(line_start, _)| Slice {
-                line_start: *line_start,
-                fold: false,
-                origin: ctx.origin(),
-                source: ctx.line(*line_start),
-                annotations: vec![],
+            .map(|(line_start, _)| {
+                Snippet::source(ctx.line(*line_start))
+                    .fold(false)
+                    .origin_opt(ctx.origin())
+                    .line_start(*line_start)
             })
             .collect();
 
         if !unknowns.is_empty() {
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    id: Some(slug),
-                    annotation_type: ctx.annotation_type(),
-                    label: Some("body has extra section(s)"),
-                }),
-                footer: vec![],
-                slices: unknowns,
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level()
+                    .title("body has extra section(s)")
+                    .id(slug)
+                    .snippets(unknowns),
+            )?;
         }
 
         // Check that sections are in the correct order.
@@ -129,29 +125,21 @@ where
                 if let Some(preceding) = self.find_preceding(&present, name) {
                     write!(footer_label, "`{}` should come after `{}`", name, preceding,).unwrap();
 
-                    footer.push(Annotation {
-                        annotation_type: AnnotationType::Help,
-                        id: None,
-                        label: Some(&footer_label),
-                    });
+                    footer.push(Level::Help.title(&footer_label));
                 }
 
-                ctx.report(Snippet {
-                    title: Some(Annotation {
-                        id: Some(slug),
-                        annotation_type: ctx.annotation_type(),
-                        label: Some(&label),
-                    }),
-                    footer,
-                    slices: vec![Slice {
-                        line_start,
-                        origin: ctx.origin(),
-                        source: ctx.line(line_start),
-                        fold: false,
-                        annotations: vec![],
-                    }],
-                    opt: Default::default(),
-                })?;
+                ctx.report(
+                    ctx.annotation_level()
+                        .title(&label)
+                        .id(slug)
+                        .footers(footer)
+                        .snippet(
+                            Snippet::source(ctx.line(line_start))
+                                .fold(false)
+                                .origin_opt(ctx.origin())
+                                .line_start(line_start),
+                        ),
+                )?;
             }
         }
 

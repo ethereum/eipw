@@ -32,7 +32,7 @@ hello
 
     assert_eq!(
         reports,
-        r#"error[markdown-no-backticks]: EIP references should not be in backticks
+        r#"error[markdown-no-backticks]: proposal references should not be in backticks
   |
 7 | `EIP-1234`
   |

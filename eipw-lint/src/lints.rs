@@ -8,7 +8,7 @@ mod known_lints;
 pub mod markdown;
 pub mod preamble;
 
-use annotate_snippets::snippet::{AnnotationType, Snippet};
+use eipw_snippets::{Level, Message};
 
 use comrak::nodes::AstNode;
 
@@ -27,7 +27,6 @@ use std::cmp::max;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::ops::Deref;
-use std::path::{Path, PathBuf};
 use std::string::FromUtf8Error;
 
 #[derive(Debug, Snafu)]
@@ -77,10 +76,10 @@ where
     'b: 'a,
 {
     pub(crate) inner: InnerContext<'a>,
-    pub(crate) eips: &'b HashMap<&'b Path, Result<InnerContext<'b>, &'b crate::Error>>,
+    pub(crate) eips: &'b HashMap<u32, Result<InnerContext<'b>, &'b crate::Error>>,
     #[educe(Debug(ignore))]
     pub(crate) reporter: &'b dyn Reporter,
-    pub(crate) annotation_type: AnnotationType,
+    pub(crate) annotation_level: Level,
 }
 
 impl<'a, 'b> Context<'a, 'b>
@@ -128,36 +127,27 @@ where
         self.inner.origin
     }
 
-    pub fn annotation_type(&self) -> AnnotationType {
-        self.annotation_type
+    pub fn annotation_level(&self) -> Level {
+        self.annotation_level
     }
 
-    pub fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
-        self.reporter.report(snippet)?;
+    pub fn report(&self, message: Message<'_>) -> Result<(), Error> {
+        self.reporter.report(message)?;
         Ok(())
     }
 
-    pub fn eip(&self, path: &Path) -> Result<Context<'b, 'b>, &crate::Error> {
-        let origin = self
-            .origin()
-            .expect("lint attempted to access an external resource without having an origin");
-
-        let origin_path = PathBuf::from(origin);
-        let root = origin_path.parent().unwrap_or_else(|| Path::new("."));
-
-        let key = root.join(path);
-
-        let inner = match self.eips.get(key.as_path()) {
+    pub fn proposal(&self, proposal: u32) -> Result<Context<'b, 'b>, &crate::Error> {
+        let inner = match self.eips.get(&proposal) {
             Some(Ok(i)) => i,
             Some(Err(e)) => return Err(e),
-            None => panic!("no eip found for key `{}`", key.display()),
+            None => panic!("no eip found for key `{}`", proposal),
         };
 
         Ok(Context {
             inner: inner.clone(),
             eips: self.eips,
             reporter: self.reporter,
-            annotation_type: self.annotation_type,
+            annotation_level: self.annotation_level,
         })
     }
 }
@@ -166,7 +156,7 @@ where
 pub struct FetchContext<'a> {
     pub(crate) preamble: &'a Preamble<'a>,
     pub(crate) body: &'a AstNode<'a>,
-    pub(crate) eips: RefCell<HashSet<PathBuf>>,
+    pub(crate) fetch_proposals: RefCell<HashSet<u32>>,
 }
 
 impl<'a> FetchContext<'a> {
@@ -178,8 +168,8 @@ impl<'a> FetchContext<'a> {
         self.body
     }
 
-    pub fn fetch(&self, path: PathBuf) {
-        self.eips.borrow_mut().insert(path);
+    pub fn fetch_proposal(&self, proposal: u32) {
+        self.fetch_proposals.borrow_mut().insert(proposal);
     }
 }
 

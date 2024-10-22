@@ -66,7 +66,7 @@ pub enum DefaultLint<S> {
         pattern: markdown::LinkOther<S>,
     },
     MarkdownLinkStatus(markdown::LinkStatus<S>),
-    MarkdownProposalRef(markdown::ProposalRef<S>),
+    MarkdownProposalRef(markdown::ProposalRef),
     MarkdownRegex(markdown::Regex<S>),
     MarkdownRelativeLinks(markdown::RelativeLinks<S>),
     MarkdownSectionOrder {
@@ -182,8 +182,7 @@ where
             },
             Self::PreambleFileName(l) => DefaultLint::PreambleFileName(preamble::FileName {
                 name: l.name.as_ref(),
-                prefix: l.prefix.as_ref(),
-                suffix: l.suffix.as_ref(),
+                format: l.format.as_ref(),
             }),
             Self::PreambleLength(l) => DefaultLint::PreambleLength(preamble::Length {
                 max: l.max,
@@ -206,8 +205,6 @@ where
             Self::PreambleProposalRef(l) => {
                 DefaultLint::PreambleProposalRef(preamble::ProposalRef {
                     name: l.name.as_ref(),
-                    prefix: l.prefix.as_ref(),
-                    suffix: l.suffix.as_ref(),
                 })
             }
             Self::PreambleRegex(l) => DefaultLint::PreambleRegex(preamble::Regex {
@@ -236,8 +233,6 @@ where
                 DefaultLint::PreambleRequiresStatus(preamble::RequiresStatus {
                     requires: l.requires.as_ref(),
                     status: l.status.as_ref(),
-                    suffix: l.suffix.as_ref(),
-                    prefix: l.prefix.as_ref(),
                     flow: l
                         .flow
                         .iter()
@@ -285,8 +280,7 @@ where
                 pattern: markdown::NoBackticks(pattern.0.as_ref()),
             },
             Self::MarkdownLinkStatus(l) => DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
-                prefix: l.prefix.as_ref(),
-                suffix: l.suffix.as_ref(),
+                pattern: l.pattern.as_ref(),
                 status: l.status.as_ref(),
                 flow: l
                     .flow
@@ -294,12 +288,7 @@ where
                     .map(|v| v.iter().map(AsRef::as_ref).collect())
                     .collect(),
             }),
-            Self::MarkdownProposalRef(l) => {
-                DefaultLint::MarkdownProposalRef(markdown::ProposalRef {
-                    prefix: l.prefix.as_ref(),
-                    suffix: l.suffix.as_ref(),
-                })
-            }
+            Self::MarkdownProposalRef(_) => DefaultLint::MarkdownProposalRef(markdown::ProposalRef),
             Self::MarkdownRegex(l) => DefaultLint::MarkdownRegex(markdown::Regex {
                 message: l.message.as_ref(),
                 mode: l.mode,

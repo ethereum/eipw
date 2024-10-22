@@ -4,9 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use eipw_snippets::{Level, Snippet};
+use formatx::formatx;
 
 use crate::lints::{Context, Error, Lint};
+use crate::{LevelExt, SnippetExt};
 
 use serde::{Deserialize, Serialize};
 
@@ -16,8 +18,7 @@ use std::path::Path;
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct FileName<S> {
     pub name: S,
-    pub prefix: S,
-    pub suffix: S,
+    pub format: S,
 }
 
 impl<S> Lint for FileName<S>
@@ -30,49 +31,59 @@ where
             Some(s) => s,
         };
 
-        let file_name = match ctx.origin() {
+        let file_path = match ctx.origin() {
             None => return Ok(()),
-            Some(o) => Path::new(o)
-                .file_name()
-                .expect("origin did not have a file name"),
+            Some(o) => Path::new(o),
+        };
+        let file_name = file_path
+            .file_name()
+            .expect("origin did not have a file name");
+
+        let number: u32 = match field.value().trim().parse() {
+            Ok(n) => n,
+            Err(_) => return Ok(()),
         };
 
-        let expected = format!("{}{}{}", self.prefix, field.value().trim(), self.suffix);
+        let basename = formatx!(self.format.as_ref(), number).expect("bad format for FileName");
+        let expected = format!("{basename}.md");
 
         if file_name == expected.as_str() {
             return Ok(());
         }
 
+        let mut footer_label = format!("this file's name should be `{expected}`");
+
+        if file_name == "index.md" {
+            match file_path.parent().and_then(Path::file_name) {
+                Some(t) if *t == *basename => return Ok(()),
+                Some(_) | None => {
+                    footer_label = format!("this file should be in a folder `{basename}`");
+                }
+            }
+        }
+
         let label = format!("file name must reflect the preamble header `{}`", self.name);
-        let footer_label = format!("this file's name should be `{}`", expected);
 
-        let name_count = field.name().chars().count();
-        let value_count = field.value().chars().count();
+        let name_count = field.name().len();
+        let value_count = field.value().len();
 
-        ctx.report(Snippet {
-            title: Some(Annotation {
-                annotation_type: ctx.annotation_type(),
-                id: Some(slug),
-                label: Some(&label),
-            }),
-            slices: vec![Slice {
-                fold: false,
-                line_start: field.line_start(),
-                origin: ctx.origin(),
-                source: field.source(),
-                annotations: vec![SourceAnnotation {
-                    annotation_type: ctx.annotation_type(),
-                    label: "this value",
-                    range: (name_count + 1, value_count + name_count + 1),
-                }],
-            }],
-            footer: vec![Annotation {
-                annotation_type: AnnotationType::Help,
-                id: None,
-                label: Some(&footer_label),
-            }],
-            opt: Default::default(),
-        })?;
+        ctx.report(
+            ctx.annotation_level()
+                .title(&label)
+                .id(slug)
+                .snippet(
+                    Snippet::source(field.source())
+                        .fold(false)
+                        .line_start(field.line_start())
+                        .origin_opt(ctx.origin())
+                        .annotation(
+                            ctx.annotation_level()
+                                .span_utf8(field.source(), name_count + 1, value_count)
+                                .label("this value"),
+                        ),
+                )
+                .footer(Level::Help.title(&footer_label)),
+        )?;
 
         Ok(())
     }

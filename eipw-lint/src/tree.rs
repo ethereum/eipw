@@ -6,8 +6,9 @@
 
 use comrak::arena_tree::{NodeEdge, Traverse};
 use comrak::nodes::{
-    Ast, AstNode, NodeCode, NodeCodeBlock, NodeDescriptionItem, NodeHeading, NodeHtmlBlock,
-    NodeLink, NodeList, NodeValue, TableAlignment,
+    Ast, AstNode, NodeCode, NodeCodeBlock, NodeDescriptionItem, NodeFootnoteDefinition,
+    NodeFootnoteReference, NodeHeading, NodeHtmlBlock, NodeLink, NodeList, NodeMath,
+    NodeMultilineBlockQuote, NodeTable, NodeValue, NodeWikiLink,
 };
 
 use std::cell::RefCell;
@@ -55,6 +56,13 @@ pub trait Visitor {
             NodeValue::Link(nl) => self.enter_link(&data, nl),
             NodeValue::Image(nl) => self.enter_image(&data, nl),
             NodeValue::FootnoteReference(fr) => self.enter_footnote_reference(&data, fr),
+            NodeValue::EscapedTag(t) => self.enter_escaped_tag(&data, t),
+            NodeValue::WikiLink(w) => self.enter_wiki_link(&data, w),
+            NodeValue::Math(m) => self.enter_math(&data, m),
+            NodeValue::Underline => self.enter_underline(&data),
+            NodeValue::MultilineBlockQuote(m) => self.enter_multiline_block_quote(&data, m),
+            NodeValue::SpoileredText => self.enter_spoilered_text(&data),
+            NodeValue::Escaped => self.enter_escaped(&data),
         }
     }
 
@@ -129,12 +137,12 @@ pub trait Visitor {
     fn enter_footnote_definition(
         &mut self,
         _ast: &Ast,
-        _footnote_defn: &str,
+        _footnote_defn: &NodeFootnoteDefinition,
     ) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
 
-    fn enter_table(&mut self, _ast: &Ast, _align: &[TableAlignment]) -> Result<Next, Self::Error> {
+    fn enter_table(&mut self, _ast: &Ast, _table: &NodeTable) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
 
@@ -194,7 +202,43 @@ pub trait Visitor {
         Ok(Next::TraverseChildren)
     }
 
-    fn enter_footnote_reference(&mut self, _ast: &Ast, _refn: &str) -> Result<Next, Self::Error> {
+    fn enter_footnote_reference(
+        &mut self,
+        _ast: &Ast,
+        _refn: &NodeFootnoteReference,
+    ) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
+    }
+
+    fn enter_escaped_tag(&mut self, _ast: &Ast, _tag: &str) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
+    }
+
+    fn enter_wiki_link(&mut self, _ast: &Ast, _link: &NodeWikiLink) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
+    }
+
+    fn enter_math(&mut self, _ast: &Ast, _math: &NodeMath) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
+    }
+
+    fn enter_underline(&mut self, _ast: &Ast) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
+    }
+
+    fn enter_multiline_block_quote(
+        &mut self,
+        _ast: &Ast,
+        _mlblkqt: &NodeMultilineBlockQuote,
+    ) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
+    }
+
+    fn enter_spoilered_text(&mut self, _ast: &Ast) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
+    }
+
+    fn enter_escaped(&mut self, _ast: &Ast) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
 
@@ -232,6 +276,13 @@ pub trait Visitor {
             NodeValue::Link(nl) => self.depart_link(&data, nl),
             NodeValue::Image(nl) => self.depart_image(&data, nl),
             NodeValue::FootnoteReference(fr) => self.depart_footnote_reference(&data, fr),
+            NodeValue::EscapedTag(t) => self.depart_escaped_tag(&data, t),
+            NodeValue::WikiLink(w) => self.depart_wiki_link(&data, w),
+            NodeValue::Math(m) => self.depart_math(&data, m),
+            NodeValue::Underline => self.depart_underline(&data),
+            NodeValue::MultilineBlockQuote(m) => self.depart_multiline_block_quote(&data, m),
+            NodeValue::SpoileredText => self.depart_spoilered_text(&data),
+            NodeValue::Escaped => self.depart_escaped(&data),
         }
     }
 
@@ -306,12 +357,12 @@ pub trait Visitor {
     fn depart_footnote_definition(
         &mut self,
         _ast: &Ast,
-        _footnote_defn: &str,
+        _footnote_defn: &NodeFootnoteDefinition,
     ) -> Result<(), Self::Error> {
         Ok(())
     }
 
-    fn depart_table(&mut self, _ast: &Ast, _align: &[TableAlignment]) -> Result<(), Self::Error> {
+    fn depart_table(&mut self, _ast: &Ast, _table: &NodeTable) -> Result<(), Self::Error> {
         Ok(())
     }
 
@@ -371,7 +422,43 @@ pub trait Visitor {
         Ok(())
     }
 
-    fn depart_footnote_reference(&mut self, _ast: &Ast, _refn: &str) -> Result<(), Self::Error> {
+    fn depart_footnote_reference(
+        &mut self,
+        _ast: &Ast,
+        _refn: &NodeFootnoteReference,
+    ) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn depart_escaped_tag(&mut self, _ast: &Ast, _tag: &str) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn depart_wiki_link(&mut self, _ast: &Ast, _link: &NodeWikiLink) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn depart_math(&mut self, _ast: &Ast, _math: &NodeMath) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn depart_underline(&mut self, _ast: &Ast) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn depart_multiline_block_quote(
+        &mut self,
+        _ast: &Ast,
+        _mlblkqt: &NodeMultilineBlockQuote,
+    ) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn depart_spoilered_text(&mut self, _ast: &Ast) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn depart_escaped(&mut self, _ast: &Ast) -> Result<(), Self::Error> {
         Ok(())
     }
 }

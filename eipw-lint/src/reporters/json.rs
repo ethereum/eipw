@@ -4,12 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-pub mod snippet;
-
-use annotate_snippets::display_list::DisplayList;
-use annotate_snippets::snippet::Snippet;
-
-use self::snippet::SnippetDef;
+use eipw_snippets::annotate_snippets::Renderer;
+use eipw_snippets::Message;
 
 use serde::Serialize;
 
@@ -26,16 +22,15 @@ pub struct Json {
 }
 
 impl Reporter for Json {
-    fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
-        let def = SnippetDef::from(snippet);
-
-        let mut value = serde_json::to_value(&def).map_err(Error::new)?;
+    fn report(&self, message: Message<'_>) -> Result<(), Error> {
+        let mut value = serde_json::to_value(&message).map_err(Error::new)?;
         let obj = value.as_object_mut().unwrap();
 
-        // Because `SnippetDef` borrows while deserializing, it breaks with
+        // Because `Message` borrows while deserializing, it breaks with
         // escaped characters, so we pre-format the errors here.
-        let snippet = Snippet::from(def);
-        let formatted = format!("{}", DisplayList::from(snippet));
+        let renderer = Renderer::plain();
+        let rendered = renderer.render((&message).into());
+        let formatted = format!("{}", rendered);
         obj.insert("formatted".into(), Value::String(formatted));
 
         self.reports.borrow_mut().push(value);

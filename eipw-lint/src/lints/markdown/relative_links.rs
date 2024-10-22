@@ -4,12 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use eipw_snippets::{Level, Snippet};
 
 use comrak::nodes::Ast;
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
+use crate::SnippetExt;
 
 use regex::{Regex, RegexSet};
 
@@ -70,29 +71,21 @@ where
 
             let suggestion_label = format!("use `{}` instead", suggestion);
             if extra_help {
-                footer.push(Annotation {
-                    annotation_type: AnnotationType::Help,
-                    label: Some(&suggestion_label),
-                    id: None,
-                });
+                footer.push(Level::Help.title(&suggestion_label));
             }
 
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    id: Some(slug),
-                    annotation_type: ctx.annotation_type(),
-                    label: Some("non-relative link or image"),
-                }),
-                footer,
-                slices: vec![Slice {
-                    line_start,
-                    fold: false,
-                    origin: ctx.origin(),
-                    source: ctx.line(line_start),
-                    annotations: vec![],
-                }],
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level()
+                    .title("non-relative link or image")
+                    .id(slug)
+                    .footers(footer)
+                    .snippet(
+                        Snippet::source(ctx.line(line_start))
+                            .line_start(line_start)
+                            .fold(false)
+                            .origin_opt(ctx.origin()),
+                    ),
+            )?;
         }
 
         Ok(())

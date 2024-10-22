@@ -4,12 +4,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use eipw_snippets::{Level, Snippet};
 
-use comrak::nodes::{Ast, NodeCode, NodeCodeBlock, NodeHtmlBlock, NodeLink};
+use comrak::nodes::{
+    Ast, NodeCode, NodeCodeBlock, NodeFootnoteDefinition, NodeFootnoteReference, NodeHtmlBlock,
+    NodeLink,
+};
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
+use crate::SnippetExt;
 
 use ::regex::Regex as TextRegex;
 
@@ -77,26 +81,19 @@ impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
         // TODO: Actually annotate the matches for `Mode::Excludes`.
 
         let source = self.ctx.source_for_text(ast.sourcepos.start.line, buf);
-        self.ctx.report(Snippet {
-            title: Some(Annotation {
-                annotation_type: self.ctx.annotation_type(),
-                id: Some(self.slug),
-                label: Some(self.message),
-            }),
-            slices: vec![Slice {
-                fold: false,
-                line_start: ast.sourcepos.start.line,
-                origin: self.ctx.origin(),
-                source: &source,
-                annotations: vec![],
-            }],
-            footer: vec![Annotation {
-                id: None,
-                annotation_type: AnnotationType::Info,
-                label: Some(&footer_label),
-            }],
-            opt: Default::default(),
-        })?;
+        self.ctx.report(
+            self.ctx
+                .annotation_level()
+                .title(self.message)
+                .id(self.slug)
+                .snippet(
+                    Snippet::source(&source)
+                        .origin_opt(self.ctx.origin())
+                        .line_start(ast.sourcepos.start.line)
+                        .fold(false),
+                )
+                .footer(Level::Info.title(&footer_label)),
+        )?;
 
         Ok(Next::TraverseChildren)
     }
@@ -125,8 +122,12 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_footnote_definition(&mut self, ast: &Ast, defn: &str) -> Result<Next, Self::Error> {
-        self.check(ast, defn)
+    fn enter_footnote_definition(
+        &mut self,
+        ast: &Ast,
+        defn: &NodeFootnoteDefinition,
+    ) -> Result<Next, Self::Error> {
+        self.check(ast, &defn.name)
     }
 
     fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
@@ -141,7 +142,11 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
         self.check(ast, &link.title)
     }
 
-    fn enter_footnote_reference(&mut self, ast: &Ast, refn: &str) -> Result<Next, Self::Error> {
-        self.check(ast, refn)
+    fn enter_footnote_reference(
+        &mut self,
+        ast: &Ast,
+        refn: &NodeFootnoteReference,
+    ) -> Result<Next, Self::Error> {
+        self.check(ast, &refn.name)
     }
 }

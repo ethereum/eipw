@@ -4,23 +4,21 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use eipw_snippets::{Level, Snippet};
 
 use crate::lints::{Context, Error, FetchContext, Lint};
+use crate::{LevelExt, SnippetExt};
 
 use serde::{Deserialize, Serialize};
 
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
-use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RequiresStatus<S> {
     pub requires: S,
     pub status: S,
     pub flow: Vec<Vec<S>>,
-    pub prefix: S,
-    pub suffix: S,
 }
 
 impl<S> RequiresStatus<S>
@@ -52,11 +50,9 @@ where
             .value()
             .split(',')
             .map(str::trim)
-            .map(str::parse::<u64>)
+            .map(str::parse::<u32>)
             .filter_map(Result::ok)
-            .map(|n| format!("{}{}{}", self.prefix, n, self.suffix))
-            .map(PathBuf::from)
-            .for_each(|p| ctx.fetch(p));
+            .for_each(|p| ctx.fetch_proposal(p));
 
         Ok(())
     }
@@ -83,43 +79,38 @@ where
 
         let mut offset = 0;
         for item in items {
-            let name_count = field.name().chars().count();
-            let item_count = item.chars().count();
+            let name_count = field.name().len();
+            let item_count = item.len();
 
             let current = offset;
             offset += item_count + 1;
 
-            let key = match item.trim().parse::<u64>() {
-                Ok(k) => PathBuf::from(format!("{}{}{}", self.prefix, k, self.suffix)),
+            let key = match item.trim().parse::<u32>() {
+                Ok(k) => k,
                 _ => continue,
             };
 
-            let eip = match ctx.eip(&key) {
+            let eip = match ctx.proposal(key) {
                 Ok(eip) => eip,
                 Err(e) => {
-                    let label = format!("unable to read file `{}`: {}", key.display(), e);
-                    ctx.report(Snippet {
-                        title: Some(Annotation {
-                            id: Some(slug),
-                            label: Some(&label),
-                            annotation_type: ctx.annotation_type(),
-                        }),
-                        slices: vec![Slice {
-                            fold: false,
-                            line_start: field.line_start(),
-                            origin: ctx.origin(),
-                            source: field.source(),
-                            annotations: vec![SourceAnnotation {
-                                annotation_type: ctx.annotation_type(),
-                                label: "required from here",
-                                range: (
-                                    name_count + current + 1,
-                                    name_count + current + 1 + item_count,
+                    let label = format!("unable to read proposal number `{}`: {}", key, e);
+                    ctx.report(
+                        ctx.annotation_level().title(&label).id(slug).snippet(
+                            Snippet::source(field.source())
+                                .fold(false)
+                                .line_start(field.line_start())
+                                .origin_opt(ctx.origin())
+                                .annotation(
+                                    ctx.annotation_level()
+                                        .span_utf8(
+                                            field.source(),
+                                            name_count + current + 1,
+                                            item_count,
+                                        )
+                                        .label("required from here"),
                                 ),
-                            }],
-                        }],
-                        ..Default::default()
-                    })?;
+                        ),
+                    )?;
                     continue;
                 }
             };
@@ -134,14 +125,11 @@ where
                 continue;
             }
 
-            too_unstable.push(SourceAnnotation {
-                annotation_type: ctx.annotation_type(),
-                label: "has a less advanced status",
-                range: (
-                    name_count + current + 1,
-                    name_count + current + 1 + item_count,
-                ),
-            });
+            too_unstable.push(
+                ctx.annotation_level()
+                    .span_utf8(field.source(), name_count + current + 1, item_count)
+                    .label("has a less advanced status"),
+            );
         }
 
         if !too_unstable.is_empty() {
@@ -172,29 +160,22 @@ where
             );
 
             if !choices.is_empty() {
-                footer.push(Annotation {
-                    annotation_type: AnnotationType::Help,
-                    id: None,
-                    label: Some(&footer_label),
-                });
+                footer.push(Level::Help.title(&footer_label));
             }
 
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: ctx.annotation_type(),
-                    id: Some(slug),
-                    label: Some(&label),
-                }),
-                slices: vec![Slice {
-                    fold: false,
-                    line_start: field.line_start(),
-                    origin: ctx.origin(),
-                    source: field.source(),
-                    annotations: too_unstable,
-                }],
-                footer,
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level()
+                    .title(&label)
+                    .id(slug)
+                    .snippet(
+                        Snippet::source(field.source())
+                            .fold(false)
+                            .line_start(field.line_start())
+                            .origin_opt(ctx.origin())
+                            .annotations(too_unstable),
+                    )
+                    .footers(footer),
+            )?;
         }
 
         Ok(())

@@ -4,9 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
+use eipw_snippets::Snippet;
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    LevelExt, SnippetExt,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -37,33 +40,26 @@ where
         let mut offset = 0;
         for matched in value.split(',') {
             let current = offset;
-            offset += matched.chars().count() + 1;
+            offset += matched.len() + 1;
 
-            let name_count = field.name().chars().count();
+            let name_count = field.name().len();
 
             let trimmed = matched.trim();
             if trimmed.is_empty() {
                 let label = format!("preamble header `{}` cannot have empty items", self.0);
-                ctx.report(Snippet {
-                    title: Some(Annotation {
-                        annotation_type: ctx.annotation_type(),
-                        id: Some(slug),
-                        label: Some(&label),
-                    }),
-                    footer: vec![],
-                    slices: vec![Slice {
-                        fold: false,
-                        line_start: field.line_start(),
-                        origin: ctx.origin(),
-                        source: field.source(),
-                        annotations: vec![SourceAnnotation {
-                            annotation_type: ctx.annotation_type(),
-                            label: "this item is empty",
-                            range: (name_count + current + 1, name_count + current + 2),
-                        }],
-                    }],
-                    opt: Default::default(),
-                })?;
+                ctx.report(
+                    ctx.annotation_level().title(&label).id(slug).snippet(
+                        Snippet::source(field.source())
+                            .fold(false)
+                            .line_start(field.line_start())
+                            .origin_opt(ctx.origin())
+                            .annotation(
+                                ctx.annotation_level()
+                                    .span_utf8(field.source(), name_count + current + 1, 1)
+                                    .label("this item is empty"),
+                            ),
+                    ),
+                )?;
                 continue;
             }
 
@@ -71,11 +67,12 @@ where
                 Some(r) => r,
                 None if current == 0 => matched,
                 None => {
-                    missing_space.push(SourceAnnotation {
-                        annotation_type: ctx.annotation_type(),
-                        label: "missing space",
-                        range: (name_count + current + 1, name_count + current + 2),
-                    });
+                    let start = name_count + current + 1;
+                    missing_space.push(
+                        ctx.annotation_level()
+                            .span_utf8(field.source(), start, 1)
+                            .label("missing space"),
+                    );
                     continue;
                 }
             };
@@ -84,52 +81,42 @@ where
                 continue;
             }
 
-            extra_space.push(SourceAnnotation {
-                annotation_type: ctx.annotation_type(),
-                label: "extra space",
-                range: (
-                    name_count + current + 2,
-                    name_count + current + 2 + matched.chars().count(),
-                ),
-            });
+            let start = name_count + current + 2;
+            extra_space.push(
+                ctx.annotation_level()
+                    .span_utf8(field.source(), start, matched.len())
+                    .label("extra space"),
+            );
         }
 
         if !missing_space.is_empty() {
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: ctx.annotation_type(),
-                    id: Some(slug),
-                    label: Some("preamble header list items must begin with a space"),
-                }),
-                footer: vec![],
-                slices: vec![Slice {
-                    line_start: field.line_start(),
-                    fold: false,
-                    origin: ctx.origin(),
-                    source: field.source(),
-                    annotations: missing_space,
-                }],
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level()
+                    .title("preamble header list items must begin with a space")
+                    .id(slug)
+                    .snippet(
+                        Snippet::source(field.source())
+                            .line_start(field.line_start())
+                            .fold(false)
+                            .origin_opt(ctx.origin())
+                            .annotations(missing_space),
+                    ),
+            )?;
         }
 
         if !extra_space.is_empty() {
-            ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: ctx.annotation_type(),
-                    id: Some(slug),
-                    label: Some("preamble header list items have extra whitespace"),
-                }),
-                footer: vec![],
-                slices: vec![Slice {
-                    line_start: field.line_start(),
-                    fold: false,
-                    origin: ctx.origin(),
-                    source: field.source(),
-                    annotations: extra_space,
-                }],
-                opt: Default::default(),
-            })?;
+            ctx.report(
+                ctx.annotation_level()
+                    .title("preamble header list items have extra whitespace")
+                    .id(slug)
+                    .snippet(
+                        Snippet::source(field.source())
+                            .line_start(field.line_start())
+                            .fold(false)
+                            .origin_opt(ctx.origin())
+                            .annotations(extra_space),
+                    ),
+            )?;
         }
 
         Ok(())

@@ -4,12 +4,16 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet};
+use eipw_snippets::{Level, Snippet};
 
-use comrak::nodes::{Ast, NodeCode, NodeCodeBlock, NodeHtmlBlock, NodeLink};
+use comrak::nodes::{
+    Ast, NodeCode, NodeCodeBlock, NodeFootnoteDefinition, NodeFootnoteReference, NodeHtmlBlock,
+    NodeLink,
+};
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
+use crate::SnippetExt;
 
 use ::regex::Regex;
 
@@ -30,11 +34,19 @@ where
         let pattern = self.0.as_ref();
         let re = Regex::new(pattern).map_err(Error::custom)?;
 
+        let own_number = ctx
+            .preamble()
+            .by_name("eip")
+            .map(|field| field.value().trim())
+            .map(str::parse)
+            .and_then(Result::ok);
+
         let mut visitor = Visitor {
             ctx,
             re,
             pattern,
             slug,
+            own_number,
             linked: Default::default(),
             link_depth: 0,
         };
@@ -52,12 +64,30 @@ struct Visitor<'a, 'b, 'c> {
     slug: &'c str,
     linked: HashSet<String>,
     link_depth: usize,
+    own_number: Option<u32>,
 }
 
 impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
     fn check(&self, ast: &Ast, text: &str) -> Result<Next, Error> {
-        for matched in self.re.find_iter(text) {
-            if self.linked.contains(matched.as_str()) {
+        for matched in self.re.captures_iter(text) {
+            let self_reference = match self.own_number {
+                None => false,
+                Some(own_number) => matched
+                    .get(1)
+                    .expect("missing capture group for `LinkFirst` regex")
+                    .as_str()
+                    .parse()
+                    .map(|n: u32| n == own_number)
+                    .unwrap_or(false),
+            };
+
+            if self_reference {
+                continue;
+            }
+
+            let matched_str = matched.get(0).unwrap().as_str();
+
+            if self.linked.contains(matched_str) {
                 continue;
             }
 
@@ -66,26 +96,19 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
             // TODO: Actually annotate the matches.
 
             let source = self.ctx.source_for_text(ast.sourcepos.start.line, text);
-            self.ctx.report(Snippet {
-                title: Some(Annotation {
-                    annotation_type: self.ctx.annotation_type(),
-                    id: Some(self.slug),
-                    label: Some("the first match of the given pattern must be a link"),
-                }),
-                slices: vec![Slice {
-                    fold: false,
-                    line_start: ast.sourcepos.start.line,
-                    origin: self.ctx.origin(),
-                    source: &source,
-                    annotations: vec![],
-                }],
-                footer: vec![Annotation {
-                    id: None,
-                    annotation_type: AnnotationType::Info,
-                    label: Some(&footer_label),
-                }],
-                opt: Default::default(),
-            })?;
+            self.ctx.report(
+                self.ctx
+                    .annotation_level()
+                    .title("the first match of the given pattern must be a link")
+                    .id(self.slug)
+                    .snippet(
+                        Snippet::source(&source)
+                            .origin_opt(self.ctx.origin())
+                            .line_start(ast.sourcepos.start.line)
+                            .fold(false),
+                    )
+                    .footer(Level::Info.title(&footer_label)),
+            )?;
         }
 
         Ok(Next::TraverseChildren)
@@ -115,8 +138,12 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_footnote_definition(&mut self, ast: &Ast, defn: &str) -> Result<Next, Self::Error> {
-        self.check(ast, defn)
+    fn enter_footnote_definition(
+        &mut self,
+        ast: &Ast,
+        defn: &NodeFootnoteDefinition,
+    ) -> Result<Next, Self::Error> {
+        self.check(ast, &defn.name)
     }
 
     fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
@@ -144,7 +171,11 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 
-    fn enter_footnote_reference(&mut self, ast: &Ast, refn: &str) -> Result<Next, Self::Error> {
-        self.check(ast, refn)
+    fn enter_footnote_reference(
+        &mut self,
+        ast: &Ast,
+        refn: &NodeFootnoteReference,
+    ) -> Result<Next, Self::Error> {
+        self.check(ast, &refn.name)
     }
 }

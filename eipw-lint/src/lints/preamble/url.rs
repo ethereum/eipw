@@ -4,9 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, Slice, Snippet, SourceAnnotation};
+use eipw_snippets::Snippet;
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    LevelExt, SnippetExt,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -36,29 +39,22 @@ where
         let label = format!("preamble header `{}` is not a valid URL", self.0);
         let slice_label = e.to_string();
 
-        let name_count = field.name().chars().count();
-        let value_count = field.value().chars().count();
+        let name_count = field.name().len();
+        let value_count = field.value().len();
 
-        ctx.report(Snippet {
-            title: Some(Annotation {
-                annotation_type: ctx.annotation_type(),
-                id: Some(slug),
-                label: Some(&label),
-            }),
-            footer: vec![],
-            slices: vec![Slice {
-                fold: false,
-                line_start: field.line_start(),
-                origin: ctx.origin(),
-                source: field.source(),
-                annotations: vec![SourceAnnotation {
-                    annotation_type: ctx.annotation_type(),
-                    label: &slice_label,
-                    range: (name_count + 1, value_count + name_count + 1),
-                }],
-            }],
-            opt: Default::default(),
-        })?;
+        ctx.report(
+            ctx.annotation_level().title(&label).id(slug).snippet(
+                Snippet::source(field.source())
+                    .fold(false)
+                    .line_start(field.line_start())
+                    .origin_opt(ctx.origin())
+                    .annotation(
+                        ctx.annotation_level()
+                            .span_utf8(field.source(), name_count + 1, value_count)
+                            .label(&slice_label),
+                    ),
+            ),
+        )?;
 
         Ok(())
     }

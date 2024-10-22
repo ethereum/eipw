@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Snippet};
+use eipw_snippets::{Level, Message};
 
 use std::collections::HashSet;
 use std::sync::Mutex;
@@ -37,15 +37,15 @@ impl<R, M> AdditionalHelp<R, M>
 where
     M: Fn(&str) -> Result<String, Error>,
 {
-    fn render(&self, snippet: &Snippet<'_>) -> Result<Option<String>, Error> {
-        let id = match snippet.title.as_ref().and_then(|t| t.id) {
-            Some(l) => l,
+    fn render(&self, message: &Message<'_>) -> Result<Option<String>, Error> {
+        let id = match message.id {
+            Some(ref l) => l,
             None => return Ok(None),
         };
 
         let mut seen = self.seen.lock().unwrap();
 
-        if !seen.insert(id.to_owned()) {
+        if !seen.insert(id.clone().into_owned()) {
             return Ok(None);
         }
 
@@ -60,27 +60,16 @@ where
     R: Reporter,
     M: Fn(&str) -> Result<String, Error>,
 {
-    fn report(&self, snippet: Snippet<'_>) -> Result<(), Error> {
-        let rendered = self.render(&snippet)?;
+    fn report(&self, message: Message<'_>) -> Result<(), Error> {
+        let rendered = self.render(&message)?;
 
-        if let Some(ref message) = rendered {
-            // This is a weird way to narrow the lifetime of `snippet`...
-            let mut new_snippet = Snippet {
-                title: snippet.title,
-                footer: snippet.footer,
-                slices: snippet.slices,
-                opt: snippet.opt,
-            };
-
-            new_snippet.footer.push(Annotation {
-                id: None,
-                label: Some(message),
-                annotation_type: AnnotationType::Help,
-            });
-
-            self.inner.report(new_snippet)
+        if let Some(ref addition) = rendered {
+            // I guess this shortens `message`'s lifetime?
+            let mut message: Message<'_> = message;
+            message.footer.push(Level::Help.title(addition));
+            self.inner.report(message)
         } else {
-            self.inner.report(snippet)
+            self.inner.report(message)
         }
     }
 }

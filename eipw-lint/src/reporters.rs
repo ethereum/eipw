@@ -10,9 +10,10 @@ pub mod json;
 pub mod null;
 pub mod text;
 
-use annotate_snippets::snippet::Snippet;
+use eipw_snippets::Message;
 
 pub use self::additional_help::AdditionalHelp;
+pub use self::count::Count;
 pub use self::json::Json;
 pub use self::null::Null;
 pub use self::text::Text;
@@ -48,5 +49,5 @@ impl Error {
 }
 
 pub trait Reporter {
-    fn report(&self, snippet: Snippet<'_>) -> Result<(), Error>;
+    fn report(&self, snippet: Message<'_>) -> Result<(), Error>;
 }

@@ -4,9 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use annotate_snippets::snippet::{Annotation, AnnotationType, Slice, Snippet, SourceAnnotation};
+use eipw_snippets::{Level, Snippet};
 
-use crate::lints::{Context, Error, Lint};
+use crate::{
+    lints::{Context, Error, Lint},
+    SnippetExt,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -45,26 +48,19 @@ where
                     "preamble header `{}` is required when `{}` is `{}`",
                     self.then, self.when, self.equals,
                 );
-                ctx.report(Snippet {
-                    title: Some(Annotation {
-                        annotation_type: ctx.annotation_type(),
-                        id: Some(slug),
-                        label: Some(&label),
-                    }),
-                    footer: vec![],
-                    slices: vec![Slice {
-                        line_start: when.line_start(),
-                        fold: false,
-                        origin: ctx.origin(),
-                        source: when.source(),
-                        annotations: vec![SourceAnnotation {
-                            annotation_type: AnnotationType::Info,
-                            label: "defined here",
-                            range: (0, when.source().chars().count()),
-                        }],
-                    }],
-                    opt: Default::default(),
-                })?;
+                ctx.report(
+                    ctx.annotation_level().title(&label).id(slug).snippet(
+                        Snippet::source(when.source())
+                            .line_start(when.line_start())
+                            .fold(false)
+                            .origin_opt(ctx.origin())
+                            .annotation(
+                                Level::Info
+                                    .span(0..when.source().len())
+                                    .label("defined here"),
+                            ),
+                    ),
+                )?;
             }
 
             // Incorrect.
@@ -77,42 +73,38 @@ where
                 let info_label = format!("unless equal to `{}`", self.equals);
 
                 let mut slices = vec![
-                    Slice {
-                        line_start: when.line_start(),
-                        fold: false,
-                        origin: ctx.origin(),
-                        source: when.source(),
-                        annotations: vec![SourceAnnotation {
-                            annotation_type: AnnotationType::Info,
-                            label: &info_label,
-                            range: (0, when.source().chars().count()),
-                        }],
-                    },
-                    Slice {
-                        line_start: then.line_start(),
-                        fold: false,
-                        origin: ctx.origin(),
-                        source: then.source(),
-                        annotations: vec![SourceAnnotation {
-                            annotation_type: ctx.annotation_type(),
-                            label: "remove this",
-                            range: (0, then.source().chars().count()),
-                        }],
-                    },
+                    (
+                        when.line_start(),
+                        Snippet::source(when.source())
+                            .line_start(when.line_start())
+                            .fold(false)
+                            .origin_opt(ctx.origin())
+                            .annotation(
+                                Level::Info.span(0..when.source().len()).label(&info_label),
+                            ),
+                    ),
+                    (
+                        then.line_start(),
+                        Snippet::source(then.source())
+                            .line_start(then.line_start())
+                            .fold(false)
+                            .origin_opt(ctx.origin())
+                            .annotation(
+                                ctx.annotation_level()
+                                    .span(0..then.source().len())
+                                    .label("remove this"),
+                            ),
+                    ),
                 ];
 
-                slices.sort_by_key(|s| s.line_start);
+                slices.sort_by_key(|(line_start, _)| *line_start);
 
-                ctx.report(Snippet {
-                    title: Some(Annotation {
-                        annotation_type: ctx.annotation_type(),
-                        id: Some(slug),
-                        label: Some(&label),
-                    }),
-                    footer: vec![],
-                    slices,
-                    opt: Default::default(),
-                })?;
+                ctx.report(
+                    ctx.annotation_level()
+                        .title(&label)
+                        .id(slug)
+                        .snippets(slices.into_iter().map(|(_, s)| s)),
+                )?;
             }
 
             // Incorrect.
@@ -122,26 +114,19 @@ where
                     self.then, self.when, self.equals,
                 );
 
-                ctx.report(Snippet {
-                    title: Some(Annotation {
-                        annotation_type: ctx.annotation_type(),
-                        id: Some(slug),
-                        label: Some(&label),
-                    }),
-                    footer: vec![],
-                    slices: vec![Slice {
-                        line_start: then.line_start(),
-                        fold: false,
-                        origin: ctx.origin(),
-                        source: then.source(),
-                        annotations: vec![SourceAnnotation {
-                            annotation_type: ctx.annotation_type(),
-                            label: "defined here",
-                            range: (0, then.source().chars().count()),
-                        }],
-                    }],
-                    opt: Default::default(),
-                })?;
+                ctx.report(
+                    ctx.annotation_level().title(&label).id(slug).snippet(
+                        Snippet::source(then.source())
+                            .fold(false)
+                            .origin_opt(ctx.origin())
+                            .line_start(then.line_start())
+                            .annotation(
+                                ctx.annotation_level()
+                                    .span(0..then.source().len())
+                                    .label("defined here"),
+                            ),
+                    ),
+                )?;
             }
         }
 

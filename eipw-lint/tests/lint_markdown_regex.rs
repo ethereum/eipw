@@ -108,3 +108,40 @@ hello
 "#
     );
 }
+
+#[tokio::test]
+async fn excludes_autolink() {
+    let src = r#"---
+header: value1
+---
+
+This is an autolink: <https://example.com/>
+This is a regular link: [example](https://example.com/)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-re",
+            Regex {
+                message: "should not match in autolink",
+                mode: Mode::Excludes,
+                pattern: "example",
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-re]: should not match in autolink
+  |
+6 | This is a regular link: [example](https://example.com/)
+  |
+  = info: the pattern in question: `example`
+"#
+    );
+}

@@ -115,8 +115,8 @@ async fn excludes_autolink() {
 header: value1
 ---
 
-This is an autolink: <https://example.com/>
-This is a regular link: [example](https://example.com/)
+This is an autolink: <https://example1.com/>
+This is a regular link: [example](https://example2.com/)
 "#;
 
     let reports = Linter::<Text<String>>::default()

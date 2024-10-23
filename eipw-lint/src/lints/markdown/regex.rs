@@ -135,7 +135,13 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
     }
 
     fn enter_link(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {
-        self.check(ast, &link.title)
+        // Skip the check if the link is an autolink
+        if link.url.starts_with('<') && link.url.ends_with('>') {
+            return Ok(Next::TraverseChildren);
+        }
+        // For regular links, check both title and URL
+        self.check(ast, &link.title)?;
+        self.check(ast, &link.url)
     }
 
     fn enter_image(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {

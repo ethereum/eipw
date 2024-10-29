@@ -39,6 +39,7 @@ header: value1
         r#"error[markdown-re]: boop
   |
 5 | [hi](https://example.com/)
+  |  ^^
   |
   = info: the pattern in question: `hi`
 "#
@@ -104,6 +105,7 @@ hello
         r#"error[markdown-re]: boop
   |
 6 | hello
+  |  ^^^^
   |
   = info: the pattern in question: `ello`
 "#

@@ -32,6 +32,7 @@ header: value1
         r#"error[markdown-section-order]: body has extra section(s)
   |
 5 | ## Banana
+  | ^^^^^^^^^
   |
 "#
     );
@@ -64,8 +65,10 @@ header: value1
         r#"error[markdown-section-order]: body has extra section(s)
   |
 5 | ## Foo
+  | ^^^^^^
   |
 9 | ## Bar
+  | ^^^^^^
   |
 "#
     );
@@ -101,6 +104,7 @@ header: value1
         r#"error[markdown-section-order]: section `Banana` is out of order
   |
 5 | ## Banana
+  | ^^^^^^^^^
   |
   = help: `Banana` should come after `Foo`
 "#
@@ -137,6 +141,7 @@ header: value1
         r#"error[markdown-section-order]: section `Banana` is out of order
   |
 5 | ## Banana
+  | ^^^^^^^^^
   |
   = help: `Banana` should come after `Foo`
 "#

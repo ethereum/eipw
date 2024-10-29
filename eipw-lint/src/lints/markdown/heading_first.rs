@@ -7,9 +7,6 @@
 use comrak::nodes::{Ast, NodeValue};
 
 use crate::lints::{Error, Lint};
-use crate::SnippetExt;
-
-use eipw_snippets::Snippet;
 
 use serde::{Deserialize, Serialize};
 
@@ -32,17 +29,11 @@ impl Lint for HeadingFirst {
             other => other,
         };
 
-        let source = ctx.line(ast.sourcepos.start.line);
         ctx.report(
             ctx.annotation_level()
                 .title("Nothing is permitted between the preamble and the first heading")
                 .id(slug)
-                .snippet(
-                    Snippet::source(source)
-                        .origin_opt(ctx.origin())
-                        .line_start(ast.sourcepos.start.line)
-                        .fold(false),
-                ),
+                .snippet(ctx.ast_snippet(&ast, None, None)),
         )?;
 
         Ok(())

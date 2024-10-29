@@ -1,19 +1,22 @@
 error[markdown-no-backticks]: proposal references should not be in backticks
-  --> input.md
+  --> input.md:18:51
    |
 18 | This is the motivation for the EIP, which extends `ERC-721`.
+   |                                                   ^^^^^^^^^
    |
    = info: the pattern in question: `(?i)(eip|erc)-[0-9]+`
 error[markdown-re-eip-dash]: proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)
-  --> input.md
+  --> input.md:27:56
    |
 27 | These are the backwards compatibility concerns for the EIP1234.
+   |                                                        ^^^^^^^
    |
    = info: the pattern in question: `(?i)eip[\s]*[0-9]+`
 error[markdown-re-erc-dash]: proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)
-  --> input.md
+  --> input.md:15:49
    |
 15 | This is the abstract for the EIP, which extends ERC721.
+   |                                                 ^^^^^^
    |
    = info: the pattern in question: `(?i)erc[\s]*[0-9]+`
 error[markdown-spell]: the word `ERC721` is misspelled

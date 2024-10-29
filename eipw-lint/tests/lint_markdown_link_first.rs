@@ -36,6 +36,7 @@ eip-1234
         r#"error[markdown-link-first]: the first match of the given pattern must be a link
   |
 4 | eip-1234
+  | ^^^^^^^^
   |
   = info: the pattern in question: `(?i)(?:eip|erc)-([0-9]+)`
 "#
@@ -66,6 +67,7 @@ hello
         r#"error[markdown-link-first]: the first match of the given pattern must be a link
   |
 4 | hello
+  |  ^^^^
   |
   = info: the pattern in question: `ello`
 "#

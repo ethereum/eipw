@@ -34,7 +34,10 @@ After the "Abstract" heading is the first place we want to allow text."#;
         reports,
         r#"error[markdown-heading-first]: Nothing is permitted between the preamble and the first heading
   |
-5 | This is some text that appears before the first heading. Authors sometimes try
+5 | / This is some text that appears before the first heading. Authors sometimes try
+6 | | to write an introduction or preface to their proposal here. We don't want to allow
+7 | | this.
+  | |_____^
   |
 "#
     );

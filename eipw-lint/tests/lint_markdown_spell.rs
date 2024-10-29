@@ -175,9 +175,12 @@ header: value1
     assert_eq!(
         reports,
         r#"error[markdown-spell]: the word `helloworld` is misspelled
- |
- |
- = warning: could not find a line number for this message
+  |
+4 | /
+5 | | **hello**world
+  | |______________^ somewhere here
+  |
+  = warning: could not find a line number for this message
 "#
     );
 }

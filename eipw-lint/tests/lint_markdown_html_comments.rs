@@ -42,6 +42,7 @@ text after
         r#"warning[markdown-html-comments]: HTML comments are only allowed while `header` is one of: `value1`
   |
 6 | <!-- multi-line
+  | ---------------
   |
 "#
     );
@@ -80,6 +81,7 @@ text after
         r#"error[markdown-html-comments]: HTML comments are not allowed when `header` is `value2`
   |
 6 | <!-- multi-line
+  | ^^^^^^^^^^^^^^^
   |
 "#
     );

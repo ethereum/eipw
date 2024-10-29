@@ -4,12 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_snippets::{Level, Snippet};
+use eipw_snippets::Level;
 
 use comrak::nodes::{Ast, NodeHeading, NodeValue};
 
 use crate::lints::{Context, Error, Lint};
-use crate::SnippetExt;
 
 use serde::{Deserialize, Serialize};
 
@@ -57,15 +56,14 @@ where
             .descendants()
             // Find all headings of level 2.
             .filter_map(|start| match &*start.data.borrow() {
-                Ast {
+                ast @ Ast {
                     value: NodeValue::Heading(NodeHeading { level: 2, .. }),
-                    sourcepos,
                     ..
-                } => Some((sourcepos.start.line, start)),
+                } => Some((ast.clone(), start)),
                 _ => None,
             })
             // Descend into their children.
-            .map(|(start_line, heading)| {
+            .map(|(ast, heading)| {
                 let collected = heading
                     .descendants()
                     .skip(1)
@@ -79,7 +77,7 @@ where
                     })
                     .collect::<Vec<_>>()
                     .join("");
-                (start_line, collected)
+                (ast, collected)
             })
             .collect();
 
@@ -87,12 +85,7 @@ where
         let unknowns: Vec<_> = headings
             .iter()
             .filter(|(_, f)| !self.0.iter().any(|e| e == &f.as_str()))
-            .map(|(line_start, _)| {
-                Snippet::source(ctx.line(*line_start))
-                    .fold(false)
-                    .origin_opt(ctx.origin())
-                    .line_start(*line_start)
-            })
+            .map(|(ast, _)| ctx.ast_snippet(ast, None, None))
             .collect();
 
         if !unknowns.is_empty() {
@@ -111,9 +104,9 @@ where
         let mut max_line = 0;
         for name in self.0.iter() {
             let name = name.as_ref();
-            if let Some(line_start) = map.get(name).copied() {
+            if let Some(ast) = map.get(name) {
                 let cur = max_line;
-                max_line = line_start;
+                max_line = ast.sourcepos.start.line;
 
                 if max_line >= cur {
                     continue;
@@ -124,7 +117,7 @@ where
                 let mut footer = vec![];
 
                 if let Some(preceding) = self.find_preceding(&present, name) {
-                    write!(footer_label, "`{}` should come after `{}`", name, preceding,).unwrap();
+                    write!(footer_label, "`{}` should come after `{}`", name, preceding).unwrap();
 
                     footer.push(Level::Help.title(&footer_label));
                 }
@@ -134,12 +127,7 @@ where
                         .title(&label)
                         .id(slug)
                         .footers(footer)
-                        .snippet(
-                            Snippet::source(ctx.line(line_start))
-                                .fold(false)
-                                .origin_opt(ctx.origin())
-                                .line_start(line_start),
-                        ),
+                        .snippet(ctx.ast_snippet(ast, None, None)),
                 )?;
             }
         }

@@ -23,7 +23,7 @@ serde = { workspace = true, features = [ "derive" ] }
 tokio = { optional = true, workspace = true, features = [ "macros" ] }
 figment.workspace = true
 
-comrak = { version = "0.35.0", default-features = false }
+comrak = { version = "0.37.0", default-features = false }
 url = "2.5.4"
 chrono = { version = "0.4.39", default-features = false }
 educe = { version = "0.6.0", default-features = false, features = [ "Debug" ] }

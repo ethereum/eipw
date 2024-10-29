@@ -124,10 +124,12 @@ async fn lint_json_schema() {
 44 | |         "type": "article",
 45 | |         "id": "1",
 46 | |         "URL": "3"
-   | |                  ^
-   | |__________________|
-   |                    "3" is not a "uri"
-   |                    "DOI" is a required property
+47 | |     }
+48 | |     ```
+   | |       ^
+   | |_______|
+   |         "3" is not a "uri"
+   |         "DOI" is a required property
    |
    = help: see https://github.com/ethereum/eipw/blob/master/eipw-lint/src/lints/markdown/json_schema/citation.json
    = help: see https://ethereum.github.io/eipw/markdown-json-cite/"#,
@@ -140,7 +142,7 @@ async fn lint_json_schema() {
                             "label": "\"3\" is not a \"uri\"",
                             "level": "Error",
                             "range": {
-                                "end": 86,
+                                "end": 100,
                                 "start": 0
                             }
                         },
@@ -148,7 +150,7 @@ async fn lint_json_schema() {
                             "label": "\"DOI\" is a required property",
                             "level": "Error",
                             "range": {
-                                "end": 86,
+                                "end": 100,
                                 "start": 0
                             }
                         }
@@ -156,7 +158,7 @@ async fn lint_json_schema() {
                     "fold": false,
                     "line_start": 42,
                     "origin": "tests/eips/eip-2000.md",
-                    "source": "    ```csl-json\n    {\n        \"type\": \"article\",\n        \"id\": \"1\",\n        \"URL\": \"3\""
+                    "source": "    ```csl-json\n    {\n        \"type\": \"article\",\n        \"id\": \"1\",\n        \"URL\": \"3\"\n    }\n    ```"
                 }
             ],
             "title": "code block of type `csl-json` does not conform to required schema"

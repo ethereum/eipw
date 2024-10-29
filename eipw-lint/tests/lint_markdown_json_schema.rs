@@ -41,8 +41,10 @@ header: value1
         reports,
         r#"error[markdown-json-schema]: code block of type `hello` does not contain valid JSON
   |
-5 | ```hello
-  | ^^^^^^^^ EOF while parsing an object at line 2 column 0
+5 | / ```hello
+6 | | {
+7 | | ```
+  | |___^ EOF while parsing an object at line 2 column 0
   |
 "#
     );
@@ -158,8 +160,10 @@ header: value1
         reports,
         r#"error[markdown-json-schema]: code block of type `hello` does not conform to required schema
   |
-5 | ```hello
-  | ^^^^^^^^ 3 is not of type "string"
+5 | / ```hello
+6 | | {"a": 3}
+7 | | ```
+  | |___^ 3 is not of type "string"
   |
   = help: see https://example.com/schema.json
 "#
@@ -209,8 +213,10 @@ header: value1
         reports,
         r#"error[markdown-json-schema]: code block of type `hello` does not conform to required schema
   |
-5 | ```hello
-  | ^^^^^^^^ "3" is not of type "integer"
+5 | / ```hello
+6 | | {"a": "3"}
+7 | | ```
+  | |___^ "3" is not of type "integer"
   |
   = help: see https://example.com/schema.json
 "#

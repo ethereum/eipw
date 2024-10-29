@@ -4,13 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_snippets::{Level, Snippet};
+use eipw_snippets::Level;
 
 use comrak::nodes::Ast;
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
-use crate::SnippetExt;
 
 use regex::{Regex, RegexSet};
 
@@ -27,13 +26,16 @@ pub struct RelativeLinks<S> {
     pub exceptions: Vec<S>,
 }
 
+const RE_URL: &str =
+    r"^(https?:)?//(?:eips|ercs)\.ethereum\.org/(?:EIPS|ERCS)/(?:eip|erc)-(\d+)|(assets/.+)$";
+
 impl<S> Lint for RelativeLinks<S>
 where
     S: Debug + Display + AsRef<str>,
 {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         let re = Regex::new("(^/)|(://)").unwrap();
-        let eip_re = Regex::new(r"^(https?:)?//(?:eips|ercs)\.ethereum\.org/(?:EIPS|ERCS)/(?:eip|erc)-(\d+)|(assets/.+)$").unwrap();
+        let eip_re = Regex::new(RE_URL).unwrap();
 
         let exceptions = RegexSet::new(&self.exceptions).map_err(Error::custom)?;
 
@@ -43,22 +45,14 @@ where
         let links = visitor.links.into_iter();
 
         for of_interest in links {
-            let (address, line_start) = match of_interest {
-                OfInterest::Link {
-                    address,
-                    line_start,
-                } => (address, line_start),
-                OfInterest::Unsupported { what, line_start } => {
+            let (address, ast) = match of_interest {
+                OfInterest::Link { address, ast } => (address, ast),
+                OfInterest::Unsupported { what, ast } => {
                     ctx.report(
                         ctx.annotation_level()
                             .title(&format!("unsupported HTML {what}"))
                             .id(slug)
-                            .snippet(
-                                Snippet::source(ctx.line(line_start))
-                                    .line_start(line_start)
-                                    .fold(false)
-                                    .origin_opt(ctx.origin()),
-                            ),
+                            .snippet(ctx.ast_snippet(&ast, None, what)),
                     )?;
                     continue;
                 }
@@ -100,12 +94,7 @@ where
                     .title("non-relative link or image")
                     .id(slug)
                     .footers(footer)
-                    .snippet(
-                        Snippet::source(ctx.line(line_start))
-                            .line_start(line_start)
-                            .fold(false)
-                            .origin_opt(ctx.origin()),
-                    ),
+                    .snippet(ctx.ast_snippet(&ast, None, "used here")),
             )?;
         }
 
@@ -115,14 +104,8 @@ where
 
 #[derive(Debug)]
 enum OfInterest {
-    Unsupported {
-        what: &'static str,
-        line_start: usize,
-    },
-    Link {
-        address: String,
-        line_start: usize,
-    },
+    Unsupported { what: &'static str, ast: Ast },
+    Link { address: String, ast: Ast },
 }
 
 #[derive(Debug, Default)]
@@ -134,7 +117,7 @@ impl Visitor {
     fn push(&mut self, ast: &Ast, address: &str) -> Result<Next, <Self as tree::Visitor>::Error> {
         self.links.push(OfInterest::Link {
             address: address.to_owned(),
-            line_start: ast.sourcepos.start.line,
+            ast: ast.clone(),
         });
 
         Ok(Next::TraverseChildren)
@@ -153,7 +136,7 @@ impl Visitor {
                 || elem.id().unwrap_or_default().eq_ignore_ascii_case("style")
             {
                 self.links.push(OfInterest::Unsupported {
-                    line_start: ast.sourcepos.start.line,
+                    ast: ast.clone(),
                     what: "style tag",
                 });
                 continue;
@@ -162,7 +145,7 @@ impl Visitor {
             for attr in elem.attrs() {
                 if attr.0.eq_ignore_ascii_case("style") {
                     self.links.push(OfInterest::Unsupported {
-                        line_start: ast.sourcepos.start.line,
+                        ast: ast.clone(),
                         what: "style attribute",
                     });
                     continue;

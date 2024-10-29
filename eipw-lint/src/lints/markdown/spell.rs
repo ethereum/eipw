@@ -112,8 +112,6 @@ where
 
         ctx.body().traverse().visit(&mut visitor)?;
 
-        let bodyline = ctx.body().data.borrow().sourcepos.start.line;
-        let source = ctx.line(bodyline);
         for Mistake {
             misspelling,
             reported,
@@ -129,11 +127,11 @@ where
                 ctx.annotation_level()
                     .title(&label)
                     .id(slug)
-                    .snippet(
-                        Snippet::source(source)
-                            .line_start(bodyline)
-                            .origin_opt(ctx.origin()),
-                    )
+                    .snippet(ctx.ast_snippet(
+                        &ctx.body().data.borrow(),
+                        ctx.annotation_level(),
+                        "somewhere here",
+                    ))
                     .footer(Level::Warning.title("could not find a line number for this message")),
             )?;
         }
@@ -225,7 +223,7 @@ impl<'a, 'b, 'c> TextFind<'a, 'b, 'c> {
             None => return Ok(false),
         };
 
-        let source = self.ctx.source_for_text(ast.sourcepos.start.line, haystack);
+        let source = self.ctx.ast_lines(ast);
 
         let line_offset = match source.find(haystack) {
             Some(l) => l,
@@ -247,7 +245,7 @@ impl<'a, 'b, 'c> TextFind<'a, 'b, 'c> {
                 .title(&label)
                 .id(self.slug)
                 .snippet(
-                    Snippet::source(&source)
+                    Snippet::source(source)
                         .origin_opt(self.ctx.origin())
                         .line_start(ast.sourcepos.start.line)
                         .annotation(

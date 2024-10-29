@@ -36,6 +36,7 @@ hello
         r#"error[markdown-no-backticks]: proposal references should not be in backticks
   |
 7 | `EIP-1234`
+  | ^^^^^^^^^^
   |
   = info: the pattern in question: `EIP-[0-9]+`
 "#

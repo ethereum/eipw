@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+pub mod headings_only;
 pub mod headings_space;
 pub mod html_comments;
 pub mod json_schema;
@@ -16,6 +17,7 @@ pub mod relative_links;
 pub mod section_order;
 pub mod section_required;
 
+pub use self::headings_only::HeadingsOnly;
 pub use self::headings_space::HeadingsSpace;
 pub use self::html_comments::HtmlComments;
 pub use self::json_schema::JsonSchema;

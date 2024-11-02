@@ -14,15 +14,11 @@ pub struct HeadingsOnly;
 
 impl Lint for HeadingsOnly {
     fn lint<'a>(&self, slug: &'a str, ctx: &crate::lints::Context<'a, '_>) -> Result<(), Error> {
-        let second = ctx
-            .body()
-            .descendants()
-            .nth(1)
-            .expect("cannot submit an empty proposal")
-            .data
-            .borrow()
-            .to_owned()
-            .value;
+        let annotation_type = Level::Error;
+        let second = match ctx.body().descendants().nth(1) {
+            Some(el) => el.data.borrow().to_owned().value,
+            None => return ctx.report(annotation_type.title("Cannot submit an empty proposal")),
+        };
         match second {
             NodeValue::Heading(_) => Ok(()),
             _ => {

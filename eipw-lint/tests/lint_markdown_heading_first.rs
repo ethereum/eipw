@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_lint::{lints::markdown::HeadingsOnly, reporters::Text, Linter};
+use eipw_lint::{lints::markdown::HeadingFirst, reporters::Text, Linter};
 
 #[tokio::test]
 async fn invalid_eip() {
@@ -22,7 +22,7 @@ After the "Abstract" heading is the first place we want to allow text."#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-headings-only", HeadingsOnly {})
+        .deny("markdown-headings-only", HeadingFirst {})
         .check_slice(None, src)
         .run()
         .await
@@ -31,7 +31,7 @@ After the "Abstract" heading is the first place we want to allow text."#;
 
     assert_eq!(
         reports.trim(),
-        "error: Only Heading is allowed after FrontMatter"
+        "error[markdown-headings-only]: Nothing is permitted between the preamble and the first heading"
     );
 }
 
@@ -79,7 +79,7 @@ Changing the denominator from 10 to 9 ensures that the block time remains roughl
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-headings-only", HeadingsOnly {})
+        .deny("markdown-headings-only", HeadingFirst {})
         .check_slice(None, src)
         .run()
         .await

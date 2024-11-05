@@ -70,6 +70,7 @@ pub enum DefaultLint<S> {
         sections: markdown::SectionRequired<S>,
     },
     MarkdownHeadingsSpace(markdown::HeadingsSpace),
+    MarkdownHeadingFirst(markdown::HeadingFirst),
 }
 
 impl<S> DefaultLint<S>
@@ -114,6 +115,7 @@ where
             Self::MarkdownSectionOrder { sections } => Box::new(sections),
             Self::MarkdownSectionRequired { sections } => Box::new(sections),
             Self::MarkdownHeadingsSpace(l) => Box::new(l),
+            Self::MarkdownHeadingFirst(l) => Box::new(l),
         }
     }
 }
@@ -154,6 +156,7 @@ where
             Self::MarkdownSectionOrder { sections } => sections,
             Self::MarkdownSectionRequired { sections } => sections,
             Self::MarkdownHeadingsSpace(l) => l,
+            Self::MarkdownHeadingFirst(l) => l,
         }
     }
 }
@@ -290,6 +293,7 @@ where
                 sections: markdown::SectionRequired(sections.0.iter().map(AsRef::as_ref).collect()),
             },
             Self::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
+            Self::MarkdownHeadingFirst(l) => DefaultLint::MarkdownHeadingFirst(l.clone()),
         }
     }
 }

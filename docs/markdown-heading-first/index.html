@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-heading-first</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-heading-first</code></h1>
+			<p>
+				No content appears between preamble and first heading.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>
+error[markdown-heading-first]: Nothing is permitted between the preamble and the first heading
+  --> input.md
+   |
+12 | This proposal describes the introduction in clients of a controlled gas limit increase strategy to determine the gas limit of a spec...
+   |</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-heading-first</code> ensures that no content
+					appears before the first heading.
+				</p>
+
+				<p>
+					It is improper form to put text/markdown outside of a section.
+					Such text cannot be referred to in a URL (eg. <code>#Section-Title</code>),
+					nor does it appear in the table of contents.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

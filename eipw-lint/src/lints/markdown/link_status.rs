@@ -4,12 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_snippets::{Level, Snippet};
+use eipw_snippets::Level;
 
 use comrak::nodes::{Ast, AstNode, NodeValue};
 
 use crate::lints::{Context, Error, FetchContext, Lint};
-use crate::SnippetExt;
 
 use regex::Regex;
 
@@ -42,17 +41,16 @@ where
     fn find_links<'a>(
         &self,
         node: &'a AstNode<'a>,
-    ) -> impl 'a + Iterator<Item = (usize, u32, String)> {
+    ) -> impl 'a + Iterator<Item = (Ast, u32, String)> {
         let re = Regex::new(self.pattern.as_ref()).unwrap();
 
         node.descendants()
             // Find all URLs and the lines they appear on.
             .filter_map(|start| match &*start.data.borrow() {
-                Ast {
+                ast @ Ast {
                     value: NodeValue::Link(link),
-                    sourcepos,
                     ..
-                } => Some((sourcepos.start.line, link.url.clone())),
+                } => Some((ast.clone(), link.url.clone())),
                 _ => None,
             })
             .filter_map(move |(start_line, url)| {
@@ -96,18 +94,16 @@ where
         let my_tier = self.tier(&map, ctx);
         let mut min = usize::MAX;
 
-        for (start_line, number, whole) in self.find_links(ctx.body()) {
+        for (ast, number, whole) in self.find_links(ctx.body()) {
             let eip = match ctx.proposal(number) {
                 Ok(eip) => eip,
                 Err(e) => {
                     let label = format!("unable to read file `{}`: {}", whole, e);
                     ctx.report(
-                        ctx.annotation_level().title(&label).id(slug).snippet(
-                            Snippet::source(ctx.line(start_line))
-                                .fold(false)
-                                .line_start(start_line)
-                                .origin_opt(ctx.origin()),
-                        ),
+                        ctx.annotation_level()
+                            .title(&label)
+                            .id(slug)
+                            .snippet(ctx.ast_snippet(&ast, None, None)),
                     )?;
                     continue;
                 }
@@ -157,12 +153,7 @@ where
                 ctx.annotation_level()
                     .title(&label)
                     .id(slug)
-                    .snippet(
-                        Snippet::source(ctx.line(start_line))
-                            .line_start(start_line)
-                            .fold(false)
-                            .origin_opt(ctx.origin()),
-                    )
+                    .snippet(ctx.ast_snippet(&ast, None, None))
                     .footers(footer),
             )?;
         }

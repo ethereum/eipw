@@ -4,14 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_snippets::{Level, Snippet};
+use eipw_snippets::Level;
 
 use comrak::nodes::NodeValue;
 
-use crate::{
-    lints::{Context, Error, Lint},
-    SnippetExt,
-};
+use crate::lints::{Context, Error, Lint};
 
 use scraper::node::Node as HtmlNode;
 use scraper::Html;
@@ -59,12 +56,7 @@ where
                     continue;
                 }
 
-                slices.push(
-                    Snippet::source(ctx.line(data.sourcepos.start.line))
-                        .line_start(data.sourcepos.start.line)
-                        .fold(false)
-                        .origin_opt(ctx.origin()),
-                );
+                slices.push(ctx.ast_snippet(&data, annotation_type, None));
             }
         }
 

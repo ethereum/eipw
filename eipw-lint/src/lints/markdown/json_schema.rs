@@ -88,9 +88,6 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
             Ok(v) => v,
             Err(e) => {
                 let label = format!("code block of type `{}` does not contain valid JSON", info);
-                let source = self
-                    .ctx
-                    .source_for_text(ast.sourcepos.start.line, &node.literal);
                 let slice_label = e.to_string();
                 self.ctx.report(
                     self.ctx
@@ -98,18 +95,9 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
                         .title(&label)
                         .id(self.slug)
                         .snippet(
-                            Snippet::source(&source)
-                                .origin_opt(self.ctx.origin())
-                                // TODO: The serde_json error actually has line/column
-                                //       information. Use it.
-                                .line_start(ast.sourcepos.start.line)
-                                .fold(false)
-                                .annotation(
-                                    self.ctx
-                                        .annotation_level()
-                                        .span(0..source.len())
-                                        .label(&slice_label),
-                                ),
+                            // TODO: The serde_json error actually has line/column
+                            //       information. Use it.
+                            self.ctx.ast_snippet(ast, None, slice_label.as_str()),
                         ),
                 )?;
                 return Ok(Next::SkipChildren);
@@ -125,9 +113,7 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
             .into_iter()
             .map(|d| d.error_description().to_string())
             .collect();
-        let source = self
-            .ctx
-            .source_for_text(ast.sourcepos.start.line, &node.literal);
+        let source = self.ctx.ast_lines(ast);
         let annotations = labels
             .iter()
             .map(|l| self.ctx.annotation_level().span(0..source.len()).label(l));
@@ -142,7 +128,7 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
                 .title(&label)
                 .id(self.slug)
                 .snippet(
-                    Snippet::source(&source)
+                    Snippet::source(source)
                         .fold(false)
                         .line_start(ast.sourcepos.start.line)
                         .origin_opt(self.ctx.origin())

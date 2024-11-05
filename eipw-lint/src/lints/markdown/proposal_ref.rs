@@ -4,13 +4,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_snippets::Snippet;
-
 use comrak::nodes::{Ast, AstNode, NodeCode, NodeCodeBlock, NodeHtmlBlock};
+use eipw_snippets::Snippet;
 
 use crate::lints::{Context, Error, FetchContext, Lint};
 use crate::tree::{self, Next, TraverseExt};
-use crate::SnippetExt;
 
 use regex::Regex;
 
@@ -22,7 +20,7 @@ use std::collections::HashSet;
 pub struct ProposalRef;
 
 impl ProposalRef {
-    fn find_refs<'a>(&self, node: &'a AstNode<'a>) -> Result<Vec<(usize, u32, String)>, Error> {
+    fn find_refs<'a>(&self, node: &'a AstNode<'a>) -> Result<Vec<(Ast, u32, String)>, Error> {
         let mut visitor = Visitor::new();
         node.traverse().visit(&mut visitor)?;
         Ok(visitor.refs)
@@ -42,18 +40,16 @@ impl Lint for ProposalRef {
     }
 
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
-        for (start_line, number, text) in self.find_refs(ctx.body())? {
+        for (ast, number, text) in self.find_refs(ctx.body())? {
             let eip = match ctx.proposal(number) {
                 Ok(eip) => eip,
                 Err(e) => {
                     let label = format!("unable to read proposal `{}`: {}", text, e);
                     ctx.report(
-                        ctx.annotation_level().title(&label).id(slug).snippet(
-                            Snippet::source(ctx.line(start_line))
-                                .fold(false)
-                                .origin_opt(ctx.origin())
-                                .line_start(start_line),
-                        ),
+                        ctx.annotation_level()
+                            .title(&label)
+                            .id(slug)
+                            .snippet(ctx.ast_snippet(&ast, None, None)),
                     )?;
                     continue;
                 }
@@ -80,12 +76,18 @@ impl Lint for ProposalRef {
                 category_msg, prefix,
             );
 
+            let source = ctx.ast_lines(&ast);
+            let annotations = source.match_indices(&text).map(|(start, _)| {
+                let end = start + text.len();
+                ctx.annotation_level().span(start..end)
+            });
+
             ctx.report(
                 ctx.annotation_level().title(&label).id(slug).snippet(
-                    Snippet::source(ctx.line(start_line))
-                        .line_start(start_line)
-                        .fold(false)
-                        .origin_opt(ctx.origin()),
+                    Snippet::source(source)
+                        .fold(true)
+                        .line_start(ast.sourcepos.start.line)
+                        .annotations(annotations),
                 ),
             )?;
         }
@@ -96,7 +98,7 @@ impl Lint for ProposalRef {
 
 struct Visitor {
     re: Regex,
-    refs: Vec<(usize, u32, String)>,
+    refs: Vec<(Ast, u32, String)>,
 }
 
 impl Visitor {
@@ -140,8 +142,7 @@ impl tree::Visitor for Visitor {
                 .parse()
                 .expect("bad numeric regex for ProposalRef");
 
-            self.refs
-                .push((ast.sourcepos.start.line, number, whole.into()));
+            self.refs.push((ast.clone(), number, whole.into()));
         }
 
         Ok(Next::TraverseChildren)

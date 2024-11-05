@@ -13,7 +13,6 @@ use comrak::nodes::{
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
-use crate::SnippetExt;
 
 use ::regex::Regex as TextRegex;
 
@@ -76,21 +75,34 @@ impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
             return Ok(Next::TraverseChildren);
         }
 
+        let source = self.ctx.ast_lines(ast);
+
+        // TODO: Calculating the offset like this is a huge hack.
+        let annotations = match source.find(buf) {
+            None => vec![],
+            Some(offset) => self
+                .re
+                .find_iter(buf)
+                .map(|m| {
+                    let start = offset + m.start();
+                    let end = offset + m.end();
+                    self.ctx.annotation_level().span(start..end)
+                })
+                .collect(),
+        };
+
         let footer_label = format!("the pattern in question: `{}`", self.pattern);
 
-        // TODO: Actually annotate the matches for `Mode::Excludes`.
-
-        let source = self.ctx.source_for_text(ast.sourcepos.start.line, buf);
         self.ctx.report(
             self.ctx
                 .annotation_level()
                 .title(self.message)
                 .id(self.slug)
                 .snippet(
-                    Snippet::source(&source)
-                        .origin_opt(self.ctx.origin())
+                    Snippet::source(source)
+                        .fold(true)
                         .line_start(ast.sourcepos.start.line)
-                        .fold(false),
+                        .annotations(annotations),
                 )
                 .footer(Level::Info.title(&footer_label)),
         )?;

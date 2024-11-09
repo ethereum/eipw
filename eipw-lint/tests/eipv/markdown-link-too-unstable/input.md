@@ -18,7 +18,7 @@ This is the abstract for the EIP which needs [EIP-20](./eip-20.md).
 This is the motivation for the EIP, which links to [EIP-1337](./eip-1337.md).
 
 ## Specification
-This is the specification for the EIP, [for some reason](./eip-2048.md).
+This is the specification for the EIP, [EIP-2048](./eip-2048.md).
 
 ## Rationale
 This is the rationale for the EIP.

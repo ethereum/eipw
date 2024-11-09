@@ -411,6 +411,12 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
             }),
         ),
         (
+            "markdown-link-eip",
+            MarkdownLinkEip {
+                pattern: markdown::LinkEip(r"(eip-)([^.]*)\.md(#(.+))?$")
+            }
+        ),
+        (
             "markdown-link-first",
             MarkdownLinkFirst {
                 pattern: markdown::LinkFirst(r"(?i)(?:eip|erc)-([0-9]+)"),
@@ -420,6 +426,12 @@ pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&
             "markdown-no-backticks",
             MarkdownNoBackticks {
                 pattern: markdown::NoBackticks(r"(?i)(eip|erc)-[0-9]+"),
+            }
+        ),
+        (
+            "markdown-link-other",
+            MarkdownLinkOther {
+                pattern: markdown::LinkOther(r"(?i)^((?:EIP|ERC)-(\d+)).*$")
             }
         ),
         ("markdown-rel-links", MarkdownRelativeLinks(markdown::RelativeLinks {

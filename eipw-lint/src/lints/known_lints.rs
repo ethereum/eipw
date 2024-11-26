@@ -59,6 +59,7 @@ pub enum DefaultLint<S> {
     MarkdownNoBackticks {
         pattern: markdown::NoBackticks<S>,
     },
+    MarkdownPreventUrlsNoBackticks(markdown::PreventUrlsNoBackticks<S>),
     MarkdownLinkStatus(markdown::LinkStatus<S>),
     MarkdownProposalRef(markdown::ProposalRef),
     MarkdownRegex(markdown::Regex<S>),
@@ -108,6 +109,7 @@ where
             Self::MarkdownJsonSchema(l) => Box::new(l),
             Self::MarkdownLinkFirst { pattern } => Box::new(pattern),
             Self::MarkdownNoBackticks { pattern } => Box::new(pattern),
+            Self::MarkdownPreventUrlsNoBackticks(l) => Box::new(l),
             Self::MarkdownLinkStatus(l) => Box::new(l),
             Self::MarkdownProposalRef(l) => Box::new(l),
             Self::MarkdownRegex(l) => Box::new(l),
@@ -149,6 +151,7 @@ where
             Self::MarkdownJsonSchema(l) => l,
             Self::MarkdownLinkFirst { pattern } => pattern,
             Self::MarkdownNoBackticks { pattern } => pattern,
+            Self::MarkdownPreventUrlsNoBackticks(l) => l,
             Self::MarkdownLinkStatus(l) => l,
             Self::MarkdownProposalRef(l) => l,
             Self::MarkdownRegex(l) => l,
@@ -266,6 +269,11 @@ where
             Self::MarkdownNoBackticks { pattern } => DefaultLint::MarkdownNoBackticks {
                 pattern: markdown::NoBackticks(pattern.0.as_ref()),
             },
+            Self::MarkdownPreventUrlsNoBackticks(l) => {
+                DefaultLint::MarkdownPreventUrlsNoBackticks(markdown::PreventUrlsNoBackticks {
+                    allowed_domains: l.allowed_domains.iter().map(|domain| domain.as_str()).collect(),
+                })
+            }
             Self::MarkdownLinkStatus(l) => DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
                 pattern: l.pattern.as_ref(),
                 status: l.status.as_ref(),

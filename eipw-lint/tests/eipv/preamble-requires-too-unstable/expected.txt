@@ -5,4 +5,4 @@ error[preamble-requires-status]: preamble header `requires` contains items not s
    |          ^^^ has a less advanced status
    |                    ^^^^^ has a less advanced status
    |
-   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`
+   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`, `Withdrawn`

@@ -22,6 +22,9 @@ pub enum DefaultLint<S> {
     PreambleDate {
         name: preamble::Date<S>,
     },
+    PreambleFutureDate {
+        name: preamble::FutureDate<S>,
+    },
     PreambleFileName(preamble::FileName<S>),
     PreambleLength(preamble::Length<S>),
     PreambleList {
@@ -87,6 +90,7 @@ where
         match self {
             Self::PreambleAuthor { name } => Box::new(name),
             Self::PreambleDate { name } => Box::new(name),
+            Self::PreambleFutureDate { name } => Box::new(name),
             Self::PreambleFileName(l) => Box::new(l),
             Self::PreambleLength(l) => Box::new(l),
             Self::PreambleList { name } => Box::new(name),
@@ -128,6 +132,7 @@ where
         match self {
             Self::PreambleAuthor { name } => name,
             Self::PreambleDate { name } => name,
+            Self::PreambleFutureDate { name } => name,
             Self::PreambleFileName(l) => l,
             Self::PreambleLength(l) => l,
             Self::PreambleList { name } => name,
@@ -172,6 +177,9 @@ where
             },
             Self::PreambleDate { name } => DefaultLint::PreambleDate {
                 name: preamble::Date(name.0.as_ref()),
+            },
+            Self::PreambleFutureDate { name } => DefaultLint::PreambleFutureDate {
+                name: preamble::FutureDate(name.0.as_ref()),
             },
             Self::PreambleFileName(l) => DefaultLint::PreambleFileName(preamble::FileName {
                 name: l.name.as_ref(),

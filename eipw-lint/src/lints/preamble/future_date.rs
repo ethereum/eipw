@@ -8,7 +8,7 @@ use eipw_snippets::Snippet;
 use chrono::{NaiveDate, Utc};
 
 use crate::{
-    lints::{Context, Error, Lint},
+    lints::{Context, Error, FetchContext, Lint},
     LevelExt, SnippetExt,
 };
 
@@ -23,6 +23,10 @@ impl<S> Lint for FutureDate<S>
 where
     S: Debug + Display + AsRef<str>,
 {
+    fn find_resources(&self, _ctx: &FetchContext<'_>) -> Result<(), Error> {
+        Ok(())
+    }
+
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
         // Only check if status is "Last Call"
         let status = match ctx.preamble().by_name("status") {
@@ -45,7 +49,7 @@ where
         // Parse the date
         let date = match NaiveDate::parse_from_str(value, "%Y-%m-%d") {
             Ok(d) => d,
-            Err(_) => return Ok(()), // Basic date format is handled by the Date lint
+            Err(_) => return Ok(()), // Let the Date lint handle invalid dates
         };
 
         // Get today's date

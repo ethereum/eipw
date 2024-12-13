@@ -27,7 +27,7 @@ hello world"#;
 
     assert_eq!(
         reports,
-        r#"error[preamble-future-date]: preamble header `last-call-deadline` must be a future date (today is 2024-12-12)
+        r#"error[preamble-future-date]: preamble header `last-call-deadline` must be a future date (today is 2024-12-13)
   |
 3 | last-call-deadline: 2023-12-12
   |                     ^^^^^^^^^^ must be after today's date

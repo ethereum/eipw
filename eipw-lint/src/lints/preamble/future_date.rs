@@ -1,7 +1,17 @@
 /*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ * Copyright 2023 The EIP.WTF Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 use eipw_snippets::Snippet;
@@ -15,16 +25,17 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 
-/// A lint that ensures a date field in the preamble is set to a future date.
-/// 
-/// This lint is particularly useful for validating the `last-call-deadline` field
-/// when an EIP is in "Last Call" status. The deadline must be set to a future date
-/// to give the community sufficient time to review the proposal.
-/// 
-/// # Example
-/// ```text
+/// Validates that the `last-call-deadline` in an EIP preamble is a future date
+/// when the EIP status is "Last Call".
+///
+/// According to EIP-1, the `last-call-deadline` field is only required when status
+/// is "Last Call", and it must be in ISO 8601 date format (YYYY-MM-DD). The date
+/// must be in the future or today, as it represents when the last call period ends.
+///
+/// Example valid preamble:
+/// ```yaml
 /// status: Last Call
-/// last-call-deadline: 2024-12-31  # Must be a future date
+/// last-call-deadline: 2024-12-31  # Must be today or a future date
 /// ```
 /// 
 /// The lint will raise an error if:
@@ -70,10 +81,10 @@ where
         // Get today's date
         let today = Utc::now().date_naive();
 
-        // Check if date is in the future
-        if date <= today {
+        // Check if date is in the future or today
+        if date < today {
             let label = format!(
-                "preamble header `{}` must be a future date (today is {})",
+                "preamble header `{}` must be today or a future date (today is {})",
                 self.0,
                 today.format("%Y-%m-%d")
             );
@@ -90,7 +101,7 @@ where
                         .annotation(
                             ctx.annotation_level()
                                 .span_utf8(field.source(), name_count + 2, value_count)
-                                .label("must be after today's date"),
+                                .label("must be today or a future date"),
                         ),
                 ),
             )?;

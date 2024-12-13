@@ -27,13 +27,34 @@ hello world"#;
 
     assert_eq!(
         reports,
-        r#"error[preamble-future-date]: preamble header `last-call-deadline` must be a future date (today is 2024-12-13)
+        r#"error[preamble-future-date]: preamble header `last-call-deadline` must be today or a future date (today is 2024-12-12)
   |
 3 | last-call-deadline: 2023-12-12
-  |                     ^^^^^^^^^^ must be after today's date
+  |                     ^^^^^^^^^^ must be today or a future date
   |
 "#,
     );
+}
+
+#[tokio::test]
+async fn today_date() {
+    let src = r#"---
+status: Last Call
+last-call-deadline: 2024-12-12
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-future-date", FutureDate("last-call-deadline"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    // Today's date should be valid
+    assert_eq!(reports, "");
 }
 
 #[tokio::test]
@@ -73,5 +94,6 @@ hello world"#;
         .unwrap()
         .into_inner();
 
+    // Should not error when status is not Last Call, even with past date
     assert_eq!(reports, "");
 }

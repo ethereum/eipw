@@ -15,6 +15,21 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 
+/// A lint that ensures a date field in the preamble is set to a future date.
+/// 
+/// This lint is particularly useful for validating the `last-call-deadline` field
+/// when an EIP is in "Last Call" status. The deadline must be set to a future date
+/// to give the community sufficient time to review the proposal.
+/// 
+/// # Example
+/// ```text
+/// status: Last Call
+/// last-call-deadline: 2024-12-31  # Must be a future date
+/// ```
+/// 
+/// The lint will raise an error if:
+/// - The date is in the past
+/// - The date format is invalid (not YYYY-MM-DD)
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct FutureDate<S>(pub S);

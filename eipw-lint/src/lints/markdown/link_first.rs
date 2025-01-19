@@ -67,7 +67,7 @@ struct Visitor<'a, 'b, 'c> {
     own_number: Option<u32>,
 }
 
-impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
+impl Visitor<'_, '_, '_> {
     fn check(&self, ast: &Ast, text: &str) -> Result<Next, Error> {
         for matched in self.re.captures_iter(text) {
             let self_reference = match self.own_number {
@@ -115,7 +115,7 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
     }
 }
 
-impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
+impl tree::Visitor for Visitor<'_, '_, '_> {
     type Error = Error;
 
     fn enter_front_matter(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {

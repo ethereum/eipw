@@ -22,6 +22,7 @@ thiserror = "1.0.64"
 toml = "0.8.19"
 serde = { version = "1.0.164", features = [ "derive" ] }
 sysexits = "0.8.2"
+wasm-bindgen = "0.2.100"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 tokio = { version = "1.40.0", features = [ "macros", "rt" ] }

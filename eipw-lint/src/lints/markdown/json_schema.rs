@@ -75,7 +75,7 @@ struct Visitor<'a, 'b, 'c> {
     schema: Validator,
 }
 
-impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
+impl tree::Visitor for Visitor<'_, '_, '_> {
     type Error = Error;
 
     fn enter_code_block(&mut self, ast: &Ast, node: &NodeCodeBlock) -> Result<Next, Self::Error> {

@@ -489,7 +489,7 @@ enum Source<'a> {
     File(&'a Path),
 }
 
-impl<'a> Source<'a> {
+impl Source<'_> {
     fn origin(&self) -> Option<&Path> {
         match self {
             Self::String {
@@ -509,8 +509,7 @@ impl<'a> Source<'a> {
             Self::File(f) => fetch
                 .fetch(f.to_path_buf())
                 .await
-                .with_context(|_| IoSnafu { path: f.to_owned() })
-                .map_err(Into::into),
+                .with_context(|_| IoSnafu { path: f.to_owned() }),
             Self::String { src, .. } => Ok((*src).to_owned()),
         }
     }
@@ -565,6 +564,10 @@ impl<M, L> Default for Options<M, L> {
     }
 }
 
+// Type aliases for the iterators with lifetime annotations
+type ModifierIterator<'a> = dyn Iterator<Item = Box<dyn Modifier>> + 'a;
+type LintIterator<'a> = dyn Iterator<Item = (&'a str, Box<dyn Lint>)> + 'a;
+
 impl<M, L, K> Options<Vec<M>, HashMap<K, L>>
 where
     M: 'static + Clone + Modifier,
@@ -574,17 +577,19 @@ where
     pub fn to_iters(
         &self,
     ) -> Options<
-        impl Iterator<Item = Box<dyn Modifier>> + '_,
-        impl Iterator<Item = (&'_ str, Box<dyn Lint>)>,
+        Box<ModifierIterator<'_>>, // Use boxed trait objects
+        Box<LintIterator<'_>>,     // Use boxed trait objects
     > {
-        let modifiers = self
-            .modifiers
-            .as_ref()
-            .map(|m| m.iter().map(|n| Box::new(n.clone()) as Box<dyn Modifier>));
+        let modifiers = self.modifiers.as_ref().map(|m| {
+            Box::new(m.iter().map(|n| Box::new(n.clone()) as Box<dyn Modifier>))
+                as Box<dyn Iterator<Item = Box<dyn Modifier>>>
+        });
 
         let lints = self.lints.as_ref().map(|l| {
-            l.iter()
-                .map(|(k, v)| (k.as_ref(), Box::new(v.clone()) as Box<dyn Lint>))
+            Box::new(
+                l.iter()
+                    .map(|(k, v)| (k.as_ref(), Box::new(v.clone()) as Box<dyn Lint>)),
+            ) as Box<dyn Iterator<Item = (&'_ str, Box<dyn Lint>)>>
         });
 
         Options {
@@ -612,7 +617,7 @@ pub struct Linter<'a, R> {
     fetch: Box<dyn fetch::Fetch>,
 }
 
-impl<'a, R> Default for Linter<'a, R>
+impl<R> Default for Linter<'_, R>
 where
     R: Default,
 {
@@ -927,7 +932,7 @@ fn process<'a>(
 ) -> Result<Option<InnerContext<'a>>, Error> {
     let (preamble_source, body_source) = match Preamble::split(source) {
         Ok(v) => v,
-        Err(SplitError::MissingStart { .. }) | Err(SplitError::LeadingGarbage { .. }) => {
+        Err(SplitError::MissingStart) | Err(SplitError::LeadingGarbage) => {
             let mut footer = Vec::new();
             if source.as_bytes().get(3) == Some(&b'\r') {
                 footer.push(Level::Help.title(
@@ -952,7 +957,7 @@ fn process<'a>(
                 })?;
             return Ok(None);
         }
-        Err(SplitError::MissingEnd { .. }) => {
+        Err(SplitError::MissingEnd) => {
             reporter
                 .report(
                     Level::Error

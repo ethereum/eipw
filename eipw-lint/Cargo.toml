@@ -18,7 +18,7 @@ regex = "1.11.0"
 serde_json = "1.0.128"
 serde = { version = "1.0.164", features = [ "derive" ] }
 url = "2.5.2"
-chrono = { version = "0.4.38", default-features = false }
+chrono = { version = "0.4.38", default-features = false, features = ["clock"] }
 educe = { version = "0.6.0", default-features = false, features = [ "Debug" ] }
 tokio = { optional = true, version = "1.40.0", features = [ "macros" ] }
 scraper = { version = "0.20.0", default-features = false }

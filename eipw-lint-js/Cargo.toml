@@ -18,16 +18,17 @@ crate-type = ["cdylib", "rlib"]
 default = ["console_error_panic_hook"]
 
 [dependencies]
-eipw-snippets = { path = "../eipw-snippets", version = "0.2.0-dev" }
+eipw-snippets.workspace = true
+eipw-lint.workspace = true
+serde_json.workspace = true
+serde = { workspace = true, features = [ "derive" ] }
+getrandom = { workspace = true, features = [ "js" ] }
+
 wasm-bindgen = { version = "0.2.93", features = [ "serde-serialize" ] }
 serde-wasm-bindgen = "0.6.5"
 wasm-bindgen-futures = "0.4.43"
 console_error_panic_hook = { version = "0.1.7", optional = true }
-eipw-lint = { version = "0.10.0-dev", path = "../eipw-lint" }
 js-sys = "0.3.70"
-serde_json = "1.0.128"
-serde = { version = "1.0", features = [ "derive" ] }
-getrandom = { version = "0.2.15", features = [ "js" ] }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.43"

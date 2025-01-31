@@ -8,9 +8,9 @@ repository = "https://github.com/ethereum/eipw"
 description = "preamble parser for eipw, the Ethereum Improvement Proposal validator"
 
 [dependencies]
-eipw-snippets = { path = "../eipw-snippets", version = "0.2.0-dev" }
-regex = "1.11.0"
-snafu = "0.8.5"
+eipw-snippets.workspace = true
+regex.workspace = true
+snafu.workspace = true
 
 [dev-dependencies]
-assert_matches = "1.5.0"
+assert_matches.workspace = true

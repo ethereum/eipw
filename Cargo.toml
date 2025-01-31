@@ -1,6 +1,19 @@
 [workspace]
 members = [ "eipw-preamble", "eipw-lint", "eipw-lint-js", "eipw-snippets" ]
 
+[workspace.dependencies]
+eipw-snippets = { path = "eipw-snippets", version = "0.2.0-dev" }
+eipw-lint = { path = "eipw-lint", version = "0.10.0-dev" }
+eipw-preamble = { path = "eipw-preamble", version = "0.3.0-dev" }
+tokio = "1.40.0"
+serde_json = "1.0.108"
+toml = "0.8.19"
+serde = "1.0.164"
+getrandom = "0.2.15"
+regex = "1.11.0"
+snafu = "0.8.5"
+assert_matches = "1.5.0"
+
 [package]
 name = "eipw"
 description = "Ethereum Improvement Proposal linter that's one more than eipv"
@@ -13,19 +26,20 @@ repository = "https://github.com/ethereum/eipw"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-eipw-snippets = { path = "eipw-snippets", version = "0.2.0-dev" }
-tokio = { version = "1.40.0", features = [ "macros" ] }
-clap = { version = "4.5.18", features = [ "derive", "cargo" ] }
-eipw-lint = { version = "0.10.0-dev", path = "eipw-lint", features = [ "tokio" ] }
-serde_json = "1.0.99"
-thiserror = "1.0.64"
-toml = "0.8.19"
-serde = { version = "1.0.164", features = [ "derive" ] }
+eipw-snippets.workspace = true
+tokio = { workspace = true, features = [ "macros" ] }
+eipw-lint = { workspace = true, features = [ "tokio" ] }
+serde_json.workspace = true
+toml.workspace = true
+serde = { workspace = true, features = [ "derive" ] }
+
 sysexits = "0.8.2"
+clap = { version = "4.5.18", features = [ "derive", "cargo" ] }
+thiserror = "1.0.64"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-tokio = { version = "1.40.0", features = [ "macros", "rt" ] }
-getrandom = { version = "0.2.15", features = [ "js" ] }
+tokio = { workspace = true, features = [ "macros", "rt" ] }
+getrandom = { workspace = true, features = [ "js" ] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-tokio = { version = "1.40.0", features = [ "fs", "macros", "rt-multi-thread" ] }
+tokio = { workspace = true, features = [ "fs", "macros", "rt-multi-thread" ] }

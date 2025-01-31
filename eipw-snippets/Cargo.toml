@@ -3,9 +3,9 @@ name = "eipw-snippets"
 description = "(Hopefully) thin wrapper around annotate-snippets "
 version = "0.2.0-dev"
 license = "MIT OR Apache-2.0"
-edition = "2021"
-rust-version = "1.80"
-repository = "https://github.com/ethereum/eipw"
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 
 [dependencies]
 serde = { workspace = true, features = [ "derive" ] }

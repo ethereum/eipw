@@ -1,10 +1,10 @@
 [package]
 name = "eipw-lint-js"
-version = "0.10.0-dev"
-edition = "2021"
-license = "MPL-2.0"
-rust-version = "1.80"
-repository = "https://github.com/ethereum/eipw"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 
 description = "Node.js bindings for eipw, the Ethereum Improvement Proposal validator"
 publish = false

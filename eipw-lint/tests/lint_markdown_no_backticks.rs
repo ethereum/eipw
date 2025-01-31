@@ -118,7 +118,7 @@ But this `EIP-1234` should be flagged.
         .into_inner();
 
     assert!(reports.contains("EIP-1234"));
-    assert_eq!(reports.matches("EIP-1234").count(), 1);  // Only one instance should be flagged
+    assert_eq!(reports.matches("EIP-1234").count(), 1); // Only one instance should be flagged
 }
 
 #[tokio::test]
@@ -178,7 +178,7 @@ The class `MyToken` implements `EIP-721` for NFTs.
     // Should flag EIP references in backticks
     assert!(reports.contains("EIP-20"));
     assert!(reports.contains("EIP-721"));
-    
+
     // The error message should mention backticks
     assert!(reports.contains("proposal references should not be in backticks"));
 }

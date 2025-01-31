@@ -1,6 +1,13 @@
 [workspace]
 members = [ "eipw-preamble", "eipw-lint", "eipw-lint-js", "eipw-snippets" ]
 
+[workspace.package]
+version = "0.10.0-dev"
+edition = "2021"
+license = "MPL-2.0"
+repository = "https://github.com/ethereum/eipw"
+rust-version = "1.80"
+
 [workspace.dependencies]
 eipw-snippets = { path = "eipw-snippets", version = "0.2.0-dev" }
 eipw-lint = { path = "eipw-lint", version = "0.10.0-dev" }
@@ -17,11 +24,11 @@ assert_matches = "1.5.0"
 [package]
 name = "eipw"
 description = "Ethereum Improvement Proposal linter that's one more than eipv"
-version = "0.10.0-dev"
-edition = "2021"
-license = "MPL-2.0"
-rust-version = "1.80"
-repository = "https://github.com/ethereum/eipw"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+repository.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

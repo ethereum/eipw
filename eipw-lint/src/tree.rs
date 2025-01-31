@@ -6,7 +6,7 @@
 
 use comrak::arena_tree::{NodeEdge, Traverse};
 use comrak::nodes::{
-    Ast, AstNode, NodeCode, NodeCodeBlock, NodeDescriptionItem, NodeFootnoteDefinition,
+    Ast, AstNode, NodeAlert, NodeCode, NodeCodeBlock, NodeDescriptionItem, NodeFootnoteDefinition,
     NodeFootnoteReference, NodeHeading, NodeHtmlBlock, NodeLink, NodeList, NodeMath,
     NodeMultilineBlockQuote, NodeTable, NodeValue, NodeWikiLink,
 };
@@ -53,6 +53,7 @@ pub trait Visitor {
             NodeValue::Strong => self.enter_strong(&data),
             NodeValue::Strikethrough => self.enter_strikethrough(&data),
             NodeValue::Superscript => self.enter_superscript(&data),
+            NodeValue::Subscript => self.enter_subscript(&data),
             NodeValue::Link(nl) => self.enter_link(&data, nl),
             NodeValue::Image(nl) => self.enter_image(&data, nl),
             NodeValue::FootnoteReference(fr) => self.enter_footnote_reference(&data, fr),
@@ -63,7 +64,13 @@ pub trait Visitor {
             NodeValue::MultilineBlockQuote(m) => self.enter_multiline_block_quote(&data, m),
             NodeValue::SpoileredText => self.enter_spoilered_text(&data),
             NodeValue::Escaped => self.enter_escaped(&data),
+            NodeValue::Raw(r) => self.enter_raw(&data, r),
+            NodeValue::Alert(a) => self.enter_alert(&data, a),
         }
+    }
+
+    fn enter_alert(&mut self, _ast: &Ast, _alert: &NodeAlert) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
     }
 
     fn enter_document(&mut self, _ast: &Ast) -> Result<Next, Self::Error> {
@@ -194,6 +201,10 @@ pub trait Visitor {
         Ok(Next::TraverseChildren)
     }
 
+    fn enter_subscript(&mut self, _ast: &Ast) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
+    }
+
     fn enter_link(&mut self, _ast: &Ast, _link: &NodeLink) -> Result<Next, Self::Error> {
         Ok(Next::TraverseChildren)
     }
@@ -242,9 +253,14 @@ pub trait Visitor {
         Ok(Next::TraverseChildren)
     }
 
+    fn enter_raw(&mut self, _ast: &Ast, _raw: &str) -> Result<Next, Self::Error> {
+        Ok(Next::TraverseChildren)
+    }
+
     fn depart(&mut self, node: &AstNode) -> Result<(), Self::Error> {
         let data = node.data.borrow();
         match &data.value {
+            NodeValue::Alert(a) => self.depart_alert(&data, a),
             NodeValue::Document => self.depart_document(&data),
             NodeValue::FrontMatter(fm) => self.depart_front_matter(&data, fm),
             NodeValue::BlockQuote => self.depart_block_quote(&data),
@@ -273,6 +289,7 @@ pub trait Visitor {
             NodeValue::Strong => self.depart_strong(&data),
             NodeValue::Strikethrough => self.depart_strikethrough(&data),
             NodeValue::Superscript => self.depart_superscript(&data),
+            NodeValue::Subscript => self.depart_subscript(&data),
             NodeValue::Link(nl) => self.depart_link(&data, nl),
             NodeValue::Image(nl) => self.depart_image(&data, nl),
             NodeValue::FootnoteReference(fr) => self.depart_footnote_reference(&data, fr),
@@ -283,7 +300,12 @@ pub trait Visitor {
             NodeValue::MultilineBlockQuote(m) => self.depart_multiline_block_quote(&data, m),
             NodeValue::SpoileredText => self.depart_spoilered_text(&data),
             NodeValue::Escaped => self.depart_escaped(&data),
+            NodeValue::Raw(r) => self.depart_raw(&data, r),
         }
+    }
+
+    fn depart_alert(&mut self, _ast: &Ast, _alert: &NodeAlert) -> Result<(), Self::Error> {
+        Ok(())
     }
 
     fn depart_document(&mut self, _ast: &Ast) -> Result<(), Self::Error> {
@@ -414,6 +436,10 @@ pub trait Visitor {
         Ok(())
     }
 
+    fn depart_subscript(&mut self, _ast: &Ast) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
     fn depart_link(&mut self, _ast: &Ast, _link: &NodeLink) -> Result<(), Self::Error> {
         Ok(())
     }
@@ -459,6 +485,10 @@ pub trait Visitor {
     }
 
     fn depart_escaped(&mut self, _ast: &Ast) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn depart_raw(&mut self, _ast: &Ast, _raw: &str) -> Result<(), Self::Error> {
         Ok(())
     }
 }

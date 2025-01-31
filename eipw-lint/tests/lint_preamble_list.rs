@@ -7,6 +7,7 @@
 use eipw_lint::lints::preamble::List;
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
+use pretty_assertions::assert_eq;
 
 #[tokio::test]
 async fn comma_first() {
@@ -110,8 +111,9 @@ hello world"#;
         r#"error[preamble-list]: preamble header list items must begin with a space
   |
 2 | header: foo,bar,example.com/foo?bar
-  |            ^ missing space
-  |                ^ missing space
+  |            ^   ^ missing space
+  |            |
+  |            missing space
   |
 "#,
     );
@@ -138,9 +140,10 @@ hello world"#;
         r#"error[preamble-list]: preamble header list items have extra whitespace
   |
 2 | header: foo ,  bar,   bizz  , example.com/foo?bar
-  |         ^^^^ extra space
-  |              ^^^^^ extra space
-  |                    ^^^^^^^^^ extra space
+  |         ^^^^ ^^^^^ ^^^^^^^^^ extra space
+  |         |    |
+  |         |    extra space
+  |         extra space
   |
 "#,
     );
@@ -186,8 +189,9 @@ hello world"#;
         r#"error[preamble-list]: preamble header list items have extra whitespace
   |
 2 | author: Bánana Banana (@banana),  banana (@banana),  Orangé Banana (@banana)
-  |                                 ^^^^^^^^^^^^^^^^^^ extra space
-  |                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^ extra space
+  |                                 ^^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^ extra space
+  |                                 |
+  |                                 extra space
   |
 "#
     );

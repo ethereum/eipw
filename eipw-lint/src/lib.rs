@@ -982,12 +982,12 @@ fn process<'a>(
     };
 
     let options = comrak::Options {
-        extension: comrak::ExtensionOptionsBuilder::default()
-            .table(true)
-            .autolink(true)
-            .footnotes(true)
-            .build()
-            .unwrap(),
+        extension: comrak::ExtensionOptions {
+            table: true,
+            autolink: true,
+            footnotes: true,
+            ..Default::default()
+        },
         ..Default::default()
     };
 

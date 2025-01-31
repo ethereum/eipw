@@ -7,6 +7,7 @@
 use eipw_lint::lints::preamble::RequireReferenced;
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
+use pretty_assertions::assert_eq;
 
 #[tokio::test]
 async fn valid() {
@@ -88,8 +89,9 @@ hello world"#;
         r#"error[preamble-req-ref]: proposals mentioned in preamble header `header` must appear in `other`
   |
 2 | header: Exténsion of EIP-9999 ánd EIP-44
-  |                      ^^^^^^^^ mentioned here
-  |                                   ^^^^^^ mentioned here
+  |                      ^^^^^^^^     ^^^^^^ mentioned here
+  |                      |
+  |                      mentioned here
   |
 "#
     );
@@ -157,8 +159,9 @@ hello world"#;
         r#"error[preamble-req-ref]: proposals mentioned in preamble header `header` must appear in `other`
   |
 2 | header: Extension of EIP-9999 and EIP-45
-  |                      ^^^^^^^^ mentioned here
-  |                                   ^^^^^^ mentioned here
+  |                      ^^^^^^^^     ^^^^^^ mentioned here
+  |                      |
+  |                      mentioned here
   |
 "#
     );
@@ -192,8 +195,9 @@ hello world"#;
         r#"error[preamble-req-ref]: proposals mentioned in preamble header `header` must appear in `other`
   |
 2 | header: Extension of EIP-9999 and ERC-45
-  |                      ^^^^^^^^ mentioned here
-  |                                   ^^^^^^ mentioned here
+  |                      ^^^^^^^^     ^^^^^^ mentioned here
+  |                      |
+  |                      mentioned here
   |
 "#
     );

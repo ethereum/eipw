@@ -10,6 +10,7 @@
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 
+use pretty_assertions::assert_eq;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 

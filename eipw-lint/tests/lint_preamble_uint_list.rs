@@ -7,6 +7,7 @@
 use eipw_lint::lints::preamble::UintList;
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
+use pretty_assertions::assert_eq;
 
 #[tokio::test]
 async fn unicode() {
@@ -29,8 +30,9 @@ hello world"#;
         r#"error[preamble-uint-list]: preamble header `header` items must be unsigned integers
   |
 2 | header: 5, -1, 2, héllo world, 9
-  |           ^^^ not a non-negative integer
-  |                  ^^^^^^^^^^^^ not a non-negative integer
+  |           ^^^    ^^^^^^^^^^^^ not a non-negative integer
+  |           |
+  |           not a non-negative integer
   |
 error[preamble-uint-list]: preamble header `header` items must be sorted in ascending order
   |
@@ -61,8 +63,9 @@ hello world"#;
         r#"error[preamble-uint-list]: preamble header `header` items must be unsigned integers
   |
 2 | header: 5, -1, 2, hello world, 9
-  |           ^^^ not a non-negative integer
-  |                  ^^^^^^^^^^^^ not a non-negative integer
+  |           ^^^    ^^^^^^^^^^^^ not a non-negative integer
+  |           |
+  |           not a non-negative integer
   |
 error[preamble-uint-list]: preamble header `header` items must be sorted in ascending order
   |

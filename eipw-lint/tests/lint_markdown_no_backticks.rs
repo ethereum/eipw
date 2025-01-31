@@ -7,6 +7,7 @@
 use eipw_lint::lints::markdown::NoBackticks;
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
+use pretty_assertions::assert_eq;
 
 #[tokio::test]
 async fn eip_in_backticks() {

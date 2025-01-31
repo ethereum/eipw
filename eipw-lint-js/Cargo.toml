@@ -24,11 +24,12 @@ serde_json.workspace = true
 serde = { workspace = true, features = [ "derive" ] }
 getrandom = { workspace = true, features = [ "js" ] }
 
-wasm-bindgen = { version = "0.2.93", features = [ "serde-serialize" ] }
+wasm-bindgen = { version = "0.2.100", features = [ "serde-serialize" ] }
 serde-wasm-bindgen = "0.6.5"
-wasm-bindgen-futures = "0.4.43"
+wasm-bindgen-futures = "0.4.50"
 console_error_panic_hook = { version = "0.1.7", optional = true }
-js-sys = "0.3.70"
+js-sys = "0.3.77"
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.43"
+pretty_assertions.workspace = true
+wasm-bindgen-test = "0.3.50"

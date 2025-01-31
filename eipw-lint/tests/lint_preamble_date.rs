@@ -7,6 +7,7 @@
 use eipw_lint::lints::preamble::Date;
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
+use pretty_assertions::assert_eq;
 
 #[tokio::test]
 async fn single_digit_month() {

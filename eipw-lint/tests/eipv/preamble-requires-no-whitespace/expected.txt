@@ -2,6 +2,7 @@ error[preamble-list-requires]: preamble header list items must begin with a spac
   --> input.md:11:13
    |
 11 | requires: 20,1337,2048
-   |             ^ missing space
-   |                  ^ missing space
+   |             ^    ^ missing space
+   |             |
+   |             missing space
    |

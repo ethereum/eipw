@@ -8,6 +8,7 @@ error[preamble-requires-ref-title]: proposals mentioned in preamble header `titl
  --> input.md:3:31
   |
 3 | title: A sample extension for EIP-1 and EIP-5
-  |                               ^^^^^ mentioned here
-  |                                         ^^^^^ mentioned here
+  |                               ^^^^^     ^^^^^ mentioned here
+  |                               |
+  |                               mentioned here
   |

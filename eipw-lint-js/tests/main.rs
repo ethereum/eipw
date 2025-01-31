@@ -9,6 +9,8 @@ use eipw_lint_js::{format, lint};
 
 use js_sys::Object;
 
+use pretty_assertions::assert_eq;
+
 use serde::Serialize;
 
 use serde_json::json;
@@ -114,7 +116,21 @@ async fn lint_json_schema() {
                     "title": "see https://ethereum.github.io/eipw/markdown-json-cite/"
                 }
             ],
-            "formatted": "error[markdown-json-cite]: code block of type `csl-json` does not conform to required schema\n  --> tests/eips/eip-2000.md:42:1\n   |\n42 | //     ```csl-json\n43 | ||     {\n44 | ||         \"type\": \"article\",\n45 | ||         \"id\": \"1\",\n46 | ||         \"URL\": \"3\"\n   | ||__________________^ \"3\" is not a \"uri\"\n   | ||__________________^ \"DOI\" is a required property\n   |\n   = help: see https://github.com/ethereum/eipw/blob/master/eipw-lint/src/lints/markdown/json_schema/citation.json\n   = help: see https://ethereum.github.io/eipw/markdown-json-cite/",
+            "formatted": r#"error[markdown-json-cite]: code block of type `csl-json` does not conform to required schema
+  --> tests/eips/eip-2000.md:42:1
+   |
+42 | /     ```csl-json
+43 | |     {
+44 | |         "type": "article",
+45 | |         "id": "1",
+46 | |         "URL": "3"
+   | |                  ^
+   | |__________________|
+   |                    "3" is not a "uri"
+   |                    "DOI" is a required property
+   |
+   = help: see https://github.com/ethereum/eipw/blob/master/eipw-lint/src/lints/markdown/json_schema/citation.json
+   = help: see https://ethereum.github.io/eipw/markdown-json-cite/"#,
             "id": "markdown-json-cite",
             "level": "Error",
             "snippets": [

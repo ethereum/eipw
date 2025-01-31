@@ -7,6 +7,7 @@
 use eipw_lint::lints::markdown::LinkFirst;
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
+use pretty_assertions::assert_eq;
 
 #[tokio::test]
 async fn unlinked_then_linked_with_header() {

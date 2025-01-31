@@ -5,6 +5,7 @@
  */
 
 use eipw_lint::{lints::markdown::HeadingFirst, reporters::Text, Linter};
+use pretty_assertions::assert_eq;
 
 #[tokio::test]
 async fn invalid_eip() {

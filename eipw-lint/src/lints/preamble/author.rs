@@ -27,6 +27,7 @@ fn footer() -> Vec<Message<'static>> {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[serde(transparent)]
 pub struct Author<S>(pub S);
 

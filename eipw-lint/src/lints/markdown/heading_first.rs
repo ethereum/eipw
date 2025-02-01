@@ -14,6 +14,7 @@ use eipw_snippets::Snippet;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct HeadingFirst;
 
 impl Lint for HeadingFirst {

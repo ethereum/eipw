@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct HeadingsSpace;
 
 impl Lint for HeadingsSpace {

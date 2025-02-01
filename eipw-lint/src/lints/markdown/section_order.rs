@@ -17,6 +17,7 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display, Write};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[serde(transparent)]
 pub struct SectionOrder<S>(pub Vec<S>);
 

@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 use super::{Error, Modifier};
 
 #[derive(Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[serde(remote = "Level", rename_all = "kebab-case")]
 enum LevelDef {
     Error,
@@ -26,6 +27,7 @@ enum LevelDef {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct SetDefaultAnnotation<S> {
     pub name: S,
     pub value: S,

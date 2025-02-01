@@ -24,6 +24,7 @@ use snafu::Snafu;
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct RelativeLinks<S> {
     pub exceptions: Vec<S>,
 }

@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[serde(transparent)]
 pub struct Uint<S>(pub S);
 
@@ -55,6 +56,7 @@ where
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[serde(transparent)]
 pub struct UintList<S>(pub S);
 

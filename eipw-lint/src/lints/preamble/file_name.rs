@@ -16,6 +16,7 @@ use std::fmt::{Debug, Display};
 use std::path::Path;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct FileName<S> {
     pub name: S,
     pub format: S,

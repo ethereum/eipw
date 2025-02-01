@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[serde(transparent)]
 pub struct Required<S>(pub Vec<S>);
 

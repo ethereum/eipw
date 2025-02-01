@@ -15,6 +15,7 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct RequiresStatus<S> {
     pub requires: S,
     pub status: S,

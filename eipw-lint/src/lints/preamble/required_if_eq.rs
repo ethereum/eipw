@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct RequiredIfEq<S> {
     pub when: S,
     pub equals: S,

@@ -14,6 +14,7 @@ use std::fmt::Debug;
 use super::{default_annotation, Modifier};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 #[non_exhaustive]
 pub enum DefaultModifier<S> {

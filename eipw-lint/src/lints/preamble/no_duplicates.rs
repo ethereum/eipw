@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::hash_map::{Entry, HashMap};
 
 #[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct NoDuplicates;
 
 impl Lint for NoDuplicates {

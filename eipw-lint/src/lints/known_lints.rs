@@ -13,6 +13,7 @@ use std::fmt::{Debug, Display};
 use super::{markdown, preamble, Lint};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 #[non_exhaustive]
 pub enum DefaultLint<S> {

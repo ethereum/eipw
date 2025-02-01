@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct OneOf<S> {
     pub name: S,
     pub values: Vec<S>,

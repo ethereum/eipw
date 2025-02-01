@@ -19,6 +19,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct LinkStatus<S> {
     pub status: S,
     pub flow: Vec<Vec<S>>,

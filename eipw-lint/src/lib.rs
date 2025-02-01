@@ -8,6 +8,8 @@ pub mod fetch;
 pub mod lints;
 pub mod modifiers;
 pub mod reporters;
+#[cfg(feature = "schema-version")]
+mod schema_version;
 pub mod tree;
 
 use eipw_snippets::{Annotation, Level, Snippet};
@@ -20,6 +22,8 @@ use formatx::formatx;
 use crate::lints::{Context, DefaultLint, Error as LintError, FetchContext, InnerContext, Lint};
 use crate::modifiers::{DefaultModifier, Modifier};
 use crate::reporters::Reporter;
+#[cfg(feature = "schema-version")]
+pub use crate::schema_version::schema_version;
 
 use educe::Educe;
 
@@ -537,12 +541,14 @@ impl<T> Iterator for NeverIter<T> {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[non_exhaustive]
 pub struct FetchOptions {
     pub proposal_format: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[non_exhaustive]
 pub struct Options<M, L> {
     #[serde(default, skip_serializing_if = "Option::is_none")]

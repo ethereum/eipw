@@ -9,6 +9,9 @@ description = "library of lints for eipw, the Ethereum Improvement Proposal vali
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+schema-version = [ "schemars", "olpc-cjson", "sha3" ]
+
 [dependencies]
 eipw-preamble.workspace = true
 eipw-snippets.workspace = true
@@ -25,6 +28,9 @@ educe = { version = "0.6.0", default-features = false, features = [ "Debug" ] }
 scraper = { version = "0.22.0", default-features = false }
 jsonschema = { version = "0.28.3", default-features = false }
 formatx = "0.2.3"
+schemars = { version = "0.8.21", optional = true }
+olpc-cjson = { version = "0.1.4", optional = true }
+sha3 = { version = "0.10.8", optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { workspace = true, features = [ "fs", "macros" ] }

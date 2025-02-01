@@ -21,6 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct HtmlComments<S> {
     pub name: S,
     pub warn_for: Vec<S>,

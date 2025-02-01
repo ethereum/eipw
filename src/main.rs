@@ -31,8 +31,14 @@ struct Opts {
     #[clap(exclusive(true), long)]
     list_lints: bool,
 
+    /// List all available lints.
+    #[cfg(feature = "schema-version")]
+    #[clap(exclusive(true), long)]
+    schema_version: bool,
+
     /// Files and/or directories to check.
-    #[clap(required_unless_present_any(["list_lints", "defaults"]))]
+    #[cfg_attr(feature = "schema-version", clap(required_unless_present_any(["list_lints", "defaults", "schema_version"])))]
+    #[cfg_attr(not(feature = "schema-version"), clap(required_unless_present_any(["list_lints", "defaults"])))]
     sources: Vec<PathBuf>,
 
     /// Output format.
@@ -196,6 +202,12 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
 
     if opts.defaults {
         defaults();
+        return Ok(());
+    }
+
+    #[cfg(feature = "schema-version")]
+    if opts.schema_version {
+        println!("{}", eipw_lint::schema_version());
         return Ok(());
     }
 

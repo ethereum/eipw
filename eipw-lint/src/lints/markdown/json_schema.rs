@@ -22,6 +22,7 @@ use snafu::{FromString as _, Whatever};
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct JsonSchema<S> {
     pub language: S,
     pub additional_schemas: Vec<(S, S)>,

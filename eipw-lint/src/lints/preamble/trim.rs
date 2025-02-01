@@ -14,6 +14,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct Trim;
 
 impl Lint for Trim {

@@ -8,6 +8,9 @@ use crate::lints::{DefaultLint, Lint};
 use crate::modifiers::{self, DefaultModifier, Modifier};
 use crate::Level;
 
+use figment::value::{Dict, Map};
+use figment::{Figment, Metadata, Profile, Provider};
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
 use std::collections::HashMap;
@@ -618,6 +621,37 @@ where
             .map(|(k, v)| (k, Box::new(v) as Box<dyn Lint>));
 
         (modifiers, lints, self.fetch)
+    }
+}
+
+impl<M, L> Options<M, L>
+where
+    Self: DeserializeOwned,
+{
+    pub fn from<T: Provider>(provider: T) -> Result<Self, figment::Error> {
+        Figment::from(provider).extract()
+    }
+}
+
+impl<M, L> Options<M, L>
+where
+    Self: Serialize + Default,
+{
+    pub fn figment() -> Figment {
+        Figment::from(Self::default())
+    }
+}
+
+impl<M, L> Provider for Options<M, L>
+where
+    Self: Default + Serialize,
+{
+    fn metadata(&self) -> Metadata {
+        Metadata::named("Library Config")
+    }
+
+    fn data(&self) -> Result<Map<Profile, Dict>, figment::Error> {
+        figment::providers::Serialized::defaults(Options::default()).data()
     }
 }
 

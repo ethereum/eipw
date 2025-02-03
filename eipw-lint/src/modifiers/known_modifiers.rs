@@ -31,3 +31,17 @@ where
         }
     }
 }
+
+impl From<DefaultModifier<&str>> for DefaultModifier<String> {
+    fn from(value: DefaultModifier<&str>) -> Self {
+        match value {
+            DefaultModifier::SetDefaultAnnotation(s) => {
+                Self::SetDefaultAnnotation(default_annotation::SetDefaultAnnotation {
+                    name: s.name.into(),
+                    annotation_level: s.annotation_level,
+                    value: s.value.into(),
+                })
+            }
+        }
+    }
+}

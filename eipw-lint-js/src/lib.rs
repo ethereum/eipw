@@ -5,10 +5,11 @@
  */
 
 use eipw_lint::fetch::Fetch;
-use eipw_lint::lints::{DefaultLint, Lint};
-use eipw_lint::modifiers::{DefaultModifier, Modifier};
+use eipw_lint::lints::DefaultLint;
+use eipw_lint::modifiers::DefaultModifier;
 use eipw_lint::reporters::{AdditionalHelp, Json};
-use eipw_lint::{default_lints, Linter, Options};
+use eipw_lint::Linter;
+use eipw_lint::config::{DefaultOptions, Options, Override};
 
 use js_sys::{JsString, Object};
 
@@ -80,7 +81,7 @@ struct Opts {
     deny: Vec<String>,
 
     #[serde(default)]
-    default_lints: Option<HashMap<String, DefaultLint<String>>>,
+    default_lints: Option<HashMap<String, Override<DefaultLint<String>>>>,
 
     #[serde(default)]
     default_modifiers: Option<Vec<DefaultModifier<String>>>,
@@ -93,18 +94,26 @@ impl Opts {
         }
 
         if !self.warn.is_empty() {
-            let mut lints: HashMap<_, _> = default_lints().collect();
+            let defaults = DefaultOptions::<String>::default();
+            let mut lints: HashMap<_, _> = defaults.lints;
             for warn in &self.warn {
                 let (k, v) = lints.remove_entry(warn.as_str()).unwrap();
-                linter = linter.warn(k, v);
+                match v {
+                    Override::Enable(v) => linter = linter.warn(k, v),
+                    _ => unreachable!(),
+                }
             }
         }
 
         if !self.deny.is_empty() {
-            let mut lints: HashMap<_, _> = default_lints().collect();
+            let defaults = DefaultOptions::<String>::default();
+            let mut lints: HashMap<_, _> = defaults.lints;
             for deny in &self.deny {
                 let (k, v) = lints.remove_entry(deny.as_str()).unwrap();
-                linter = linter.deny(k, v);
+                match v {
+                    Override::Enable(v) => linter = linter.deny(k, v),
+                    _ => unreachable!(),
+                }
             }
         }
 
@@ -125,27 +134,19 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
         Ok(format!("see https://ethereum.github.io/eipw/{}/", t))
     });
 
-    let opts: Opts;
+    let mut opts: Opts;
     let mut linter;
     if let Some(options) = options {
         opts = serde_wasm_bindgen::from_value(options.deref().clone())?;
 
         let mut options = Options::default();
 
-        if let Some(ref lints) = opts.default_lints {
-            options.lints = Some(
-                lints
-                    .iter()
-                    .map(|(k, v)| (k.as_str(), Box::new(v.clone()) as Box<dyn Lint>)),
-            );
+        if let Some(lints) = opts.default_lints.take() {
+            options.lints = lints;
         }
 
-        if let Some(ref modifiers) = opts.default_modifiers {
-            options.modifiers = Some(
-                modifiers
-                    .iter()
-                    .map(|m| Box::new(m.clone()) as Box<dyn Modifier>),
-            );
+        if let Some(modifiers) = opts.default_modifiers.take() {
+            options.modifiers = modifiers;
         }
 
         linter = Linter::with_options(reporter, options);

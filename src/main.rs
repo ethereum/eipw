@@ -4,14 +4,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use eipw_lint::config::{DefaultOptions, Override};
 use eipw_snippets::Message;
 
 use clap::{Parser, ValueEnum};
 
 use eipw_lint::lints::DefaultLint;
-use eipw_lint::modifiers::DefaultModifier;
 use eipw_lint::reporters::{AdditionalHelp, Count, Json, Reporter, Text};
-use eipw_lint::{default_lints, default_lints_enum, default_modifiers_enum, Linter};
+use eipw_lint::Linter;
 
 use serde::{Deserialize, Serialize};
 
@@ -31,7 +31,7 @@ struct Opts {
     #[clap(exclusive(true), long)]
     list_lints: bool,
 
-    /// List all available lints.
+    /// Print the supported configuration schema version.
     #[cfg(feature = "schema-version")]
     #[clap(exclusive(true), long)]
     schema_version: bool,
@@ -94,13 +94,7 @@ impl Reporter for EitherReporter {
 }
 
 fn defaults() {
-    let modifiers = default_modifiers_enum();
-    let lints = default_lints_enum();
-
-    let mut options = Options::<&str>::default();
-
-    options.modifiers = Some(modifiers);
-    options.lints = Some(lints.collect());
+    let options = DefaultOptions::<String>::default();
 
     let output = toml::to_string_pretty(&options).unwrap();
 
@@ -108,16 +102,15 @@ fn defaults() {
 }
 
 fn list_lints() {
+    let options = DefaultOptions::<String>::default();
     println!("Available lints:");
 
-    for (slug, _) in default_lints() {
+    for (slug, _) in options.lints {
         println!("\t{}", slug);
     }
 
     println!();
 }
-
-type Options<S = String> = eipw_lint::Options<Vec<DefaultModifier<S>>, HashMap<S, DefaultLint<S>>>;
 
 #[cfg(target_arch = "wasm32")]
 async fn read_config(_path: &Path) -> Result<Options, toml::de::Error> {
@@ -125,7 +118,7 @@ async fn read_config(_path: &Path) -> Result<Options, toml::de::Error> {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-async fn read_config(path: &Path) -> Result<Options, toml::de::Error> {
+async fn read_config(path: &Path) -> Result<DefaultOptions, toml::de::Error> {
     let contents = tokio::fs::read_to_string(path)
         .await
         .expect("couldn't read config file");
@@ -133,7 +126,7 @@ async fn read_config(path: &Path) -> Result<Options, toml::de::Error> {
     toml::from_str(&contents)
 }
 
-async fn try_read_config(path: &Path) -> Result<Options, ExitCode> {
+async fn try_read_config(path: &Path) -> Result<DefaultOptions, ExitCode> {
     let error = match read_config(path).await {
         Ok(o) => return Ok(o),
         Err(e) => e,
@@ -207,7 +200,7 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
 
     #[cfg(feature = "schema-version")]
     if opts.schema_version {
-        println!("{}", eipw_lint::schema_version());
+        println!("{}", DefaultOptions::<String>::schema_version());
         return Ok(());
     }
 
@@ -225,12 +218,11 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
     });
     let reporter = Count::new(reporter);
 
-    let options: Options;
+    let options: DefaultOptions;
     let mut linter;
     if let Some(ref path) = opts.config {
         options = try_read_config(path).await?;
-        let options_iter = options.to_iters();
-        linter = Linter::with_options(reporter, options_iter);
+        linter = Linter::with_options(reporter, options);
     } else {
         linter = Linter::new(reporter);
     }
@@ -244,18 +236,26 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
     }
 
     if !opts.warn.is_empty() {
-        let mut lints: HashMap<_, _> = default_lints().collect();
+        let defaults = DefaultOptions::<String>::default();
+        let mut lints: HashMap<_, _> = defaults.lints;
         for warn in opts.warn {
             let (k, v) = lints.remove_entry(warn.as_str()).unwrap();
-            linter = linter.warn(k, v);
+            match v {
+                Override::Enable(v) => linter = linter.warn(k, v),
+                _ => unreachable!(),
+            }
         }
     }
 
     if !opts.deny.is_empty() {
-        let mut lints: HashMap<_, _> = default_lints().collect();
+    let defaults = DefaultOptions::<String>::default();
+        let mut lints: HashMap<_, _> = defaults.lints;
         for deny in opts.deny {
             let (k, v) = lints.remove_entry(deny.as_str()).unwrap();
-            linter = linter.deny(k, v);
+            match v {
+                Override::Enable(v) => linter = linter.deny(k, v),
+                _ => unreachable!(),
+            }
         }
     }
 

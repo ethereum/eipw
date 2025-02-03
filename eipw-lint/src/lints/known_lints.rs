@@ -76,53 +76,6 @@ pub enum DefaultLint<S> {
 
 impl<S> DefaultLint<S>
 where
-    S: 'static
-        + Display
-        + Debug
-        + AsRef<str>
-        + Clone
-        + PartialEq<String>
-        + for<'eq> PartialEq<&'eq str>,
-{
-    pub(crate) fn boxed(self) -> Box<dyn Lint> {
-        match self {
-            Self::PreambleAuthor { name } => Box::new(name),
-            Self::PreambleDate { name } => Box::new(name),
-            Self::PreambleFileName(l) => Box::new(l),
-            Self::PreambleLength(l) => Box::new(l),
-            Self::PreambleList { name } => Box::new(name),
-            Self::PreambleNoDuplicates(l) => Box::new(l),
-            Self::PreambleOneOf(l) => Box::new(l),
-            Self::PreambleOrder { names } => Box::new(names),
-            Self::PreambleProposalRef(l) => Box::new(l),
-            Self::PreambleRegex(l) => Box::new(l),
-            Self::PreambleRequireReferenced(l) => Box::new(l),
-            Self::PreambleRequired { names } => Box::new(names),
-            Self::PreambleRequiredIfEq(l) => Box::new(l),
-            Self::PreambleRequiresStatus(l) => Box::new(l),
-            Self::PreambleTrim(l) => Box::new(l),
-            Self::PreambleUint { name } => Box::new(name),
-            Self::PreambleUintList { name } => Box::new(name),
-            Self::PreambleUrl { name } => Box::new(name),
-
-            Self::MarkdownHtmlComments(l) => Box::new(l),
-            Self::MarkdownJsonSchema(l) => Box::new(l),
-            Self::MarkdownLinkFirst { pattern } => Box::new(pattern),
-            Self::MarkdownNoBackticks { pattern } => Box::new(pattern),
-            Self::MarkdownLinkStatus(l) => Box::new(l),
-            Self::MarkdownProposalRef(l) => Box::new(l),
-            Self::MarkdownRegex(l) => Box::new(l),
-            Self::MarkdownRelativeLinks(l) => Box::new(l),
-            Self::MarkdownSectionOrder { sections } => Box::new(sections),
-            Self::MarkdownSectionRequired { sections } => Box::new(sections),
-            Self::MarkdownHeadingsSpace(l) => Box::new(l),
-            Self::MarkdownHeadingFirst(l) => Box::new(l),
-        }
-    }
-}
-
-impl<S> DefaultLint<S>
-where
     S: Display + Debug + AsRef<str> + Clone + PartialEq<String> + for<'eq> PartialEq<&'eq str>,
 {
     pub(crate) fn as_inner(&self) -> &dyn Lint {
@@ -311,5 +264,139 @@ where
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), super::Error> {
         let lint = self.map_to_str();
         lint.as_inner().lint(slug, ctx)
+    }
+}
+
+impl From<DefaultLint<&str>> for DefaultLint<String> {
+    fn from(value: DefaultLint<&str>) -> Self {
+        match value {
+            DefaultLint::PreambleAuthor { name } => DefaultLint::PreambleAuthor {
+                name: preamble::Author(name.0.to_string()),
+            },
+            DefaultLint::PreambleDate { name } => DefaultLint::PreambleDate {
+                name: preamble::Date(name.0.to_string()),
+            },
+            DefaultLint::PreambleFileName(l) => DefaultLint::PreambleFileName(preamble::FileName {
+                name: l.name.to_string(),
+                format: l.format.to_string(),
+            }),
+            DefaultLint::PreambleLength(l) => DefaultLint::PreambleLength(preamble::Length {
+                max: l.max,
+                min: l.min,
+                name: l.name.to_string(),
+            }),
+            DefaultLint::PreambleList { name } => DefaultLint::PreambleList {
+                name: preamble::List(name.0.to_string()),
+            },
+            DefaultLint::PreambleNoDuplicates(_) => {
+                DefaultLint::PreambleNoDuplicates(preamble::NoDuplicates)
+            }
+            DefaultLint::PreambleOneOf(l) => DefaultLint::PreambleOneOf(preamble::OneOf {
+                name: l.name.to_string(),
+                values: l.values.iter().map(|x| x.to_string()).collect(),
+            }),
+            DefaultLint::PreambleOrder { names } => DefaultLint::PreambleOrder {
+                names: preamble::Order(names.0.iter().map(|x| x.to_string()).collect()),
+            },
+            DefaultLint::PreambleProposalRef(l) => {
+                DefaultLint::PreambleProposalRef(preamble::ProposalRef {
+                    name: l.name.to_string(),
+                })
+            }
+            DefaultLint::PreambleRegex(l) => DefaultLint::PreambleRegex(preamble::Regex {
+                message: l.message.to_string(),
+                mode: l.mode,
+                name: l.name.to_string(),
+                pattern: l.pattern.to_string(),
+            }),
+            DefaultLint::PreambleRequireReferenced(l) => {
+                DefaultLint::PreambleRequireReferenced(preamble::RequireReferenced {
+                    name: l.name.to_string(),
+                    requires: l.requires.to_string(),
+                })
+            }
+            DefaultLint::PreambleRequired { names } => DefaultLint::PreambleRequired {
+                names: preamble::Required(names.0.iter().map(|x| x.to_string()).collect()),
+            },
+            DefaultLint::PreambleRequiredIfEq(l) => {
+                DefaultLint::PreambleRequiredIfEq(preamble::RequiredIfEq {
+                    equals: l.equals.to_string(),
+                    then: l.then.to_string(),
+                    when: l.when.to_string(),
+                })
+            }
+            DefaultLint::PreambleRequiresStatus(l) => {
+                DefaultLint::PreambleRequiresStatus(preamble::RequiresStatus {
+                    requires: l.requires.to_string(),
+                    status: l.status.to_string(),
+                    flow: l
+                        .flow
+                        .iter()
+                        .map(|v| v.iter().map(|x| x.to_string()).collect())
+                        .collect(),
+                })
+            }
+            DefaultLint::PreambleTrim(_) => DefaultLint::PreambleTrim(preamble::Trim),
+            DefaultLint::PreambleUint { name } => DefaultLint::PreambleUint {
+                name: preamble::Uint(name.0.to_string()),
+            },
+            DefaultLint::PreambleUintList { name } => DefaultLint::PreambleUintList {
+                name: preamble::UintList(name.0.to_string()),
+            },
+            DefaultLint::PreambleUrl { name } => DefaultLint::PreambleUrl {
+                name: preamble::Url(name.0.to_string()),
+            },
+
+            DefaultLint::MarkdownHtmlComments(l) => {
+                DefaultLint::MarkdownHtmlComments(markdown::HtmlComments {
+                    name: l.name.to_string(),
+                    warn_for: l.warn_for.iter().map(|x| x.to_string()).collect(),
+                })
+            }
+            DefaultLint::MarkdownJsonSchema(l) => DefaultLint::MarkdownJsonSchema(markdown::JsonSchema {
+                help: l.help.to_string(),
+                language: l.language.to_string(),
+                schema: l.schema.to_string(),
+                additional_schemas: l
+                    .additional_schemas
+                    .iter()
+                    .map(|(a, b)| (a.to_string(), b.to_string()))
+                    .collect(),
+            }),
+            DefaultLint::MarkdownLinkFirst { pattern } => DefaultLint::MarkdownLinkFirst {
+                pattern: markdown::LinkFirst(pattern.0.to_string()),
+            },
+            DefaultLint::MarkdownNoBackticks { pattern } => DefaultLint::MarkdownNoBackticks {
+                pattern: markdown::NoBackticks(pattern.0.to_string()),
+            },
+            DefaultLint::MarkdownLinkStatus(l) => DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
+                pattern: l.pattern.to_string(),
+                status: l.status.to_string(),
+                flow: l
+                    .flow
+                    .iter()
+                    .map(|v| v.iter().map(|x| x.to_string()).collect())
+                    .collect(),
+            }),
+            DefaultLint::MarkdownProposalRef(_) => DefaultLint::MarkdownProposalRef(markdown::ProposalRef),
+            DefaultLint::MarkdownRegex(l) => DefaultLint::MarkdownRegex(markdown::Regex {
+                message: l.message.to_string(),
+                mode: l.mode,
+                pattern: l.pattern.to_string(),
+            }),
+            DefaultLint::MarkdownRelativeLinks(l) => {
+                DefaultLint::MarkdownRelativeLinks(markdown::RelativeLinks {
+                    exceptions: l.exceptions.iter().map(|x| x.to_string()).collect(),
+                })
+            }
+            DefaultLint::MarkdownSectionOrder { sections } => DefaultLint::MarkdownSectionOrder {
+                sections: markdown::SectionOrder(sections.0.iter().map(|x| x.to_string()).collect()),
+            },
+            DefaultLint::MarkdownSectionRequired { sections } => DefaultLint::MarkdownSectionRequired {
+                sections: markdown::SectionRequired(sections.0.iter().map(|x| x.to_string()).collect()),
+            },
+            DefaultLint::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
+            DefaultLint::MarkdownHeadingFirst(l) => DefaultLint::MarkdownHeadingFirst(l.clone()),
+        }
     }
 }

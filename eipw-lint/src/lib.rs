@@ -4,32 +4,31 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+pub mod config;
 pub mod fetch;
 pub mod lints;
 pub mod modifiers;
 pub mod reporters;
-#[cfg(feature = "schema-version")]
-mod schema_version;
 pub mod tree;
 
+use config::Override;
 use eipw_snippets::{Annotation, Level, Snippet};
 
 use comrak::arena_tree::Node;
 use comrak::nodes::Ast;
 use comrak::Arena;
 use formatx::formatx;
+use lints::DefaultLint;
+use modifiers::DefaultModifier;
 
-use crate::lints::{Context, DefaultLint, Error as LintError, FetchContext, InnerContext, Lint};
-use crate::modifiers::{DefaultModifier, Modifier};
+use crate::config::Options;
+use crate::lints::{Context, Error as LintError, FetchContext, InnerContext, Lint};
+use crate::modifiers::Modifier;
 use crate::reporters::Reporter;
-#[cfg(feature = "schema-version")]
-pub use crate::schema_version::schema_version;
 
 use educe::Educe;
 
 use eipw_preamble::{Preamble, SplitError};
-
-use serde::{Deserialize, Serialize};
 
 use snafu::{ensure, ResultExt, Snafu};
 
@@ -58,430 +57,6 @@ pub enum Error {
         lint: String,
         origin: Option<PathBuf>,
     },
-}
-
-#[doc(hidden)]
-/// No stability guaranteed.
-pub fn default_modifiers_enum() -> Vec<DefaultModifier<&'static str>> {
-    vec![
-        DefaultModifier::SetDefaultAnnotation(modifiers::SetDefaultAnnotation {
-            name: "status",
-            value: "Stagnant",
-            annotation_level: Level::Warning,
-        }),
-        DefaultModifier::SetDefaultAnnotation(modifiers::SetDefaultAnnotation {
-            name: "status",
-            value: "Withdrawn",
-            annotation_level: Level::Warning,
-        }),
-    ]
-}
-
-pub fn default_modifiers() -> impl Iterator<Item = Box<dyn Modifier>> {
-    default_modifiers_enum().into_iter().map(|m| match m {
-        DefaultModifier::SetDefaultAnnotation(m) => Box::new(m) as Box<dyn Modifier>,
-    })
-}
-
-pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
-    default_lints_enum().map(|(name, lint)| (name, lint.boxed()))
-}
-
-#[doc(hidden)]
-/// No stability guaranteed.
-pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&'static str>)> {
-    use self::DefaultLint::*;
-    use lints::preamble::regex;
-    use lints::{markdown, preamble};
-
-    [
-        //
-        // Preamble
-        //
-        ("preamble-no-dup", PreambleNoDuplicates(preamble::NoDuplicates)),
-        ("preamble-trim", PreambleTrim(preamble::Trim)),
-        ("preamble-eip", PreambleUint { name: preamble::Uint("eip") }),
-        ("preamble-author", PreambleAuthor { name: preamble::Author("author") } ),
-        ("preamble-re-title", PreambleRegex(preamble::Regex {
-            name: "title",
-            mode: regex::Mode::Excludes,
-            pattern: r"(?i)standar\w*\b",
-            message: "preamble header `title` should not contain `standard` (or similar words.)",
-        })),
-        ("preamble-re-title-colon", PreambleRegex(preamble::Regex {
-            name: "title",
-            mode: regex::Mode::Excludes,
-            pattern: r":",
-            message: "preamble header `title` should not contain `:`",
-        })),
-        (
-            "preamble-refs-title",
-            PreambleProposalRef(preamble::ProposalRef {
-                name: "title",
-            }),
-        ),
-        (
-            "preamble-refs-description",
-            PreambleProposalRef(preamble::ProposalRef {
-                name: "description",
-            }),
-        ),
-        (
-            "preamble-re-title-erc-dash",
-            PreambleRegex(preamble::Regex {
-                name: "title",
-                mode: regex::Mode::Excludes,
-                pattern: r"(?i)erc[\s]*[0-9]+",
-                message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
-            }),
-        ),
-        (
-            "preamble-re-title-eip-dash",
-            PreambleRegex(preamble::Regex {
-                name: "title",
-                mode: regex::Mode::Excludes,
-                pattern: r"(?i)eip[\s]*[0-9]+",
-                message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
-            }),
-        ),
-        (
-            "preamble-re-description-erc-dash",
-            PreambleRegex(preamble::Regex {
-                name: "description",
-                mode: regex::Mode::Excludes,
-                pattern: r"(?i)erc[\s]*[0-9]+",
-                message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
-            }),
-        ),
-        (
-            "preamble-re-description-eip-dash",
-            PreambleRegex(preamble::Regex {
-                name: "description",
-                mode: regex::Mode::Excludes,
-                pattern: r"(?i)eip[\s]*[0-9]+",
-                message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
-            }),
-        ),
-        ("preamble-re-description", PreambleRegex(preamble::Regex {
-            name: "description",
-            mode: regex::Mode::Excludes,
-            pattern: r"(?i)standar\w*\b",
-            message: "preamble header `description` should not contain `standard` (or similar words.)",
-        })),
-        ("preamble-re-description-colon", PreambleRegex(preamble::Regex {
-            name: "description",
-            mode: regex::Mode::Excludes,
-            pattern: r":",
-            message: "preamble header `description` should not contain `:`",
-        })),
-        (
-            "preamble-discussions-to",
-            PreambleUrl { name: preamble::Url("discussions-to") },
-        ),
-        (
-            "preamble-re-discussions-to",
-            PreambleRegex(preamble::Regex {
-                name: "discussions-to",
-                mode: regex::Mode::Includes,
-                pattern: "^https://ethereum-magicians.org/t/[^/]+/[0-9]+$",
-                message: concat!(
-                    "preamble header `discussions-to` should ",
-                    "point to a thread on ethereum-magicians.org"
-                ),
-            }),
-        ),
-        ("preamble-list-author", PreambleList { name: preamble::List("author") }),
-        ("preamble-list-requires", PreambleList{name: preamble::List("requires")}),
-        (
-            "preamble-len-requires",
-            PreambleLength(preamble::Length {
-                name: "requires",
-                min: Some(1),
-                max: None,
-            }
-            ),
-        ),
-        (
-            "preamble-uint-requires",
-            PreambleUintList { name: preamble::UintList("requires") },
-        ),
-        (
-            "preamble-len-title",
-            PreambleLength(preamble::Length {
-                name: "title",
-                min: Some(2),
-                max: Some(44),
-            }
-            ),
-        ),
-        (
-            "preamble-len-description",
-            PreambleLength(preamble::Length {
-                name: "description",
-                min: Some(2),
-                max: Some(140),
-            }
-            ),
-        ),
-        (
-            "preamble-req",
-            PreambleRequired { names: preamble::Required(vec![
-                "eip",
-                "title",
-                "description",
-                "author",
-                "discussions-to",
-                "status",
-                "type",
-                "created",
-            ])
-            },
-        ),
-        (
-            "preamble-order",
-            PreambleOrder { names: preamble::Order(vec![
-                "eip",
-                "title",
-                "description",
-                "author",
-                "discussions-to",
-                "status",
-                "last-call-deadline",
-                "type",
-                "category",
-                "created",
-                "requires",
-                "withdrawal-reason",
-            ])
-            },
-        ),
-        ("preamble-date-created", PreambleDate { name: preamble::Date("created") } ),
-        (
-            "preamble-req-last-call-deadline",
-            PreambleRequiredIfEq(preamble::RequiredIfEq {
-                when: "status",
-                equals: "Last Call",
-                then: "last-call-deadline",
-            }
-            ),
-        ),
-        (
-            "preamble-date-last-call-deadline",
-            PreambleDate { name: preamble::Date("last-call-deadline") },
-        ),
-        (
-            "preamble-req-category",
-            PreambleRequiredIfEq(preamble::RequiredIfEq {
-                when: "type",
-                equals: "Standards Track",
-                then: "category",
-            }
-            ),
-        ),
-        (
-            "preamble-req-withdrawal-reason",
-            PreambleRequiredIfEq(preamble::RequiredIfEq {
-                when: "status",
-                equals: "Withdrawn",
-                then: "withdrawal-reason",
-            }
-            ),
-        ),
-        (
-            "preamble-enum-status",
-            PreambleOneOf(preamble::OneOf {
-                name: "status",
-                values: vec![
-                    "Draft",
-                    "Review",
-                    "Last Call",
-                    "Final",
-                    "Stagnant",
-                    "Withdrawn",
-                    "Living",
-                ],
-            }
-            ),
-        ),
-        (
-            "preamble-enum-type",
-            PreambleOneOf(preamble::OneOf {
-                name: "type",
-                values: vec!["Standards Track", "Meta", "Informational"],
-            }
-            ),
-        ),
-        (
-            "preamble-enum-category",
-            PreambleOneOf(preamble::OneOf {
-                name: "category",
-                values: vec!["Core", "Networking", "Interface", "ERC"],
-            }
-            ),
-        ),
-        (
-            "preamble-requires-status",
-            PreambleRequiresStatus(preamble::RequiresStatus {
-                requires: "requires",
-                status: "status",
-                flow: vec![
-                    vec!["Draft", "Stagnant"],
-                    vec!["Review"],
-                    vec!["Last Call"],
-                    vec!["Final", "Withdrawn", "Living"],
-                ]
-            }),
-        ),
-        (
-            "preamble-requires-ref-title",
-            PreambleRequireReferenced(preamble::RequireReferenced {
-                name: "title",
-                requires: "requires",
-            }),
-        ),
-        (
-            "preamble-requires-ref-description",
-            PreambleRequireReferenced(preamble::RequireReferenced {
-                name: "description",
-                requires: "requires",
-            }),
-        ),
-        (
-            "preamble-file-name",
-            PreambleFileName(preamble::FileName {
-                name: "eip",
-                format: "eip-{}",
-            }),
-        ),
-        //
-        // Markdown
-        //
-        (
-            "markdown-refs",
-            MarkdownProposalRef(markdown::ProposalRef),
-        ),
-        (
-            "markdown-html-comments",
-            MarkdownHtmlComments(markdown::HtmlComments {
-                name: "status",
-                warn_for: vec![
-                    "Draft",
-                    "Withdrawn",
-                ],
-            }
-            ),
-        ),
-        (
-            "markdown-req-section",
-            MarkdownSectionRequired { sections: markdown::SectionRequired(vec![
-                "Abstract",
-                "Specification",
-                "Rationale",
-                "Security Considerations",
-                "Copyright",
-            ])
-            },
-        ),
-        (
-            "markdown-order-section",
-            MarkdownSectionOrder {
-                sections: markdown::SectionOrder(vec![
-                    "Abstract",
-                    "Motivation",
-                    "Specification",
-                    "Rationale",
-                    "Backwards Compatibility",
-                    "Test Cases",
-                    "Reference Implementation",
-                    "Security Considerations",
-                    "Copyright",
-                ])
-            },
-        ),
-        (
-            "markdown-re-erc-dash",
-            MarkdownRegex(markdown::Regex {
-                mode: markdown::regex::Mode::Excludes,
-                pattern: r"(?i)erc[\s]*[0-9]+",
-                message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
-            }),
-        ),
-        (
-            "markdown-re-eip-dash",
-            MarkdownRegex(markdown::Regex {
-                mode: markdown::regex::Mode::Excludes,
-                pattern: r"(?i)eip[\s]*[0-9]+",
-                message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
-            }),
-        ),
-        (
-            "markdown-link-first",
-            MarkdownLinkFirst {
-                pattern: markdown::LinkFirst(r"(?i)(?:eip|erc)-([0-9]+)"),
-            }
-        ),
-        (
-            "markdown-no-backticks",
-            MarkdownNoBackticks {
-                pattern: markdown::NoBackticks(r"(?i)(eip|erc)-[0-9]+"),
-            }
-        ),
-        ("markdown-rel-links", MarkdownRelativeLinks(markdown::RelativeLinks {
-            exceptions: vec![
-                "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",
-                "^https://(www\\.)?github\\.com/ethereum/consensus-specs/commit/[a-f0-9]{40}$",
-
-                "^https://(www\\.)?github\\.com/ethereum/devp2p/blob/[0-9a-f]{40}/.+$",
-                "^https://(www\\.)?github\\.com/ethereum/devp2p/commit/[0-9a-f]{40}$",
-
-                "^https://(www\\.)?github\\.com/bitcoin/bips/blob/[0-9a-f]{40}/bip-[0-9]+\\.mediawiki$",
-
-                "^https://www\\.w3\\.org/TR/[0-9][0-9][0-9][0-9]/.*$",
-                "^https://[a-z]*\\.spec\\.whatwg\\.org/commit-snapshots/[0-9a-f]{40}/$",
-                "^https://www\\.rfc-editor\\.org/rfc/.*$",
-            ]
-        })),
-        (
-            "markdown-link-status",
-            MarkdownLinkStatus(markdown::LinkStatus {
-                pattern: r"(?i)(?:eip|erc)-([0-9]+).md$",
-                status: "status",
-                flow: vec![
-                    vec!["Draft", "Stagnant"],
-                    vec!["Review"],
-                    vec!["Last Call"],
-                    vec!["Final", "Withdrawn", "Living"],
-                ]
-            }),
-        ),
-        (
-            "markdown-json-cite",
-            MarkdownJsonSchema(markdown::JsonSchema {
-                additional_schemas: vec![
-                    (
-                        "https://resource.citationstyles.org/schema/v1.0/input/json/csl-data.json",
-                        include_str!("lints/markdown/json_schema/csl-data.json"),
-                    ),
-                ],
-                schema: include_str!("lints/markdown/json_schema/citation.json"),
-                language: "csl-json",
-                help: concat!(
-                    "see https://github.com/ethereum/eipw/blob/",
-                    "master/eipw-lint/src/lints/markdown/",
-                    "json_schema/citation.json",
-                ),
-            }),
-        ),
-        (
-            "markdown-headings-space",
-            MarkdownHeadingsSpace(markdown::HeadingsSpace{}),
-        ),
-        (
-            "markdown-heading-first",
-            MarkdownHeadingFirst(markdown::HeadingFirst),
-        )
-    ]
-    .into_iter()
 }
 
 #[derive(Debug)]
@@ -527,85 +102,11 @@ pub struct LintSettings<'a> {
     pub default_annotation_level: Level,
 }
 
-struct NeverIter<T> {
-    _p: std::marker::PhantomData<fn() -> T>,
-    q: std::convert::Infallible,
-}
-
-impl<T> Iterator for NeverIter<T> {
-    type Item = T;
-
-    fn next(&mut self) -> Option<T> {
-        match self.q {}
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
-#[non_exhaustive]
-pub struct FetchOptions {
-    pub proposal_format: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
-#[non_exhaustive]
-pub struct Options<M, L> {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub modifiers: Option<M>,
-
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub lints: Option<L>,
-
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub fetch: Option<FetchOptions>,
-}
-
-impl<M, L> Default for Options<M, L> {
-    fn default() -> Self {
-        Self {
-            modifiers: None,
-            lints: None,
-            fetch: None,
-        }
-    }
-}
-
-impl<M, L, K> Options<Vec<M>, HashMap<K, L>>
-where
-    M: 'static + Clone + Modifier,
-    L: 'static + Clone + Lint,
-    K: AsRef<str>,
-{
-    pub fn to_iters(
-        &self,
-    ) -> Options<
-        impl Iterator<Item = Box<dyn Modifier>> + '_,
-        impl Iterator<Item = (&'_ str, Box<dyn Lint>)>,
-    > {
-        let modifiers = self
-            .modifiers
-            .as_ref()
-            .map(|m| m.iter().map(|n| Box::new(n.clone()) as Box<dyn Modifier>));
-
-        let lints = self.lints.as_ref().map(|l| {
-            l.iter()
-                .map(|(k, v)| (k.as_ref(), Box::new(v.clone()) as Box<dyn Lint>))
-        });
-
-        Options {
-            modifiers,
-            lints,
-            fetch: self.fetch.clone(),
-        }
-    }
-}
-
 #[derive(Educe)]
 #[educe(Debug)]
 #[must_use]
 pub struct Linter<'a, R> {
-    lints: HashMap<&'a str, (Option<Level>, Box<dyn Lint>)>,
+    lints: HashMap<String, (Option<Level>, Box<dyn Lint>)>,
     modifiers: Vec<Box<dyn Modifier>>,
     sources: Vec<Source<'a>>,
 
@@ -628,23 +129,19 @@ where
 }
 
 impl<'a, R> Linter<'a, R> {
-    pub fn with_options<'b, M, L>(reporter: R, options: Options<M, L>) -> Self
+    pub fn with_options<M, L>(reporter: R, options: Options<M, L>) -> Self
     where
-        'b: 'a,
-        L: Iterator<Item = (&'b str, Box<dyn Lint>)>,
-        M: Iterator<Item = Box<dyn Modifier>>,
+        L: 'static + Lint,
+        M: 'static + Modifier,
     {
-        let modifiers = match options.modifiers {
-            Some(m) => m.collect(),
-            None => default_modifiers().collect(),
-        };
-
-        let lints = match options.lints {
-            Some(l) => l.map(|(slug, lint)| (slug, (None, lint))).collect(),
-            None => default_lints()
-                .map(|(slug, lint)| (slug, (None, lint)))
-                .collect(),
-        };
+        let lints = options
+            .lints
+            .into_iter()
+            .filter_map(|(slug, toggle)| match toggle {
+                Override::Enable(lint) => Some((slug, (None, Box::new(lint) as _))),
+                Override::Disable { .. } => None,
+            })
+            .collect();
 
         let proposal_format = options
             .fetch
@@ -655,50 +152,72 @@ impl<'a, R> Linter<'a, R> {
             reporter,
             sources: Default::default(),
             fetch: Box::<fetch::DefaultFetch>::default(),
-            modifiers,
+            modifiers: options
+                .modifiers
+                .into_iter()
+                .map(|m| Box::new(m) as _)
+                .collect(),
             lints,
             proposal_format,
         }
     }
 
-    pub fn with_modifiers(reporter: R, modifiers: impl Iterator<Item = Box<dyn Modifier>>) -> Self {
+    pub fn with_modifiers<I, M>(reporter: R, modifiers: I) -> Self
+    where
+        I: IntoIterator<Item = M>,
+        M: 'static + Modifier,
+    {
+        let defaults =
+            Options::<DefaultModifier<&'static str>, DefaultLint<&'static str>>::default();
         Self::with_options(
             reporter,
             Options {
-                lints: Option::<NeverIter<_>>::None,
-                modifiers: Some(modifiers),
-                fetch: Default::default(),
+                modifiers: modifiers.into_iter().collect(),
+                lints: defaults.lints,
+                fetch: defaults.fetch,
             },
         )
     }
 
-    pub fn with_lints<'b: 'a>(
-        reporter: R,
-        lints: impl Iterator<Item = (&'b str, Box<dyn Lint>)>,
-    ) -> Self {
+    pub fn with_lints<I, S, L>(reporter: R, lints: I) -> Self
+    where
+        S: Into<String>,
+        I: IntoIterator<Item = (S, L)>,
+        L: 'static + Lint,
+    {
+        let defaults =
+            Options::<DefaultModifier<&'static str>, DefaultLint<&'static str>>::default();
         Self::with_options(
             reporter,
             Options {
-                modifiers: Option::<NeverIter<_>>::None,
-                lints: Some(lints),
+                modifiers: defaults.modifiers,
+                lints: lints
+                    .into_iter()
+                    .map(|(s, l)| (s.into(), Override::Enable(l)))
+                    .collect(),
                 fetch: Default::default(),
             },
         )
     }
 
     pub fn new(reporter: R) -> Self {
-        Self::with_options::<NeverIter<_>, NeverIter<_>>(reporter, Options::default())
+        Self::with_options::<DefaultModifier<&'static str>, DefaultLint<&'static str>>(
+            reporter,
+            Options::default(),
+        )
     }
 
-    pub fn warn<T>(self, slug: &'a str, lint: T) -> Self
+    pub fn warn<S, T>(self, slug: S, lint: T) -> Self
     where
+        S: Into<String>,
         T: 'static + Lint,
     {
         self.add_lint(Some(Level::Warning), slug, lint)
     }
 
-    pub fn deny<T>(self, slug: &'a str, lint: T) -> Self
+    pub fn deny<S, T>(self, slug: S, lint: T) -> Self
     where
+        S: Into<String>,
         T: 'static + Lint,
     {
         self.add_lint(Some(Level::Error), slug, lint)
@@ -712,11 +231,12 @@ impl<'a, R> Linter<'a, R> {
         self
     }
 
-    fn add_lint<T>(mut self, level: Option<Level>, slug: &'a str, lint: T) -> Self
+    fn add_lint<S, T>(mut self, level: Option<Level>, slug: S, lint: T) -> Self
     where
+        S: Into<String>,
         T: 'static + Lint,
     {
-        self.lints.insert(slug, (level, Box::new(lint)));
+        self.lints.insert(slug.into(), (level, Box::new(lint)));
         self
     }
 
@@ -806,7 +326,7 @@ where
                 ensure!(
                     fetch_proposals.is_empty() || !source.is_string(),
                     SliceFetchedSnafu {
-                        lint: *slug,
+                        lint: slug,
                         origin: source_origin.clone(),
                     }
                 );
@@ -1060,56 +580,4 @@ fn ceil_char_boundary(text: &str, index: usize) -> usize {
     }
 
     unreachable!();
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn lints_serialize_deserialize() {
-        type DefaultLints<S> = HashMap<S, DefaultLint<S>>;
-        let config: DefaultLints<&str> = default_lints_enum().collect();
-
-        let serialized = toml::to_string_pretty(&config).unwrap();
-        toml::from_str::<DefaultLints<String>>(&serialized).unwrap();
-    }
-
-    #[test]
-    fn modifiers_serialize_deserialize() {
-        #[derive(Debug, Serialize, Deserialize)]
-        struct Wrapper<S> {
-            modifiers: Vec<DefaultModifier<S>>,
-        }
-
-        let config = Wrapper {
-            modifiers: default_modifiers_enum(),
-        };
-
-        let serialized = toml::to_string_pretty(&config).unwrap();
-        toml::from_str::<Wrapper<String>>(&serialized).unwrap();
-    }
-
-    #[test]
-    fn options_serialize_deserialize() {
-        let options = Options {
-            lints: Some(default_lints_enum().collect::<HashMap<_, _>>()),
-            modifiers: Some(default_modifiers_enum()),
-            fetch: Some(FetchOptions {
-                proposal_format: "floop".into(),
-            }),
-        };
-
-        type StringOptions =
-            Options<Vec<DefaultModifier<String>>, HashMap<String, DefaultLint<String>>>;
-
-        let serialized = toml::to_string_pretty(&options).unwrap();
-        let actual = toml::from_str::<StringOptions>(&serialized).unwrap();
-        let iters = actual.to_iters();
-
-        #[allow(unused_must_use)]
-        {
-            Linter::with_options(reporters::Null, iters);
-        }
-    }
 }

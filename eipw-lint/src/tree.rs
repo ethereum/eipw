@@ -499,7 +499,7 @@ pub trait TraverseExt {
         V: Visitor;
 }
 
-impl<'a> TraverseExt for Traverse<'a, RefCell<Ast>> {
+impl TraverseExt for Traverse<'_, RefCell<Ast>> {
     fn visit<V>(self, visitor: &mut V) -> Result<(), V::Error>
     where
         V: Visitor,

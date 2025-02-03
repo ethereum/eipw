@@ -70,7 +70,7 @@ struct ExcludesVisitor<'a, 'b, 'c> {
     message: &'c str,
 }
 
-impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
+impl ExcludesVisitor<'_, '_, '_> {
     fn check(&self, ast: &Ast, buf: &str) -> Result<Next, Error> {
         if !self.re.is_match(buf) {
             return Ok(Next::TraverseChildren);
@@ -99,7 +99,7 @@ impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
     }
 }
 
-impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
+impl tree::Visitor for ExcludesVisitor<'_, '_, '_> {
     type Error = Error;
 
     fn enter_front_matter(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {

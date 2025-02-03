@@ -48,7 +48,7 @@ struct Visitor<'a, 'b, 'c> {
     slug: &'c str,
 }
 
-impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
+impl Visitor<'_, '_, '_> {
     fn check(&mut self, ast: &Ast, text: &str) -> Result<Next, Error> {
         if !self.re.is_match(text) {
             return Ok(Next::TraverseChildren);
@@ -74,7 +74,7 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
     }
 }
 
-impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
+impl tree::Visitor for Visitor<'_, '_, '_> {
     type Error = Error;
 
     fn enter_code(&mut self, ast: &Ast, code: &NodeCode) -> Result<Next, Self::Error> {

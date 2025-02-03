@@ -21,6 +21,7 @@ regex = "1.11.1"
 snafu = "0.8.5"
 assert_matches = "1.5.0"
 pretty_assertions = "1.4.1"
+figment = "0.10.19"
 
 [package]
 name = "eipw"
@@ -47,6 +48,7 @@ serde = { workspace = true, features = [ "derive" ] }
 sysexits = "0.8.5"
 clap = { version = "4.5.27", features = [ "derive", "cargo" ] }
 thiserror = "2.0.11"
+figment = { workspace = true, features = ["toml"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 tokio = { workspace = true, features = [ "macros", "rt" ] }

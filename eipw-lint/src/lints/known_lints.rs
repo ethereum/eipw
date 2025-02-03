@@ -353,32 +353,38 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                     warn_for: l.warn_for.iter().map(|x| x.to_string()).collect(),
                 })
             }
-            DefaultLint::MarkdownJsonSchema(l) => DefaultLint::MarkdownJsonSchema(markdown::JsonSchema {
-                help: l.help.to_string(),
-                language: l.language.to_string(),
-                schema: l.schema.to_string(),
-                additional_schemas: l
-                    .additional_schemas
-                    .iter()
-                    .map(|(a, b)| (a.to_string(), b.to_string()))
-                    .collect(),
-            }),
+            DefaultLint::MarkdownJsonSchema(l) => {
+                DefaultLint::MarkdownJsonSchema(markdown::JsonSchema {
+                    help: l.help.to_string(),
+                    language: l.language.to_string(),
+                    schema: l.schema.to_string(),
+                    additional_schemas: l
+                        .additional_schemas
+                        .iter()
+                        .map(|(a, b)| (a.to_string(), b.to_string()))
+                        .collect(),
+                })
+            }
             DefaultLint::MarkdownLinkFirst { pattern } => DefaultLint::MarkdownLinkFirst {
                 pattern: markdown::LinkFirst(pattern.0.to_string()),
             },
             DefaultLint::MarkdownNoBackticks { pattern } => DefaultLint::MarkdownNoBackticks {
                 pattern: markdown::NoBackticks(pattern.0.to_string()),
             },
-            DefaultLint::MarkdownLinkStatus(l) => DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
-                pattern: l.pattern.to_string(),
-                status: l.status.to_string(),
-                flow: l
-                    .flow
-                    .iter()
-                    .map(|v| v.iter().map(|x| x.to_string()).collect())
-                    .collect(),
-            }),
-            DefaultLint::MarkdownProposalRef(_) => DefaultLint::MarkdownProposalRef(markdown::ProposalRef),
+            DefaultLint::MarkdownLinkStatus(l) => {
+                DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
+                    pattern: l.pattern.to_string(),
+                    status: l.status.to_string(),
+                    flow: l
+                        .flow
+                        .iter()
+                        .map(|v| v.iter().map(|x| x.to_string()).collect())
+                        .collect(),
+                })
+            }
+            DefaultLint::MarkdownProposalRef(_) => {
+                DefaultLint::MarkdownProposalRef(markdown::ProposalRef)
+            }
             DefaultLint::MarkdownRegex(l) => DefaultLint::MarkdownRegex(markdown::Regex {
                 message: l.message.to_string(),
                 mode: l.mode,
@@ -390,11 +396,17 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                 })
             }
             DefaultLint::MarkdownSectionOrder { sections } => DefaultLint::MarkdownSectionOrder {
-                sections: markdown::SectionOrder(sections.0.iter().map(|x| x.to_string()).collect()),
+                sections: markdown::SectionOrder(
+                    sections.0.iter().map(|x| x.to_string()).collect(),
+                ),
             },
-            DefaultLint::MarkdownSectionRequired { sections } => DefaultLint::MarkdownSectionRequired {
-                sections: markdown::SectionRequired(sections.0.iter().map(|x| x.to_string()).collect()),
-            },
+            DefaultLint::MarkdownSectionRequired { sections } => {
+                DefaultLint::MarkdownSectionRequired {
+                    sections: markdown::SectionRequired(
+                        sections.0.iter().map(|x| x.to_string()).collect(),
+                    ),
+                }
+            }
             DefaultLint::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
             DefaultLint::MarkdownHeadingFirst(l) => DefaultLint::MarkdownHeadingFirst(l.clone()),
         }

@@ -137,10 +137,7 @@ impl<'a, R> Linter<'a, R> {
         let lints = options
             .lints
             .into_iter()
-            .filter_map(|(slug, toggle)| match toggle {
-                Override::Enable(lint) => Some((slug, (None, Box::new(lint) as _))),
-                Override::Disable { .. } => None,
-            })
+            .filter_map(|(slug, toggle)| Some((slug, (None, Box::new(toggle.into_lint()?) as _))))
             .collect();
 
         let proposal_format = options
@@ -193,7 +190,7 @@ impl<'a, R> Linter<'a, R> {
                 modifiers: defaults.modifiers,
                 lints: lints
                     .into_iter()
-                    .map(|(s, l)| (s.into(), Override::Enable(l)))
+                    .map(|(s, l)| (s.into(), Override::enable(l)))
                     .collect(),
                 fetch: Default::default(),
             },

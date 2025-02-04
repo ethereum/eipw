@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_lint::config::{DefaultOptions, Override};
+use eipw_lint::config::DefaultOptions;
 use eipw_snippets::Message;
 
 use clap::{Parser, ValueEnum};
@@ -240,10 +240,7 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
         let mut lints: HashMap<_, _> = defaults.lints;
         for warn in opts.warn {
             let (k, v) = lints.remove_entry(warn.as_str()).unwrap();
-            match v {
-                Override::Enable(v) => linter = linter.warn(k, v),
-                _ => unreachable!(),
-            }
+            linter = linter.warn(k, v.into_lint().unwrap());
         }
     }
 
@@ -252,10 +249,7 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
         let mut lints: HashMap<_, _> = defaults.lints;
         for deny in opts.deny {
             let (k, v) = lints.remove_entry(deny.as_str()).unwrap();
-            match v {
-                Override::Enable(v) => linter = linter.deny(k, v),
-                _ => unreachable!(),
-            }
+            linter = linter.deny(k, v.into_lint().unwrap());
         }
     }
 

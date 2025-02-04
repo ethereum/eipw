@@ -98,10 +98,7 @@ impl Opts {
             let mut lints: HashMap<_, _> = defaults.lints;
             for warn in &self.warn {
                 let (k, v) = lints.remove_entry(warn.as_str()).unwrap();
-                match v {
-                    Override::Enable(v) => linter = linter.warn(k, v),
-                    _ => unreachable!(),
-                }
+                linter = linter.warn(k, v.into_lint().unwrap());
             }
         }
 
@@ -110,10 +107,7 @@ impl Opts {
             let mut lints: HashMap<_, _> = defaults.lints;
             for deny in &self.deny {
                 let (k, v) = lints.remove_entry(deny.as_str()).unwrap();
-                match v {
-                    Override::Enable(v) => linter = linter.deny(k, v),
-                    _ => unreachable!(),
-                }
+                linter = linter.deny(k, v.into_lint().unwrap());
             }
         }
 

@@ -425,7 +425,56 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
     .into_iter()
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(try_from = "bool", into = "bool")]
+pub struct True;
+
+#[derive(Debug, snafu::Snafu)]
+pub struct TrueError;
+
+impl TryFrom<bool> for True {
+    type Error = FalseError;
+    fn try_from(value: bool) -> Result<Self, Self::Error> {
+        if value {
+            Ok(Self)
+        } else {
+            FalseSnafu.fail()
+        }
+    }
+}
+
+impl From<True> for bool {
+    fn from(_: True) -> Self {
+        true
+    }
+}
+
+#[cfg(feature = "schema-version")]
+impl schemars::JsonSchema for True {
+    fn schema_id() -> std::borrow::Cow<'static, str> {
+        std::borrow::Cow::Borrowed("True")
+    }
+
+    fn schema_name() -> String {
+        Self::schema_id().into()
+    }
+
+    fn is_referenceable() -> bool {
+        false
+    }
+
+    fn json_schema(_: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+        schemars::schema::SchemaObject {
+            instance_type: Some(schemars::schema::InstanceType::Boolean.into()),
+            format: None,
+            const_value: Some(true.into()),
+            ..Default::default()
+        }
+        .into()
+    }
+}
+
+#[derive(Default, Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(try_from = "bool", into = "bool")]
 pub struct False;
 
@@ -476,18 +525,58 @@ impl schemars::JsonSchema for False {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
-#[serde(untagged, deny_unknown_fields)]
-pub enum Override<T> {
-    Disable { enabled: False },
-    Enable(T),
+#[serde(untagged)]
+enum OverrideInner<T> {
+    Disable {
+        enabled: False,
+
+        #[serde(
+            default = "Option::default",
+            flatten,
+            skip_serializing_if = "Option::is_none"
+        )]
+        lint: Option<T>,
+    },
+    Enable {
+        #[serde(default, skip_serializing)]
+        enabled: True,
+
+        #[serde(flatten)]
+        lint: T,
+    },
 }
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(transparent)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
+pub struct Override<T>(OverrideInner<T>);
 
 impl<T> From<Override<T>> for Option<T> {
     fn from(value: Override<T>) -> Self {
-        match value {
-            Override::Enable(t) => Some(t),
-            Override::Disable { .. } => None,
+        match value.0 {
+            OverrideInner::Enable { lint, .. } => Some(lint),
+            OverrideInner::Disable { .. } => None,
         }
+    }
+}
+
+impl<T> Override<T> {
+    pub fn disable() -> Self {
+        Self(OverrideInner::Disable {
+            enabled: False,
+            lint: None,
+        })
+    }
+
+    pub fn enable(lint: T) -> Self {
+        Self(OverrideInner::Enable {
+            enabled: True,
+            lint,
+        })
+    }
+
+    pub fn into_lint(self) -> Option<T> {
+        self.into()
     }
 }
 
@@ -587,7 +676,7 @@ where
         Self {
             modifiers: default_modifiers().into_iter().map(Into::into).collect(),
             lints: default_lints()
-                .map(|(k, v)| (k.into(), Override::Enable(v.into())))
+                .map(|(k, v)| (k.into(), Override::enable(v.into())))
                 .collect(),
             fetch: Some(FetchOptions::default()),
         }
@@ -614,10 +703,7 @@ where
         let lints = self
             .lints
             .into_iter()
-            .filter_map(|(k, v)| match v {
-                Override::Disable { .. } => None,
-                Override::Enable(l) => Some((k, l)),
-            })
+            .filter_map(|(k, v)| Some((k, v.into_lint()?)))
             .map(|(k, v)| (k, Box::new(v) as Box<dyn Lint>));
 
         (modifiers, lints, self.fetch)
@@ -657,8 +743,13 @@ where
 
 #[cfg(test)]
 mod tests {
+    use figment::providers::{Format, Toml};
+    use toml::toml;
+
     use super::*;
-    use crate::{reporters, Linter};
+    use crate::{lints::preamble::NoDuplicates, reporters, Linter};
+
+    type DefaultOverride = Override<DefaultLint<String>>;
 
     #[test]
     fn options_serialize_deserialize() {
@@ -678,5 +769,79 @@ mod tests {
         {
             Linter::with_options(reporters::Null, actual);
         }
+    }
+
+    #[test]
+    fn override_round_trip_disabled_with_lint() {
+        let input: DefaultOverride = Override(OverrideInner::Disable {
+            enabled: False,
+            lint: Some(DefaultLint::PreambleNoDuplicates(NoDuplicates)),
+        });
+        let serialized = toml::to_string_pretty(&input).unwrap();
+        let output = toml::from_str::<DefaultOverride>(&serialized).unwrap();
+        assert!(output.into_lint().is_none());
+    }
+
+    #[test]
+    fn override_round_trip_disabled_with_none() {
+        let input: DefaultOverride = Override::disable();
+        let serialized = toml::to_string_pretty(&input).unwrap();
+        let output = toml::from_str::<DefaultOverride>(&serialized).unwrap();
+        assert!(output.into_lint().is_none());
+    }
+
+    #[test]
+    fn override_enable_empty_lint_with_true() {
+        let input = toml! {
+            enabled = true
+            kind = "preamble-no-duplicates"
+        };
+        let output = DefaultOverride::deserialize(input).unwrap();
+        assert!(matches!(
+            output.into_lint(),
+            Some(DefaultLint::PreambleNoDuplicates(NoDuplicates))
+        ));
+    }
+
+    #[test]
+    fn override_enable_empty_lint_implicit() {
+        let input = toml! {
+            kind = "preamble-no-duplicates"
+        };
+        let output = DefaultOverride::deserialize(input).unwrap();
+        assert!(matches!(
+            output.into_lint(),
+            Some(DefaultLint::PreambleNoDuplicates(NoDuplicates))
+        ));
+    }
+
+    #[test]
+    fn override_enable_no_lint() {
+        let input = toml! {
+            enabled = true
+        };
+        DefaultOverride::deserialize(input).unwrap_err();
+    }
+
+    #[test]
+    fn disable_lint() {
+        let overlay = r#"
+[lints.preamble-no-dup]
+enabled = false
+"#;
+        let config: toml::Value = Figment::new()
+            .merge(DefaultOptions::<String>::figment())
+            .merge(Toml::string(overlay))
+            .extract()
+            .unwrap();
+
+        eprintln!("{}", config);
+
+        let config: DefaultOptions<String> = Options::deserialize(config).unwrap();
+
+        assert!(config.lints["preamble-no-dup"]
+            .clone()
+            .into_lint()
+            .is_none());
     }
 }

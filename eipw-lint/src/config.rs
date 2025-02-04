@@ -581,6 +581,7 @@ impl<T> Override<T> {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 #[non_exhaustive]
 pub struct FetchOptions {

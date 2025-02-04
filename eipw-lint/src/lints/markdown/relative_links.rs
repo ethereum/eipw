@@ -19,8 +19,6 @@ use scraper::Html;
 
 use serde::{Deserialize, Serialize};
 
-use snafu::Snafu;
-
 use std::fmt::{Debug, Display};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -42,16 +40,38 @@ where
         let mut visitor = Visitor::default();
         ctx.body().traverse().visit(&mut visitor)?;
 
-        let links = visitor
-            .links
-            .into_iter()
-            .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
+        let links = visitor.links.into_iter();
 
-        for Link {
-            address,
-            line_start,
-        } in links
-        {
+        for of_interest in links {
+            let (address, line_start) = match of_interest {
+                OfInterest::Link {
+                    address,
+                    line_start,
+                } => (address, line_start),
+                OfInterest::Unsupported { what, line_start } => {
+                    ctx.report(
+                        ctx.annotation_level()
+                            .title(&format!("unsupported HTML {what}"))
+                            .id(slug)
+                            .snippet(
+                                Snippet::source(ctx.line(line_start))
+                                    .line_start(line_start)
+                                    .fold(false)
+                                    .origin_opt(ctx.origin()),
+                            ),
+                    )?;
+                    continue;
+                }
+            };
+
+            if !re.is_match(&address) {
+                continue;
+            }
+
+            if exceptions.is_match(&address) {
+                continue;
+            }
+
             let (suggestion, extra_help) = if let Some(caps) = eip_re.captures(&address) {
                 if let Some(id_number) = caps.get(2) {
                     let suggestion = format!("./eip-{}.md", id_number.as_str());
@@ -93,23 +113,26 @@ where
     }
 }
 
-#[derive(Debug, Snafu)]
-struct Unsupported;
-
 #[derive(Debug)]
-struct Link {
-    address: String,
-    line_start: usize,
+enum OfInterest {
+    Unsupported {
+        what: &'static str,
+        line_start: usize,
+    },
+    Link {
+        address: String,
+        line_start: usize,
+    },
 }
 
 #[derive(Debug, Default)]
 struct Visitor {
-    links: Vec<Link>,
+    links: Vec<OfInterest>,
 }
 
 impl Visitor {
     fn push(&mut self, ast: &Ast, address: &str) -> Result<Next, <Self as tree::Visitor>::Error> {
-        self.links.push(Link {
+        self.links.push(OfInterest::Link {
             address: address.to_owned(),
             line_start: ast.sourcepos.start.line,
         });
@@ -129,12 +152,20 @@ impl Visitor {
             if elem.name().eq_ignore_ascii_case("style")
                 || elem.id().unwrap_or_default().eq_ignore_ascii_case("style")
             {
-                return Err(Error::custom(Unsupported));
+                self.links.push(OfInterest::Unsupported {
+                    line_start: ast.sourcepos.start.line,
+                    what: "style tag",
+                });
+                continue;
             }
 
             for attr in elem.attrs() {
                 if attr.0.eq_ignore_ascii_case("style") {
-                    return Err(Error::custom(Unsupported));
+                    self.links.push(OfInterest::Unsupported {
+                        line_start: ast.sourcepos.start.line,
+                        what: "style attribute",
+                    });
+                    continue;
                 }
 
                 self.push(ast, attr.1)?;

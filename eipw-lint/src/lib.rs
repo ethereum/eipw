@@ -49,6 +49,7 @@ pub enum Error {
         #[snafu(backtrace)]
         source: crate::modifiers::Error,
     },
+    #[snafu(display("i/o error accessing `{}`", path.to_string_lossy()))]
     Io {
         path: PathBuf,
         source: std::io::Error,

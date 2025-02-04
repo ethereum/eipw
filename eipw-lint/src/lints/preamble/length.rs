@@ -19,7 +19,11 @@ use std::fmt::{Debug, Display};
 #[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
 pub struct Length<S> {
     pub name: S,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub min: Option<usize>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub max: Option<usize>,
 }
 

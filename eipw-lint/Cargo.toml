@@ -45,3 +45,4 @@ assert_matches.workspace = true
 pretty_assertions.workspace = true
 tokio = { workspace = true, features = [ "macros", "rt" ] }
 toml.workspace = true
+figment = { workspace = true, features = [ "toml" ] }

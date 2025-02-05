@@ -11,6 +11,7 @@ description = "library of lints for eipw, the Ethereum Improvement Proposal vali
 
 [features]
 schema-version = [ "schemars", "olpc-cjson", "sha3", "semver" ]
+backtrace = [ "snafu/backtrace" ]
 
 [dependencies]
 eipw-preamble.workspace = true

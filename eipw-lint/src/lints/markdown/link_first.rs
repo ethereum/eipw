@@ -13,7 +13,6 @@ use comrak::nodes::{
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
-use crate::SnippetExt;
 
 use ::regex::Regex;
 
@@ -69,6 +68,9 @@ struct Visitor<'a, 'b, 'c> {
 
 impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
     fn check(&self, ast: &Ast, text: &str) -> Result<Next, Error> {
+        let source = self.ctx.ast_lines(ast);
+        let offset = source.find(text); // TODO: Calculating the offset like this is a huge hack.
+
         for matched in self.re.captures_iter(text) {
             let self_reference = match self.own_number {
                 None => false,
@@ -93,19 +95,25 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
 
             let footer_label = format!("the pattern in question: `{}`", self.pattern);
 
-            // TODO: Actually annotate the matches.
+            let annotations = match offset {
+                None => None,
+                Some(offset) => {
+                    let start = offset + matched.get(0).unwrap().start();
+                    let end = offset + matched.get(0).unwrap().end();
+                    Some(self.ctx.annotation_level().span(start..end))
+                }
+            };
 
-            let source = self.ctx.source_for_text(ast.sourcepos.start.line, text);
             self.ctx.report(
                 self.ctx
                     .annotation_level()
                     .title("the first match of the given pattern must be a link")
                     .id(self.slug)
                     .snippet(
-                        Snippet::source(&source)
-                            .origin_opt(self.ctx.origin())
+                        Snippet::source(source)
+                            .fold(true)
                             .line_start(ast.sourcepos.start.line)
-                            .fold(false),
+                            .annotations(annotations),
                     )
                     .footer(Level::Info.title(&footer_label)),
             )?;

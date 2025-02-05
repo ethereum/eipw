@@ -36,7 +36,7 @@ where
             let label = format!("preamble is missing header(s): `{}`", missing);
             ctx.report(
                 ctx.annotation_level().title(&label).id(slug).snippet(
-                    Snippet::source(ctx.line(1))
+                    Snippet::source("---")
                         .line_start(1)
                         .origin_opt(ctx.origin())
                         .fold(true),

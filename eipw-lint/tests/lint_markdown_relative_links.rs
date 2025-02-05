@@ -65,6 +65,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | [hi](https://example.com/)
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
 "#
     );
@@ -98,6 +99,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | [hello](https://eips.ethereum.org/EIPS/eip-1234)
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `./eip-1234.md` instead
 "#
@@ -132,6 +134,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | [hello](https://ercs.ethereum.org/ERCS/erc-1234)
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `./eip-1234.md` instead
 "#
@@ -166,6 +169,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | [copyright](https://creativecommons.org/publicdomain/zero/1.0/)
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `../LICENSE.md` instead
 "#
@@ -200,6 +204,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | [hi](https://example.com/4444)
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
 "#
     );
@@ -233,6 +238,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | [hi](//example.com/)
+  | ^^^^^^^^^^^^^^^^^^^^ used here
   |
 "#
     );
@@ -266,6 +272,7 @@ Hello [hi](/foo)!
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | Hello [hi](/foo)!
+  |       ^^^^^^^^^^ used here
   |
 "#
     );
@@ -327,6 +334,7 @@ Hello [hi][hello]!
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | Hello [hi][hello]!
+  |       ^^^^^^^^^^^ used here
   |
 "#
     );
@@ -390,6 +398,7 @@ Hello [hi][hello]!
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | Hello [hi][hello]!
+  |       ^^^^^^^^^^^ used here
   |
   = help: use `./eip-1234.md` instead
 "#
@@ -426,6 +435,7 @@ Hello [hi][hello]!
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | Hello [hi][hello]!
+  |       ^^^^^^^^^^^ used here
   |
   = help: use `./eip-1234.md` instead
 "#
@@ -462,6 +472,7 @@ hello world
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | https://example.com/
+  | ^^^^^^^^^^^^^^^^^^^^ used here
   |
 "#
     );
@@ -495,6 +506,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <a href="https://example.com/">example</a>
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
 "#
     );
@@ -528,6 +540,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <a href="//example.com/">example</a>
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
 "#
     );
@@ -561,6 +574,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <a href="//eips.ethereum.org/EIPS/eip-1234">example</a>
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `./eip-1234.md` instead
 "#
@@ -595,6 +609,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <a href="//ercs.ethereum.org/ERCS/erc-1234">example</a>
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `./eip-1234.md` instead
 "#
@@ -655,6 +670,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <a href="//creativecommons.org/publicdomain/zero/1.0/">copyright</a>
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `../LICENSE.md` instead
 "#
@@ -715,6 +731,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <img src="//example.com/foo.jpg">
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
 "#
     );
@@ -748,6 +765,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <img src="//eips.ethereum.org/assets/eip-712/eth_sign.png">
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `../assets/eip-712/eth_sign.png` instead
 "#
@@ -782,6 +800,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <img src="//ercs.ethereum.org/assets/erc-712/eth_sign.png">
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `../assets/erc-712/eth_sign.png` instead
 "#
@@ -794,7 +813,7 @@ async fn img_with_scheme_to_eips_ethereum_org() {
 header: value1
 ---
 
-<img src="https://eips.ethereum.org/assets/eip-712/eth_sign.png">
+<img src="https://eips.ethereum.org/assets/eip-712/eth_sign.png">!
 "#;
 
     let reports = Linter::<Text<String>>::default()
@@ -815,7 +834,8 @@ header: value1
         reports,
         r#"error[markdown-rel]: non-relative link or image
   |
-5 | <img src="https://eips.ethereum.org/assets/eip-712/eth_sign.png">
+5 | <img src="https://eips.ethereum.org/assets/eip-712/eth_sign.png">!
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `../assets/eip-712/eth_sign.png` instead
 "#
@@ -850,6 +870,7 @@ header: value1
         r#"error[markdown-rel]: non-relative link or image
   |
 5 | <img src="https://ercs.ethereum.org/assets/erc-712/eth_sign.png">
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ used here
   |
   = help: use `../assets/erc-712/eth_sign.png` instead
 "#

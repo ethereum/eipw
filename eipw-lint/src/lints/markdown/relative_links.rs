@@ -4,13 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_snippets::{Level, Snippet};
+use eipw_snippets::Level;
 
 use comrak::nodes::Ast;
 
 use crate::lints::{Context, Error, Lint};
 use crate::tree::{self, Next, TraverseExt};
-use crate::SnippetExt;
 
 use regex::{Regex, RegexSet};
 
@@ -46,11 +45,7 @@ where
             .into_iter()
             .filter(|l| re.is_match(&l.address) && !exceptions.is_match(&l.address));
 
-        for Link {
-            address,
-            line_start,
-        } in links
-        {
+        for Link { address, ast } in links {
             let (suggestion, extra_help) = if let Some(caps) = eip_re.captures(&address) {
                 if let Some(id_number) = caps.get(2) {
                     let suggestion = format!("./eip-{}.md", id_number.as_str());
@@ -79,12 +74,7 @@ where
                     .title("non-relative link or image")
                     .id(slug)
                     .footers(footer)
-                    .snippet(
-                        Snippet::source(ctx.line(line_start))
-                            .line_start(line_start)
-                            .fold(false)
-                            .origin_opt(ctx.origin()),
-                    ),
+                    .snippet(ctx.ast_snippet(&ast, None, "used here")),
             )?;
         }
 
@@ -98,7 +88,7 @@ struct Unsupported;
 #[derive(Debug)]
 struct Link {
     address: String,
-    line_start: usize,
+    ast: Ast,
 }
 
 #[derive(Debug, Default)]
@@ -110,7 +100,7 @@ impl Visitor {
     fn push(&mut self, ast: &Ast, address: &str) -> Result<Next, <Self as tree::Visitor>::Error> {
         self.links.push(Link {
             address: address.to_owned(),
-            line_start: ast.sourcepos.start.line,
+            ast: ast.clone(),
         });
 
         Ok(Next::TraverseChildren)

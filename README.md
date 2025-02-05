@@ -69,6 +69,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `markdown-link-first`               | First mention of an EIP must be a link.                                                       |
 | `markdown-link-status`              | EIPs linked in the body have statuses further along than the current proposal.                |
 | `markdown-no-backticks`             | No proposals are referenced inside backticks (eg. \`EIP-1234\`).                              |
+| `markdown-prevent-url`              | Only allow example/invalid domains inside backticks (eg. \`example.com\` is fine.)            |
 | `markdown-order-section`            | There are no extra sections and the sections are in the correct order.                        |
 | `markdown-re-eip-dash`              | Other EIPs are referenced using EIP-X, not EIPX or EIP X.                                     |
 | `markdown-re-erc-dash`              | Other ERCs are referenced using ERC-X, not ERCX or ERC X.                                     |

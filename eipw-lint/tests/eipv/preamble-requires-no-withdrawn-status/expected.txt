@@ -1,0 +1,7 @@
+error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Review`
+  --> input.md:11:20
+   |
+11 | requires: 20, 1337, 2048
+   |                    ^^^^^ has a less advanced status
+   |
+   = help: valid `status` values for this proposal are: `Withdrawn`

@@ -369,17 +369,48 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
         ),
         ("markdown-rel-links", MarkdownRelativeLinks(markdown::RelativeLinks {
             exceptions: vec![
-                "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",
-                "^https://(www\\.)?github\\.com/ethereum/consensus-specs/commit/[a-f0-9]{40}$",
+                // Internal Absolute Links
+                r"^/LICENSE\.md$",
 
-                "^https://(www\\.)?github\\.com/ethereum/devp2p/blob/[0-9a-f]{40}/.+$",
-                "^https://(www\\.)?github\\.com/ethereum/devp2p/commit/[0-9a-f]{40}$",
+                // Web Hypertext Application Technology Working Group (WHATWG)
+                r"^https://[a-z]*\.spec\.whatwg\.org/commit-snapshots/[0-9a-f]{40}/$",
 
-                "^https://(www\\.)?github\\.com/bitcoin/bips/blob/[0-9a-f]{40}/bip-[0-9]+\\.mediawiki$",
+                // Bitcoin Improvement Proposals (BIPs)
+                r"^https://(www\.)?github\.com/bitcoin/bips/(blob|tree)/[0-9a-f]{40}/bip-[0-9]+\.mediawiki$",
 
-                "^https://www\\.w3\\.org/TR/[0-9][0-9][0-9][0-9]/.*$",
-                "^https://[a-z]*\\.spec\\.whatwg\\.org/commit-snapshots/[0-9a-f]{40}/$",
-                "^https://www\\.rfc-editor\\.org/rfc/.*$",
+                // Chain Agnostic Improvement Proposals (CAIPs)
+                r"^https://(www\.)?github\.com/ChainAgnostic/CAIPs/(blob|tree)/[a-f0-9]{40}/.+$",
+                r"^https://(www\.)?github\.com/ChainAgnostic/CAIPs/commit/[0-9a-f]{40}$",
+
+                // Ethereum Proof-of-Stake Consensus Specifications
+                r"^https://(www\.)?github\.com/ethereum/consensus-specs/(blob|tree)/[a-f0-9]{40}/.+$",
+                r"^https://(www\.)?github\.com/ethereum/consensus-specs/commit/[a-f0-9]{40}$",
+
+                // Ethereum Peer-to-Peer Networking Specifications
+                r"^https://(www\.)?github\.com/ethereum/devp2p/(blob|tree)/[0-9a-f]{40}/.+$",
+                r"^https://(www\.)?github\.com/ethereum/devp2p/commit/[0-9a-f]{40}$",
+
+                // Specification for Ethereum's Execution Layer (EELS)
+                r"^https://(www\.)?github\.com/ethereum/execution-specs/(blob|tree)/[a-f0-9]{40}/.+$",
+                r"^https://(www\.)?github\.com/ethereum/execution-specs/commit/[a-f0-9]{40}$",
+
+                // Test Vectors for Ethereum Execution Clients (EEST)
+                r"^https://(www\.)?github\.com/ethereum/execution-spec-tests/(blob|tree)/[a-f0-9]{40}/.+$",
+                r"^https://(www\.)?github\.com/ethereum/execution-spec-tests/commit/[a-f0-9]{40}$",
+
+                // Peer-to-Peer Network Providing Ethereum's JSON-RPC API (Portal Network)
+                r"^https://(www\.)?github\.com/ethereum/portal-network-specs/(blob|tree)/[0-9a-f]{40}/.+$",
+                r"^https://(www\.)?github\.com/ethereum/portal-network-specs/commit/[0-9a-f]{40}$",
+
+                // Formal Specification of Ethereum (Yellow Paper)
+                r"^https://(www\.)?github\.com/ethereum/yellowpaper/(blob|tree)/[a-f0-9]{40}/.+$",
+                r"^https://(www\.)?github\.com/ethereum/yellowpaper/commit/[a-f0-9]{40}$",
+
+                // RFC Series (IETF, IRTF, IAB, etc.)
+                r"^https://www\.rfc-editor\.org/rfc/.*$",
+
+                // World Wide Web Consortium (W3C)
+                r"^https://www\.w3\.org/TR/[0-9][0-9][0-9][0-9]/.*$",
             ]
         })),
         (

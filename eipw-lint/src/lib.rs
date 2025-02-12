@@ -443,6 +443,18 @@ where
     }
 }
 
+fn comrak_options() -> comrak::Options<'static> {
+    comrak::Options {
+        extension: comrak::ExtensionOptions {
+            table: true,
+            autolink: true,
+            footnotes: true,
+            ..Default::default()
+        },
+        ..Default::default()
+    }
+}
+
 fn process<'a>(
     reporter: &dyn Reporter,
     arena: &'a Arena<Node<'a, RefCell<Ast>>>,
@@ -505,15 +517,7 @@ fn process<'a>(
         }
     };
 
-    let options = comrak::Options {
-        extension: comrak::ExtensionOptions {
-            table: true,
-            autolink: true,
-            footnotes: true,
-            ..Default::default()
-        },
-        ..Default::default()
-    };
+    let options = comrak_options();
 
     let mut preamble_lines = preamble_source.matches('\n').count();
     preamble_lines += 3;

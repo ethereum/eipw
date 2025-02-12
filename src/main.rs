@@ -245,7 +245,7 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
     }
 
     if !opts.deny.is_empty() {
-    let defaults = DefaultOptions::<String>::default();
+        let defaults = DefaultOptions::<String>::default();
         let mut lints: HashMap<_, _> = defaults.lints;
         for deny in opts.deny {
             let (k, v) = lints.remove_entry(deny.as_str()).unwrap();

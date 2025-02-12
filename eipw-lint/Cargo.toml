@@ -34,6 +34,10 @@ schemars = { version = "0.8.21", optional = true }
 olpc-cjson = { version = "0.1.4", optional = true }
 sha3 = { version = "0.10.8", optional = true }
 semver = { version = "1.0.25", optional = true, features = ["serde"] }
+html2text = "0.14.0"
+zspell = "0.5.5"
+lazy_static = "1.5.0"
+lru = "0.13.0"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { workspace = true, features = [ "fs", "macros" ] }

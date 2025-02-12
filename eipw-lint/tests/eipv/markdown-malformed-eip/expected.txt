@@ -16,3 +16,15 @@ error[markdown-re-erc-dash]: proposals must be referenced with the form `ERC-N` 
 15 | This is the abstract for the EIP, which extends ERC721.
    |
    = info: the pattern in question: `(?i)erc[\s]*[0-9]+`
+error[markdown-spell]: the word `ERC721` is misspelled
+  --> input.md:15:49
+   |
+15 | This is the abstract for the EIP, which extends ERC721.
+   |                                                 ^^^^^^ incorrectly spelled
+   |
+error[markdown-spell]: the word `EIP1234` is misspelled
+  --> input.md:27:56
+   |
+27 | These are the backwards compatibility concerns for the EIP1234.
+   |                                                        ^^^^^^^ incorrectly spelled
+   |

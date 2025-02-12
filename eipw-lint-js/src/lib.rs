@@ -4,12 +4,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+use eipw_lint::config::{DefaultOptions, Options, Override};
 use eipw_lint::fetch::Fetch;
 use eipw_lint::lints::DefaultLint;
 use eipw_lint::modifiers::DefaultModifier;
 use eipw_lint::reporters::{AdditionalHelp, Json};
 use eipw_lint::Linter;
-use eipw_lint::config::{DefaultOptions, Options, Override};
 
 use js_sys::{JsString, Object};
 

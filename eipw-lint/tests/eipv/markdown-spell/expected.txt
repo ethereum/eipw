@@ -1,0 +1,36 @@
+error[markdown-spell]: the word `mispelled` is misspelled
+  --> input.md:16:11
+   |
+16 | Here is a mispelled word.
+   |           ^^^^^^^^^ incorrectly spelled
+   |
+error[markdown-spell]: the word `mispelled` is misspelled
+  --> input.md:18:20
+   |
+18 | Here is an italic _mispelled_ word.
+   |                    ^^^^^^^^^ incorrectly spelled
+   |
+error[markdown-spell]: the word `Mispelled` is misspelled
+  --> input.md:22:5
+   |
+22 | ### Mispelled Header
+   |     ^^^^^^^^^ incorrectly spelled
+   |
+error[markdown-spell]: the word `Mispelled` is misspelled
+  --> input.md:24:2
+   |
+24 | [Mispelled](./dontfindmistakeshere) link.
+   |  ^^^^^^^^^ incorrectly spelled
+   |
+error[markdown-spell]: the word `Florp` is misspelled
+  --> input.md:30:3
+   |
+30 | | Florp    | Glorpe   |
+   |   ^^^^^ incorrectly spelled
+   |
+error[markdown-spell]: the word `Glorpe` is misspelled
+  --> input.md:30:14
+   |
+30 | | Florp    | Glorpe   |
+   |              ^^^^^^ incorrectly spelled
+   |

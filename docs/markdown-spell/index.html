@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-refs</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-spell</code></h1>
+			<p>
+				Words in prose paragraphs are spelled correctly.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-spell]: the word `mispelled` is misspelled
+  --> input.md
+   |
+16 | Here is a mispelled word.
+   |           ^^^^^^^^^ incorrectly spelled
+   |</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-spell</code> ensures that all words are
+					spelled correctly. Text within <code>`inline code`</code>
+					and code blocks (<code>```</code>) is excluded from spell
+					checking.
+				</p>
+
+				<p>
+					If <code>markdown-spell</code> incorrectly identifies a
+					word as misspelled, it can be added to
+					<code>lints.markdown-spell.personal-dictionary</code> in
+					<code>eipw.toml</code>.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

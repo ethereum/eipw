@@ -1,0 +1,3 @@
+[submodule "eipw-lint/dictionaries"]
+	path = eipw-lint/dictionaries
+	url = https://github.com/wooorm/dictionaries.git

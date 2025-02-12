@@ -77,6 +77,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `markdown-req-section`              | Required sections are present in the body of the proposal.                                    |
 | `markdown-heading-first`            | No content appears between preamble and first heading.                                        |
 | `markdown-headings-space`           | Headers have a space after the leading '#' characters.                                        |
+| `markdown-spell`                    | No words are spelled incorrectly.                                                             |
 | `preamble-author`                   | The author header is correctly formatted, and there is at least one GitHub user listed.       |
 | `preamble-date-created`             | The `created` header is a date.                                                               |
 | `preamble-date-last-call-deadline`  | The `last-call-deadline` header is a date.                                                    |

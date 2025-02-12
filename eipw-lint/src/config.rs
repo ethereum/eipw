@@ -367,6 +367,12 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
                 pattern: markdown::NoBackticks(r"(?i)(eip|erc)-[0-9]+"),
             }
         ),
+        (
+            "markdown-spell",
+            MarkdownSpell(markdown::Spell {
+                personal_dictionary: "",
+            }),
+        ),
         ("markdown-rel-links", MarkdownRelativeLinks(markdown::RelativeLinks {
             exceptions: vec![
                 // Internal Absolute Links

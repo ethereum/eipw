@@ -72,6 +72,7 @@ pub enum DefaultLint<S> {
     },
     MarkdownHeadingsSpace(markdown::HeadingsSpace),
     MarkdownHeadingFirst(markdown::HeadingFirst),
+    MarkdownSpell(markdown::Spell<S>),
 }
 
 impl<S> DefaultLint<S>
@@ -111,6 +112,7 @@ where
             Self::MarkdownSectionRequired { sections } => sections,
             Self::MarkdownHeadingsSpace(l) => l,
             Self::MarkdownHeadingFirst(l) => l,
+            Self::MarkdownSpell(l) => l,
         }
     }
 }
@@ -248,6 +250,9 @@ where
             },
             Self::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
             Self::MarkdownHeadingFirst(l) => DefaultLint::MarkdownHeadingFirst(l.clone()),
+            Self::MarkdownSpell(s) => DefaultLint::MarkdownSpell(markdown::Spell {
+                personal_dictionary: s.personal_dictionary.as_ref(),
+            }),
         }
     }
 }
@@ -409,6 +414,9 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
             }
             DefaultLint::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
             DefaultLint::MarkdownHeadingFirst(l) => DefaultLint::MarkdownHeadingFirst(l.clone()),
+            DefaultLint::MarkdownSpell(l) => DefaultLint::MarkdownSpell(markdown::Spell {
+                personal_dictionary: l.personal_dictionary.into(),
+            }),
         }
     }
 }

@@ -21,6 +21,23 @@ regex = "1.11.1"
 snafu = "0.8.5"
 assert_matches = "1.5.0"
 pretty_assertions = "1.4.1"
+annotate-snippets = "0.11.5"
+chrono = { version = "0.4.39", default-features = false }
+clap = "4.5.27"
+comrak = { version = "0.35.0", default-features = false }
+console_error_panic_hook = "0.1.7"
+educe = { version = "0.6.0", default-features = false }
+formatx = "0.2.3"
+js-sys = "0.3.77"
+jsonschema = { version = "0.28.3", default-features = false }
+scraper = { version = "0.22.0", default-features = false }
+serde-wasm-bindgen = "0.6.5"
+sysexits = "0.8.5"
+thiserror = "2.0.11"
+url = "2.5.4"
+wasm-bindgen = "0.2.100"
+wasm-bindgen-futures = "0.4.50"
+wasm-bindgen-test = "0.3.50"
 
 [package]
 name = "eipw"
@@ -41,9 +58,9 @@ serde_json.workspace = true
 toml.workspace = true
 serde = { workspace = true, features = [ "derive" ] }
 
-sysexits = "0.8.5"
-clap = { version = "4.5.27", features = [ "derive", "cargo" ] }
-thiserror = "2.0.11"
+sysexits = { workspace = true }
+clap = { workspace = true, features = ["derive", "cargo"] }
+thiserror = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 tokio = { workspace = true, features = [ "macros", "rt" ] }

@@ -10,7 +10,7 @@ repository.workspace = true
 [dependencies]
 serde = { workspace = true, features = [ "derive" ] }
 
-annotate-snippets = "0.11.5"
+annotate-snippets = { workspace = true }
 
 [dev-dependencies]
 serde_json.workspace = true

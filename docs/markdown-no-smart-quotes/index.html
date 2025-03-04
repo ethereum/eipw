@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-no-smart-quotes</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-no-smart-quotes</code></h1>
+			<p>
+				No smart quotes (&#x201C;, &#x201D;, &#x2018;, &#x2019;) are permitted.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-no-smart-quotes]: smart quotes are not allowed (use straight quotes instead)
+ --> input.md
+  |
+5 | “
+  | ^
+  |
+  = info: the pattern in question: `[\u{201C}\u{201D}]|[\u{2018}\u{2019}]`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					Smart quotes are often inserted automatically, even when
+					the author might not intend it. This is especially
+					problematic for text that will be copy-and-pasted.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

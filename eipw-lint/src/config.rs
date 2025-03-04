@@ -86,6 +86,14 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             }),
         ),
         (
+            "markdown-no-smart-quotes",
+            MarkdownRegex(markdown::Regex {
+                mode: markdown::regex::Mode::Excludes,
+                pattern: r"[\u{201C}\u{201D}]|[\u{2018}\u{2019}]",
+                message: "smart quotes are not allowed (use straight quotes instead)",
+            }),
+        ),
+        (
             "preamble-re-description-erc-dash",
             PreambleRegex(preamble::Regex {
                 name: "description",

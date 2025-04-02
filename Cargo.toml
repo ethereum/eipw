@@ -12,10 +12,10 @@ rust-version = "1.80"
 eipw-snippets = { path = "eipw-snippets", version = "0.2.0-dev" }
 eipw-lint = { path = "eipw-lint", version = "0.10.0-dev" }
 eipw-preamble = { path = "eipw-preamble", version = "0.3.0-dev" }
-tokio = "1.43.0"
-serde_json = "1.0.138"
-toml = "0.8.19"
-serde = "1.0.217"
+tokio = "1.44.1"
+serde_json = "1.0.140"
+toml = "0.8.20"
+serde = "1.0.219"
 getrandom = "0.2.15"
 regex = "1.11.1"
 snafu = "0.8.5"

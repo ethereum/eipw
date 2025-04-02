@@ -40,13 +40,13 @@ where
 
         let mut options = ValidationOptions::default();
 
-        options.with_draft(jsonschema::Draft::Draft7);
+        options = options.with_draft(jsonschema::Draft::Draft7);
 
         for (url, json_text) in &self.additional_schemas {
             let value: serde_json::Value =
                 serde_json::from_str(json_text.as_ref()).map_err(Error::custom)?;
             let resource = Resource::from_contents(value).map_err(Error::custom)?;
-            options.with_resource(url.to_string(), resource);
+            options = options.with_resource(url.to_string(), resource);
         }
 
         let schema = options

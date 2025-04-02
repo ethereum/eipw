@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: dtolnay/rust-toolchain@1.80
       - run: cargo check --all --all-features --locked
 
@@ -24,6 +26,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: dtolnay/rust-toolchain@1.80
       - run: cargo install wasm-pack --version 0.12.1 --locked
       - run: cargo test --all --no-default-features --locked
@@ -35,6 +39,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: dtolnay/rust-toolchain@1.80
       - run: rustup component add rustfmt clippy
       - run: cargo fmt --all -- --check

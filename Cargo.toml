@@ -2,16 +2,16 @@
 members = [ "eipw-preamble", "eipw-lint", "eipw-lint-js", "eipw-snippets" ]
 
 [workspace.package]
-version = "0.10.0-dev"
+version = "0.10.0"
 edition = "2021"
 license = "MPL-2.0"
 repository = "https://github.com/ethereum/eipw"
 rust-version = "1.81"
 
 [workspace.dependencies]
-eipw-snippets = { path = "eipw-snippets", version = "0.2.0-dev" }
-eipw-lint = { path = "eipw-lint", version = "0.10.0-dev" }
-eipw-preamble = { path = "eipw-preamble", version = "0.3.0-dev" }
+eipw-snippets = { path = "eipw-snippets", version = "0.2.0" }
+eipw-lint = { path = "eipw-lint", version = "0.10.0" }
+eipw-preamble = { path = "eipw-preamble", version = "0.3.0" }
 tokio = "1.44.1"
 serde_json = "1.0.140"
 toml = "0.8.20"

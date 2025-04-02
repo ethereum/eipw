@@ -113,7 +113,7 @@ fn list_lints() {
 }
 
 #[cfg(target_arch = "wasm32")]
-async fn read_config(_path: &Path) -> Result<Options, toml::de::Error> {
+async fn read_config(_path: &Path) -> Result<DefaultOptions, toml::de::Error> {
     todo!()
 }
 

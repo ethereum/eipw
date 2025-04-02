@@ -459,7 +459,7 @@ checksum = "b2972feb8dffe7bc8c5463b1dacda1b0dfbed3710e50f977d965429692d74cd8"
 
 [[package]]
 name = "eipw"
-version = "0.10.0"
+version = "0.11.0-dev"
 dependencies = [
  "clap",
  "eipw-lint",
@@ -476,7 +476,7 @@ dependencies = [
 
 [[package]]
 name = "eipw-lint"
-version = "0.10.0"
+version = "0.11.0-dev"
 dependencies = [
  "assert_matches",
  "chrono",
@@ -508,7 +508,7 @@ dependencies = [
 
 [[package]]
 name = "eipw-lint-js"
-version = "0.10.0"
+version = "0.11.0-dev"
 dependencies = [
  "console_error_panic_hook",
  "eipw-lint",
@@ -526,7 +526,7 @@ dependencies = [
 
 [[package]]
 name = "eipw-preamble"
-version = "0.3.0"
+version = "0.4.0-dev"
 dependencies = [
  "assert_matches",
  "eipw-snippets",
@@ -536,7 +536,7 @@ dependencies = [
 
 [[package]]
 name = "eipw-snippets"
-version = "0.2.0"
+version = "0.3.0-dev"
 dependencies = [
  "annotate-snippets",
  "serde",

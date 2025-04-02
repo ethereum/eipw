@@ -18,6 +18,7 @@ _Breaks compatibility with `--config`._
  - Report message improvements. ([`8fab180`])
  - Replace `prefix` / `suffix` options with templates. ([`d7dc36b`])
  - `--config` now extends the default configuration instead of replacing it. ([`b693091`])
+ - Report source position for markdown nodes. ([#116])
 
 [`24e5142`]: https://github.com/ethereum/eipw/commit/24e51422403126d3e78a3d9bb1df80c29cc4b085
 [`9812014`]: https://github.com/ethereum/eipw/commit/9812014159fd609c6c3addb21b27f87257ff29c0
@@ -30,6 +31,7 @@ _Breaks compatibility with `--config`._
 [@apeaircreative]: https://github.com/apeaircreative
 [`b693091`]: https://github.com/ethereum/eipw/commit/b6930911a0b91fd71fc16ca924c617f4bdec9b2d
 [`1d595cc`]: https://github.com/ethereum/eipw/commit/1d595cc61ba4f92838096429211d1b475b546d37
+[#116]: https://github.com/ethereum/eipw/pull/116
 
 ## 0.9.0 - 2024-10-23
 

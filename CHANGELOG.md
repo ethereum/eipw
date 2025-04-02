@@ -19,6 +19,7 @@ _Breaks compatibility with `--config`._
  - Replace `prefix` / `suffix` options with templates. ([`d7dc36b`])
  - `--config` now extends the default configuration instead of replacing it. ([`b693091`])
  - Report source position for markdown nodes. ([#116])
+ - Bumped MSRV to 1.81.
 
 [`24e5142`]: https://github.com/ethereum/eipw/commit/24e51422403126d3e78a3d9bb1df80c29cc4b085
 [`9812014`]: https://github.com/ethereum/eipw/commit/9812014159fd609c6c3addb21b27f87257ff29c0

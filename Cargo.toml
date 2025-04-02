@@ -6,7 +6,7 @@ version = "0.10.0-dev"
 edition = "2021"
 license = "MPL-2.0"
 repository = "https://github.com/ethereum/eipw"
-rust-version = "1.80"
+rust-version = "1.81"
 
 [workspace.dependencies]
 eipw-snippets = { path = "eipw-snippets", version = "0.2.0-dev" }

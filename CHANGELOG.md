@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.10.0-dev - [Unreleased]
+## 0.10.0 - 2024-04-02
 
 _Breaks compatibility with `--config`._
 

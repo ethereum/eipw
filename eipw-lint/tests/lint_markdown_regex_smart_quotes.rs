@@ -4,13 +4,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_lint::lints::markdown::NoSmartQuotes;
+use eipw_lint::lints::markdown::{regex::Mode, Regex};
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 use pretty_assertions::assert_eq;
 
 #[tokio::test]
-async fn basic_smart_quotes() {
+async fn regex_smart_quotes() {
     // Using Unicode escape sequences for smart quotes
     let src = "---
 header: value1
@@ -21,7 +21,14 @@ This document uses \u{201C}smart quotes\u{201D} which should be flagged.
 
     let linter = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-no-smart-quotes", NoSmartQuotes);
+        .deny(
+            "markdown-re-smart-quotes",
+            Regex {
+                mode: Mode::Excludes,
+                pattern: r"[\u{201C}\u{201D}]|[\u{2018}\u{2019}]",
+                message: "smart quotes are not allowed (use straight quotes instead)",
+            },
+        );
 
     let reports = linter
         .check_slice(None, src)
@@ -34,7 +41,7 @@ This document uses \u{201C}smart quotes\u{201D} which should be flagged.
 }
 
 #[tokio::test]
-async fn no_smart_quotes() {
+async fn regex_no_smart_quotes() {
     let src = "---
 header: value1
 ---
@@ -44,7 +51,14 @@ This document uses \"straight quotes\" which are fine.
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-no-smart-quotes", NoSmartQuotes)
+        .deny(
+            "markdown-re-smart-quotes",
+            Regex {
+                mode: Mode::Excludes,
+                pattern: r"[\u{201C}\u{201D}]|[\u{2018}\u{2019}]",
+                message: "smart quotes are not allowed (use straight quotes instead)",
+            },
+        )
         .check_slice(None, src)
         .run()
         .await
@@ -55,7 +69,7 @@ This document uses \"straight quotes\" which are fine.
 }
 
 #[tokio::test]
-async fn smart_single_quotes() {
+async fn regex_smart_single_quotes() {
     // Using Unicode escape sequences for smart single quotes
     let src = "---
 header: value1
@@ -66,7 +80,14 @@ This document uses \u{2018}smart single quotes\u{2019} which should also be flag
 
     let linter = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-no-smart-quotes", NoSmartQuotes);
+        .deny(
+            "markdown-re-smart-quotes",
+            Regex {
+                mode: Mode::Excludes,
+                pattern: r"[\u{201C}\u{201D}]|[\u{2018}\u{2019}]",
+                message: "smart quotes are not allowed (use straight quotes instead)",
+            },
+        );
 
     let reports = linter
         .check_slice(None, src)

@@ -77,6 +77,54 @@ pub enum DefaultLint<S> {
 
 impl<S> DefaultLint<S>
 where
+    S: 'static
+        + Display
+        + Debug
+        + AsRef<str>
+        + Clone
+        + PartialEq<String>
+        + for<'eq> PartialEq<&'eq str>,
+{
+    pub(crate) fn boxed(self) -> Box<dyn Lint> {
+        match self {
+            Self::PreambleAuthor { name } => Box::new(name),
+            Self::PreambleDate { name } => Box::new(name),
+            Self::PreambleFileName(l) => Box::new(l),
+            Self::PreambleLength(l) => Box::new(l),
+            Self::PreambleList { name } => Box::new(name),
+            Self::PreambleNoDuplicates(l) => Box::new(l),
+            Self::PreambleOneOf(l) => Box::new(l),
+            Self::PreambleOrder { names } => Box::new(names),
+            Self::PreambleProposalRef(l) => Box::new(l),
+            Self::PreambleRegex(l) => Box::new(l),
+            Self::PreambleRequireReferenced(l) => Box::new(l),
+            Self::PreambleRequired { names } => Box::new(names),
+            Self::PreambleRequiredIfEq(l) => Box::new(l),
+            Self::PreambleRequiresStatus(l) => Box::new(l),
+            Self::PreambleTrim(l) => Box::new(l),
+            Self::PreambleUint { name } => Box::new(name),
+            Self::PreambleUintList { name } => Box::new(name),
+            Self::PreambleUrl { name } => Box::new(name),
+
+            Self::MarkdownHtmlComments(l) => Box::new(l),
+            Self::MarkdownJsonSchema(l) => Box::new(l),
+            Self::MarkdownLinkFirst { pattern } => Box::new(pattern),
+            Self::MarkdownNoBackticks { pattern } => Box::new(pattern),
+            Self::MarkdownLinkStatus(l) => Box::new(l),
+            Self::MarkdownProposalRef(l) => Box::new(l),
+            Self::MarkdownRegex(l) => Box::new(l),
+            Self::MarkdownRelativeLinks(l) => Box::new(l),
+            Self::MarkdownSectionOrder { sections } => Box::new(sections),
+            Self::MarkdownSectionRequired { sections } => Box::new(sections),
+            Self::MarkdownHeadingsSpace(l) => Box::new(l),
+            Self::MarkdownHeadingFirst(l) => Box::new(l),
+            Self::MarkdownSpell(l) => Box::new(l),
+        }
+    }
+}
+
+impl<S> DefaultLint<S>
+where
     S: Display + Debug + AsRef<str> + Clone + PartialEq<String> + for<'eq> PartialEq<&'eq str>,
 {
     pub(crate) fn as_inner(&self) -> &dyn Lint {

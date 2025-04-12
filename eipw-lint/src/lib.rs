@@ -60,6 +60,293 @@ pub enum Error {
     },
 }
 
+#[doc(hidden)]
+/// No stability guaranteed.
+pub fn default_modifiers_enum() -> Vec<DefaultModifier<&'static str>> {
+    vec![
+        DefaultModifier::SetDefaultAnnotation(modifiers::SetDefaultAnnotation {
+            name: "status",
+            value: "Stagnant",
+            annotation_level: Level::Warning,
+        }),
+        DefaultModifier::SetDefaultAnnotation(modifiers::SetDefaultAnnotation {
+            name: "status",
+            value: "Withdrawn",
+            annotation_level: Level::Warning,
+        }),
+    ]
+}
+
+pub fn default_modifiers() -> impl Iterator<Item = Box<dyn Modifier>> {
+    default_modifiers_enum().into_iter().map(|m| match m {
+        DefaultModifier::SetDefaultAnnotation(m) => Box::new(m) as Box<dyn Modifier>,
+    })
+}
+
+pub fn default_lints() -> impl Iterator<Item = (&'static str, Box<dyn Lint>)> {
+    default_lints_enum().map(|(name, lint)| (name, lint.boxed()))
+}
+
+#[doc(hidden)]
+/// No stability guaranteed.
+pub fn default_lints_enum() -> impl Iterator<Item = (&'static str, DefaultLint<&'static str>)> {
+    use self::DefaultLint::*;
+    use lints::preamble::regex;
+    use lints::{markdown, preamble};
+
+    [
+        //
+        // Preamble
+        //
+        ("preamble-no-dup", PreambleNoDuplicates(preamble::NoDuplicates)),
+        ("preamble-trim", PreambleTrim(preamble::Trim)),
+        ("preamble-eip", PreambleUint { name: preamble::Uint("eip") }),
+        ("preamble-author", PreambleAuthor { name: preamble::Author("author") } ),
+        ("preamble-re-title", PreambleRegex(preamble::Regex {
+            name: "title",
+            mode: regex::Mode::Excludes,
+            pattern: r"(?i)standar\w*\b",
+            message: "preamble header `title` should not contain `standard` (or similar words.)",
+        })),
+        ("preamble-re-title-colon", PreambleRegex(preamble::Regex {
+            name: "title",
+            mode: regex::Mode::Excludes,
+            pattern: r":",
+            message: "preamble header `title` should not contain `:`",
+        })),
+        (
+            "preamble-refs-title",
+            PreambleProposalRef(preamble::ProposalRef {
+                name: "title",
+            }),
+        ),
+        (
+            "preamble-refs-description",
+            PreambleProposalRef(preamble::ProposalRef {
+                name: "description",
+            }),
+        ),
+        (
+            "preamble-re-title-erc-dash",
+            PreambleRegex(preamble::Regex {
+                name: "title",
+                mode: regex::Mode::Excludes,
+                pattern: r"(?i)erc[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
+            }),
+        ),
+        (
+            "preamble-re-title-eip-dash",
+            PreambleRegex(preamble::Regex {
+                name: "title",
+                mode: regex::Mode::Excludes,
+                pattern: r"(?i)eip[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
+            }),
+        ),
+        (
+            "preamble-re-description-erc-dash",
+            PreambleRegex(preamble::Regex {
+                name: "description",
+                mode: regex::Mode::Excludes,
+                pattern: r"(?i)erc[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
+            }),
+        ),
+        (
+            "preamble-re-description-eip-dash",
+            PreambleRegex(preamble::Regex {
+                name: "description",
+                mode: regex::Mode::Excludes,
+                pattern: r"(?i)eip[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
+            }),
+        ),
+        ("preamble-re-description", PreambleRegex(preamble::Regex {
+            name: "description",
+            mode: regex::Mode::Excludes,
+            pattern: r"(?i)standar\w*\b",
+            message: "preamble header `description` should not contain `standard` (or similar words.)",
+        })),
+        ("preamble-re-description-colon", PreambleRegex(preamble::Regex {
+            name: "description",
+            mode: regex::Mode::Excludes,
+            pattern: r":",
+            message: "preamble header `description` should not contain `:`",
+        })),
+        (
+            "preamble-discussions-to",
+            PreambleUrl { name: preamble::Url("discussions-to") },
+        ),
+        (
+            "preamble-re-discussions-to",
+            PreambleRegex(preamble::Regex {
+                name: "discussions-to",
+                mode: regex::Mode::Includes,
+                pattern: "^https://ethereum-magicians.org/t/[^/]+/[0-9]+$",
+                message: concat!(
+                    "preamble header `discussions-to` should ",
+                    "point to a thread on ethereum-magicians.org"
+                ),
+            }),
+        ),
+        ("preamble-list-author", PreambleList { name: preamble::List("author") }),
+        ("preamble-list-requires", PreambleList{name: preamble::List("requires")}),
+        (
+            "preamble-len-requires",
+            PreambleLength(preamble::Length {
+                name: "requires",
+                min: Some(1),
+                max: None,
+            }
+            ),
+        ),
+        (
+            "preamble-file-name",
+            PreambleFileName(preamble::FileName {
+                name: "eip",
+                format: "eip-{}",
+            }),
+        ),
+        //
+        // Markdown
+        //
+        (
+            "markdown-refs",
+            MarkdownProposalRef(markdown::ProposalRef),
+        ),
+        (
+            "markdown-html-comments",
+            MarkdownHtmlComments(markdown::HtmlComments {
+                name: "status",
+                warn_for: vec![
+                    "Draft",
+                    "Withdrawn",
+                ],
+            }
+            ),
+        ),
+        (
+            "markdown-req-section",
+            MarkdownSectionRequired { sections: markdown::SectionRequired(vec![
+                "Abstract",
+                "Specification",
+                "Rationale",
+                "Security Considerations",
+                "Copyright",
+            ])
+            },
+        ),
+        (
+            "markdown-order-section",
+            MarkdownSectionOrder {
+                sections: markdown::SectionOrder(vec![
+                    "Abstract",
+                    "Motivation",
+                    "Specification",
+                    "Rationale",
+                    "Backwards Compatibility",
+                    "Test Cases",
+                    "Reference Implementation",
+                    "Security Considerations",
+                    "Copyright",
+                ])
+            },
+        ),
+        (
+            "markdown-re-erc-dash",
+            MarkdownRegex(markdown::Regex {
+                mode: markdown::regex::Mode::Excludes,
+                pattern: r"(?i)erc[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `ERC-N` (not `ERCN` or `ERC N`)",
+            }),
+        ),
+        (
+            "markdown-re-eip-dash",
+            MarkdownRegex(markdown::Regex {
+                mode: markdown::regex::Mode::Excludes,
+                pattern: r"(?i)eip[\s]*[0-9]+",
+                message: "proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)",
+            }),
+        ),
+        (
+            "markdown-no-smart-quotes",
+            MarkdownRegex(markdown::Regex {
+                mode: markdown::regex::Mode::Excludes,
+                pattern: r"[\u{201C}\u{201D}]|[\u{2018}\u{2019}]",
+                message: "smart quotes are not allowed (use straight quotes instead)",
+            }),
+        ),
+        (
+            "markdown-link-first",
+            MarkdownLinkFirst {
+                pattern: markdown::LinkFirst(r"(?i)(?:eip|erc)-([0-9]+)"),
+            }
+        ),
+        (
+            "markdown-no-backticks",
+            MarkdownNoBackticks {
+                pattern: markdown::NoBackticks(r"(?i)(eip|erc)-[0-9]+"),
+            }
+        ),
+        ("markdown-rel-links", MarkdownRelativeLinks(markdown::RelativeLinks {
+            exceptions: vec![
+                "^https://(www\\.)?github\\.com/ethereum/consensus-specs/blob/[a-f0-9]{40}/.+$",
+                "^https://(www\\.)?github\\.com/ethereum/consensus-specs/commit/[a-f0-9]{40}$",
+
+                "^https://(www\\.)?github\\.com/ethereum/devp2p/blob/[0-9a-f]{40}/.+$",
+                "^https://(www\\.)?github\\.com/ethereum/devp2p/commit/[0-9a-f]{40}$",
+
+                "^https://(www\\.)?github\\.com/bitcoin/bips/blob/[0-9a-f]{40}/bip-[0-9]+\\.mediawiki$",
+
+                "^https://www\\.w3\\.org/TR/[0-9][0-9][0-9][0-9]/.*$",
+                "^https://[a-z]*\\.spec\\.whatwg\\.org/commit-snapshots/[0-9a-f]{40}/$",
+                "^https://www\\.rfc-editor\\.org/rfc/.*$",
+            ]
+        })),
+        (
+            "markdown-link-status",
+            MarkdownLinkStatus(markdown::LinkStatus {
+                pattern: r"(?i)(?:eip|erc)-([0-9]+).md$",
+                status: "status",
+                flow: vec![
+                    vec!["Draft", "Stagnant"],
+                    vec!["Review"],
+                    vec!["Last Call"],
+                    vec!["Final", "Withdrawn", "Living"],
+                ]
+            }),
+        ),
+        (
+            "markdown-json-cite",
+            MarkdownJsonSchema(markdown::JsonSchema {
+                additional_schemas: vec![
+                    (
+                        "https://resource.citationstyles.org/schema/v1.0/input/json/csl-data.json",
+                        include_str!("lints/markdown/json_schema/csl-data.json"),
+                    ),
+                ],
+                schema: include_str!("lints/markdown/json_schema/citation.json"),
+                language: "csl-json",
+                help: concat!(
+                    "see https://github.com/ethereum/eipw/blob/",
+                    "master/eipw-lint/src/lints/markdown/",
+                    "json_schema/citation.json",
+                ),
+            }),
+        ),
+        (
+            "markdown-headings-space",
+            MarkdownHeadingsSpace(markdown::HeadingsSpace{}),
+        ),
+        (
+            "markdown-heading-first",
+            MarkdownHeadingFirst(markdown::HeadingFirst),
+        )
+    ]
+    .into_iter()
+}
+
 #[derive(Debug)]
 enum Source<'a> {
     String {

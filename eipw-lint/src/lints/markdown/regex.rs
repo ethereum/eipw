@@ -151,6 +151,10 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
     }
 
     fn enter_link(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {
+        if link.title.is_empty() {
+            println!("Skipping autolink: {}", link.url);
+            return Ok(Next::SkipChildren);
+        }
         self.check(ast, &link.title)
     }
 

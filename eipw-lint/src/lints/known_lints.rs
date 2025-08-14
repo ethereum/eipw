@@ -409,11 +409,13 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                     exceptions: l.exceptions.iter().map(|x| x.to_string()).collect(),
                 })
             }
-            DefaultLint::MarkdownRequiresRefBody { requires } => DefaultLint::MarkdownRequiresRefBody {
-                requires: markdown::RequiresRefBody {
-                    requires: requires.requires.to_string(),
-                },
-            },
+            DefaultLint::MarkdownRequiresRefBody { requires } => {
+                DefaultLint::MarkdownRequiresRefBody {
+                    requires: markdown::RequiresRefBody {
+                        requires: requires.requires.to_string(),
+                    },
+                }
+            }
             DefaultLint::MarkdownSectionOrder { sections } => DefaultLint::MarkdownSectionOrder {
                 sections: markdown::SectionOrder(
                     sections.0.iter().map(|x| x.to_string()).collect(),

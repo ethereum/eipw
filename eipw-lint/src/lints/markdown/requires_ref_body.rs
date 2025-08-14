@@ -83,20 +83,17 @@ where
         let value_start = name_count + 2; // +2 for the colon and space
 
         ctx.report(
-            ctx.annotation_level()
-                .title(&label)
-                .id(slug)
-                .snippet(
-                    Snippet::source(source)
-                        .line_start(requires_field.line_start())
-                        .origin_opt(ctx.origin())
-                        .annotation(
-                            ctx.annotation_level()
-                                .span_utf8(source, value_start, requires_field.value().len())
-                                .label("required here"),
-                        )
-                        .fold(false),
-                ),
+            ctx.annotation_level().title(&label).id(slug).snippet(
+                Snippet::source(source)
+                    .line_start(requires_field.line_start())
+                    .origin_opt(ctx.origin())
+                    .annotation(
+                        ctx.annotation_level()
+                            .span_utf8(source, value_start, requires_field.value().len())
+                            .label("required here"),
+                    )
+                    .fold(false),
+            ),
         )?;
 
         Ok(())

@@ -73,7 +73,7 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
                 "uppercase keywords should not be formatted with {} emphasis",
                 emphasis_desc
             );
-            
+
             self.ctx.report(
                 self.ctx
                     .annotation_level()
@@ -81,9 +81,8 @@ impl<'a, 'b, 'c> Visitor<'a, 'b, 'c> {
                     .id(self.slug)
                     .snippet(self.ctx.ast_snippet(ast, None, None))
                     .footer(Level::Info.title(&format!(
-                        "uppercase keyword `{}` found in {} text", 
-                        keyword, 
-                        emphasis_desc
+                        "uppercase keyword `{}` found in {} text",
+                        keyword, emphasis_desc
                     ))),
             )?;
         }

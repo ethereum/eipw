@@ -224,7 +224,9 @@ where
             Self::MarkdownNoBackticks { pattern } => DefaultLint::MarkdownNoBackticks {
                 pattern: markdown::NoBackticks(pattern.0.as_ref()),
             },
-            Self::MarkdownNoEmphasisKeywords(_) => DefaultLint::MarkdownNoEmphasisKeywords(markdown::NoEmphasisKeywords),
+            Self::MarkdownNoEmphasisKeywords(_) => {
+                DefaultLint::MarkdownNoEmphasisKeywords(markdown::NoEmphasisKeywords)
+            }
             Self::MarkdownLinkStatus(l) => DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
                 pattern: l.pattern.as_ref(),
                 status: l.status.as_ref(),
@@ -379,7 +381,9 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
             DefaultLint::MarkdownNoBackticks { pattern } => DefaultLint::MarkdownNoBackticks {
                 pattern: markdown::NoBackticks(pattern.0.to_string()),
             },
-            DefaultLint::MarkdownNoEmphasisKeywords(_) => DefaultLint::MarkdownNoEmphasisKeywords(markdown::NoEmphasisKeywords),
+            DefaultLint::MarkdownNoEmphasisKeywords(_) => {
+                DefaultLint::MarkdownNoEmphasisKeywords(markdown::NoEmphasisKeywords)
+            }
             DefaultLint::MarkdownLinkStatus(l) => {
                 DefaultLint::MarkdownLinkStatus(markdown::LinkStatus {
                     pattern: l.pattern.to_string(),

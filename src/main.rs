@@ -279,11 +279,11 @@ fn main() {
         Ok(o) => o,
         Err(e) => {
             e.print().unwrap();
-            std::process::exit(ExitCode::Usage.into());
+            std::process::exit((ExitCode::Usage as u8).into());
         }
     };
 
     if let Err(e) = run(opts) {
-        std::process::exit(e.into());
+        std::process::exit((e as u8).into());
     }
 }

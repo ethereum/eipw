@@ -86,3 +86,76 @@ text after
 "#
     );
 }
+
+#[tokio::test]
+async fn inline_html_comment_error() {
+    let src = r#"---
+header: value2
+---
+hello
+
+This is text with an <!-- inline comment --> in the middle.
+
+text after
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-html-comments",
+            HtmlComments {
+                name: "header",
+                warn_for: vec!["value1"],
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert!(
+        reports.contains("error[markdown-html-comments]"),
+        "Expected error for inline HTML comment, got: {}",
+        reports
+    );
+    assert!(
+        reports.contains("inline comment"),
+        "Expected mention of inline comment, got: {}",
+        reports
+    );
+}
+
+#[tokio::test]
+async fn inline_html_comment_warn() {
+    let src = r#"---
+header: value1
+---
+hello
+
+This is text with an <!-- inline comment --> in the middle.
+
+text after
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-html-comments",
+            HtmlComments {
+                name: "header",
+                warn_for: vec!["value1"],
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert!(
+        reports.contains("warning[markdown-html-comments]"),
+        "Expected warning for inline HTML comment, got: {}",
+        reports
+    );
+}

@@ -47,9 +47,15 @@ where
 
         for node in ctx.body().descendants() {
             let data = node.data.borrow();
-            let fragment = match data.value {
-                NodeValue::HtmlBlock(ref b) => Html::parse_fragment(&b.literal),
-                _ => continue,
+            let html_content = match data.value {
+                NodeValue::HtmlBlock(ref b) => Some(b.literal.as_str()),
+                NodeValue::HtmlInline(ref s) => Some(s.as_str()),
+                _ => None,
+            };
+
+            let fragment = match html_content {
+                Some(content) => Html::parse_fragment(content),
+                None => continue,
             };
 
             for node in fragment.tree.nodes() {

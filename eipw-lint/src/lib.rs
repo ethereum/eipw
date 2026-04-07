@@ -565,11 +565,11 @@ impl<'a> SnippetExt<'a> for Snippet<'a> {
 }
 
 trait LevelExt {
-    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation;
+    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation<'_>;
 }
 
 impl LevelExt for Level {
-    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation {
+    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation<'_> {
         let end = ceil_char_boundary(text, start + min_len);
         self.span(start..end)
     }

@@ -7,8 +7,8 @@
 use eipw_snippets::{Level, Snippet};
 
 use comrak::nodes::{
-    Ast, NodeCode, NodeCodeBlock, NodeFootnoteDefinition, NodeFootnoteReference, NodeHtmlBlock,
-    NodeLink,
+    Ast, AstNode, NodeCode, NodeCodeBlock, NodeFootnoteDefinition, NodeFootnoteReference,
+    NodeHtmlBlock, NodeLink, NodeValue,
 };
 
 use crate::lints::{Context, Error, Lint};
@@ -115,8 +115,45 @@ impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
     }
 }
 
+fn is_autolink(node: &AstNode) -> bool {
+    let data = node.data.borrow();
+    let NodeValue::Link(link) = &data.value else {
+        return false;
+    };
+
+    if !link.title.is_empty() {
+        return false;
+    }
+
+    let (Some(child), Some(last)) = (node.first_child(), node.last_child()) else {
+        return false;
+    };
+
+    if !child.same_node(last) {
+        return false;
+    }
+
+    let child = child.data.borrow();
+    let NodeValue::Text(text) = &child.value else {
+        return false;
+    };
+
+    // Email and `www.` autolinks get a scheme that doesn't appear in their text.
+    ["", "mailto:", "http://"]
+        .iter()
+        .any(|scheme| link.url.strip_prefix(scheme) == Some(text.as_str()))
+}
+
 impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
     type Error = Error;
+
+    fn enter(&mut self, node: &AstNode) -> Result<Next, Self::Error> {
+        if is_autolink(node) {
+            return Ok(Next::SkipChildren);
+        }
+
+        self.dispatch_enter(node)
+    }
 
     fn enter_front_matter(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
         Ok(Next::SkipChildren)

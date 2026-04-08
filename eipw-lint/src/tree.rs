@@ -23,6 +23,10 @@ pub trait Visitor {
     type Error: std::error::Error;
 
     fn enter(&mut self, node: &AstNode) -> Result<Next, Self::Error> {
+        self.dispatch_enter(node)
+    }
+
+    fn dispatch_enter(&mut self, node: &AstNode) -> Result<Next, Self::Error> {
         let data = node.data.borrow();
         match &data.value {
             NodeValue::Document => self.enter_document(&data),
@@ -258,6 +262,10 @@ pub trait Visitor {
     }
 
     fn depart(&mut self, node: &AstNode) -> Result<(), Self::Error> {
+        self.dispatch_depart(node)
+    }
+
+    fn dispatch_depart(&mut self, node: &AstNode) -> Result<(), Self::Error> {
         let data = node.data.borrow();
         match &data.value {
             NodeValue::Alert(a) => self.depart_alert(&data, a),

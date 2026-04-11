@@ -264,3 +264,119 @@ header: value1
 
     assert_eq!(reports, "");
 }
+
+#[tokio::test]
+async fn non_ascii_json_content() {
+    // Regression test for https://github.com/ethereum/eipw/issues/100
+    // Multi-byte UTF-8 characters caused a panic because byte length != char count.
+    let src = r#"---
+header: value1
+---
+
+```hello
+{
+  "author": [
+    {
+      "family": "Mazières"
+    }
+  ]
+}
+```
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-json-schema",
+            JsonSchema {
+                language: "hello",
+                additional_schemas: vec![],
+                help: "see https://example.com/schema.json",
+                schema: r#"{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Root",
+    "type": "object",
+    "required": ["author"],
+    "properties": {
+        "author": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["family"],
+                "properties": {
+                    "family": { "type": "string" }
+                }
+            }
+        }
+    }
+}"#,
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    // Should not panic, and should be valid (no errors reported)
+    assert_eq!(reports, "");
+}
+
+#[tokio::test]
+async fn non_ascii_json_content_invalid_schema() {
+    // Regression test for https://github.com/ethereum/eipw/issues/100
+    // When multi-byte UTF-8 chars are present and schema validation fails,
+    // byte length != char count caused a panic in annotate-snippets.
+    let src = r#"---
+header: value1
+---
+
+```hello
+{
+  "author": [
+    {
+      "family": "Mazières"
+    }
+  ]
+}
+```
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-json-schema",
+            JsonSchema {
+                language: "hello",
+                additional_schemas: vec![],
+                help: "see https://example.com/schema.json",
+                schema: r#"{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Root",
+    "type": "object",
+    "required": ["author"],
+    "properties": {
+        "author": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["family", "given"],
+                "properties": {
+                    "family": { "type": "string" },
+                    "given": { "type": "string" }
+                }
+            }
+        }
+    }
+}"#,
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    // Should report a validation error without panicking
+    assert!(reports.contains("does not conform to required schema"));
+}

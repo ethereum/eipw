@@ -55,6 +55,7 @@ where
                 message: self.message.as_ref(),
                 pattern,
                 slug,
+                link_stack: Vec::new(),
             },
         };
 
@@ -70,6 +71,7 @@ struct ExcludesVisitor<'a, 'b, 'c> {
     pattern: &'c str,
     slug: &'c str,
     message: &'c str,
+    link_stack: Vec<String>,
 }
 
 impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
@@ -147,11 +149,20 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
     }
 
     fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
+        if self.link_stack.last().map(|u| u.as_str()) == Some(txt) {
+            return Ok(Next::TraverseChildren);
+        }
         self.check(ast, txt)
     }
 
     fn enter_link(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {
+        self.link_stack.push(link.url.clone());
         self.check(ast, &link.title)
+    }
+
+    fn depart_link(&mut self, _ast: &Ast, _link: &NodeLink) -> Result<(), Self::Error> {
+        self.link_stack.pop();
+        Ok(())
     }
 
     fn enter_image(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {

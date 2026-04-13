@@ -55,6 +55,7 @@ where
                 message: self.message.as_ref(),
                 pattern,
                 slug,
+                link_url_stack: Vec::new(),
             },
         };
 
@@ -70,6 +71,9 @@ struct ExcludesVisitor<'a, 'b, 'c> {
     pattern: &'c str,
     slug: &'c str,
     message: &'c str,
+    // Stack of link URLs. When entering a link, push its URL.
+    // When entering text, if text equals the top URL, it's an autolink - skip it.
+    link_url_stack: Vec<String>,
 }
 
 impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
@@ -147,11 +151,30 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
     }
 
     fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
+        // Check if this text is inside an autolink by comparing with the parent link URL
+        if let Some(url) = self.link_url_stack.last() {
+            if txt == url {
+                // This is an autolink - the text equals the URL, so skip checking
+                return Ok(Next::TraverseChildren);
+            }
+        }
         self.check(ast, txt)
     }
 
     fn enter_link(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {
-        self.check(ast, &link.title)
+        // Push the link URL onto the stack before visiting children
+        self.link_url_stack.push(link.url.clone());
+        
+        // Check the link title (for regular links with explicit title text)
+        self.check(ast, &link.title)?;
+        
+        Ok(Next::TraverseChildren)
+    }
+
+    fn depart_link(&mut self, _ast: &Ast, _link: &NodeLink) -> Result<(), Self::Error> {
+        // Pop the URL from the stack when leaving the link
+        self.link_url_stack.pop();
+        Ok(())
     }
 
     fn enter_image(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {

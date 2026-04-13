@@ -342,6 +342,13 @@ where
                     Some(f) if f == "index.md" => source_dir.join(".."),
                     Some(_) | None => source_dir.to_path_buf(),
                 };
+                let root = if root.is_relative() {
+                    std::env::current_dir()
+                        .map(|cwd| cwd.join(&root))
+                        .unwrap_or(root)
+                } else {
+                    root
+                };
 
                 for proposal in fetch_proposals.into_iter() {
                     let entry = match fetched_eips.entry(proposal) {

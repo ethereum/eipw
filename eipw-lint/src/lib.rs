@@ -337,6 +337,19 @@ where
                     Source::File(p) => p,
                     _ => unreachable!(),
                 };
+
+                #[cfg(not(target_arch = "wasm32"))]
+                let source_path = if source_path.is_relative() {
+                    std::env::current_dir()
+                        .map(|cwd| cwd.join(source_path))
+                        .unwrap_or_else(|_| source_path.to_path_buf())
+                } else {
+                    source_path.to_path_buf()
+                };
+
+                #[cfg(target_arch = "wasm32")]
+                let source_path = source_path.to_path_buf();
+
                 let source_dir = source_path.parent().unwrap_or_else(|| Path::new("."));
                 let root = match source_path.file_name() {
                     Some(f) if f == "index.md" => source_dir.join(".."),

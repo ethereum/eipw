@@ -13,6 +13,9 @@ async fn json_cite_unicode_panic() {
     // This reproduces issue #100: panic with non-ASCII input in markdown-json-cite
     // The schema requires "title" as a string, but the JSON only has "family".
     // This causes schema validation to fail, which triggers the annotation span code.
+    // Previously, `source.chars().count()` was used for the span end, which counted
+    // Unicode scalar points instead of bytes. Since the snippet system expects byte
+    // offsets, multi-byte characters like "è" caused a panic.
     let src = r#"---
 eip: 3
 ---
@@ -55,12 +58,16 @@ Some text somewhere that needs a citation. [^1]
         .run()
         .await;
 
-    match result {
-        Ok(reports) => {
-            println!("OK:\n{}", reports.into_inner());
-        }
-        Err(e) => {
-            println!("Err: {:?}", e);
-        }
-    }
+    let reports = result.expect("linting should not panic with Unicode input");
+    let output = reports.into_inner();
+    assert!(
+        output.contains("does not conform to required schema"),
+        "expected schema validation error in output, got: {}",
+        output
+    );
+    assert!(
+        output.contains("\"title\" is a required property"),
+        "expected required property error in output, got: {}",
+        output
+    );
 }

@@ -117,7 +117,7 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         let source = self.ctx.ast_lines(ast);
         let annotations = labels
             .iter()
-            .map(|l| self.ctx.annotation_level().span(0..source.chars().count()).label(l));
+            .map(|l| self.ctx.annotation_level().span(0..source.len()).label(l));
 
         let label = format!(
             "code block of type `{}` does not conform to required schema",

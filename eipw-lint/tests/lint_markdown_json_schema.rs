@@ -264,3 +264,34 @@ header: value1
 
     assert_eq!(reports, "");
 }
+
+#[tokio::test]
+async fn unicode_in_code_block() {
+    let src = r#"---
+header: value1
+---
+
+```hello
+{"family": "Mazières"}
+```
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-json-schema",
+            JsonSchema {
+                language: "hello",
+                additional_schemas: vec![],
+                schema: r#"{ "type": "object", "required": ["title"], "properties": { "title": { "type": "string" } } }"#,
+                help: "see https://example.com/schema.json",
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    println!("{}", reports);
+}

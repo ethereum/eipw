@@ -49,6 +49,7 @@ where
             let data = node.data.borrow();
             let fragment = match data.value {
                 NodeValue::HtmlBlock(ref b) => Html::parse_fragment(&b.literal),
+                NodeValue::HtmlInline(ref b) => Html::parse_fragment(b),
                 _ => continue,
             };
 

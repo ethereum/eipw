@@ -86,3 +86,71 @@ text after
 "#
     );
 }
+
+#[tokio::test]
+async fn inline_warn() {
+    let src = r#"---
+header: value1
+---
+hello <!-- inline comment --> world
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-html-comments",
+            HtmlComments {
+                name: "header",
+                warn_for: vec!["value1"],
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"warning[markdown-html-comments]: HTML comments are only allowed while `header` is one of: `value1`
+  |
+4 | hello <!-- inline comment --> world
+  |       -----------------------
+  |
+"#
+    );
+}
+
+#[tokio::test]
+async fn inline_error() {
+    let src = r#"---
+header: value2
+---
+hello <!-- inline comment --> world
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-html-comments",
+            HtmlComments {
+                name: "header",
+                warn_for: vec!["value1"],
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-html-comments]: HTML comments are not allowed when `header` is `value2`
+  |
+4 | hello <!-- inline comment --> world
+  |       ^^^^^^^^^^^^^^^^^^^^^^^
+  |
+"#
+    );
+}

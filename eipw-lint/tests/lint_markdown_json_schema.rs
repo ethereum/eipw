@@ -264,3 +264,56 @@ header: value1
 
     assert_eq!(reports, "");
 }
+
+// Regression test for https://github.com/ethereum/eipw/issues/100, where a
+// panic would occur reporting a schema violation on a code block containing
+// multi-byte UTF-8 characters.
+#[tokio::test]
+async fn non_ascii_code_block_does_not_panic() {
+    let src = r#"---
+header: value1
+---
+
+```hello
+{"name": "Mazières"}
+```
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny(
+            "markdown-json-schema",
+            JsonSchema {
+                language: "hello",
+                additional_schemas: vec![],
+                help: "see https://example.com/schema.json",
+                schema: r#"{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Root",
+    "type": "object",
+    "required": ["id"],
+    "properties": {
+        "id": { "type": "string" }
+    }
+}"#,
+            },
+        )
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-json-schema]: code block of type `hello` does not conform to required schema
+  |
+5 | / ```hello
+6 | | {"name": "Mazières"}
+7 | | ```
+  | |___^ "id" is a required property
+  |
+  = help: see https://example.com/schema.json
+"#
+    );
+}

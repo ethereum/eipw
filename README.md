@@ -70,6 +70,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `markdown-link-status`              | EIPs linked in the body have statuses further along than the current proposal.                |
 | `markdown-no-backticks`             | No proposals are referenced inside backticks (eg. \`EIP-1234\`).                              |
 | `markdown-no-smart-quotes`          | Smart quotes (", ", ', ') are not allowed, use straight quotes (", ') instead.                |
+| `markdown-solidity-license`         | Solidity code blocks that declare an SPDX license must use `CC0-1.0`.                         |
 | `markdown-order-section`            | There are no extra sections and the sections are in the correct order.                        |
 | `markdown-re-eip-dash`              | Other EIPs are referenced using EIP-X, not EIPX or EIP X.                                     |
 | `markdown-re-erc-dash`              | Other ERCs are referenced using ERC-X, not ERCX or ERC X.                                     |

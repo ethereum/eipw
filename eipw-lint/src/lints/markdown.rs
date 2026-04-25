@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+pub mod code_block_license;
 pub mod heading_first;
 pub mod headings_space;
 pub mod html_comments;
@@ -18,6 +19,7 @@ pub mod section_order;
 pub mod section_required;
 pub mod spell;
 
+pub use self::code_block_license::CodeBlockLicense;
 pub use self::heading_first::HeadingFirst;
 pub use self::headings_space::HeadingsSpace;
 pub use self::html_comments::HtmlComments;

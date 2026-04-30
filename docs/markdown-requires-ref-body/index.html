@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-requires-ref-body</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-requires-ref-body</code></h1>
+			<p>
+				Proposals listed in the <code>requires</code> header
+				must be referenced somewhere in the body.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-requires-ref-body]: proposals listed in preamble header `requires` must be referenced in the body
+  |
+2 | requires: 4, 5, 6
+  |              ^ not referenced in body
+  |</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					The <code>markdown-requires-ref-body</code> lint is the
+					counterpart to the
+					<code>preamble-requires-ref-...</code> family. Together
+					they keep the <code>requires</code> header and the body
+					in sync: the preamble lints catch proposals mentioned in
+					<code>title</code> or <code>description</code> that were
+					forgotten in <code>requires</code>, while this lint
+					catches proposals listed in <code>requires</code> that
+					are never explained in the body.
+				</p>
+
+				<p>
+					References inside fenced code blocks, inline code, and
+					HTML are not counted, since those are usually
+					illustrative and not a real dependency on the proposal.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

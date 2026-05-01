@@ -376,6 +376,10 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             }
         ),
         (
+            "markdown-no-emphasis-keywords",
+            MarkdownNoEmphasisKeywords(markdown::NoEmphasisKeywords)
+        ),
+        (
             "markdown-spell",
             MarkdownSpell(markdown::Spell {
                 personal_dictionary: "",

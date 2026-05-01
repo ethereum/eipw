@@ -76,6 +76,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `markdown-refs`                     | ERCs are referenced using ERC-X, while other proposals use EIP-X.                             |
 | `markdown-rel-links`                | All URLs in the page are relative.                                                            |
 | `markdown-req-section`              | Required sections are present in the body of the proposal.                                    |
+| `markdown-requires-ref-body`        | Proposals listed in the `requires` header are mentioned in the body.                          |
 | `markdown-heading-first`            | No content appears between preamble and first heading.                                        |
 | `markdown-headings-space`           | Headers have a space after the leading '#' characters.                                        |
 | `markdown-spell`                    | No words are spelled incorrectly.                                                             |

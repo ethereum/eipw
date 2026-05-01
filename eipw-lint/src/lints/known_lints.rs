@@ -64,6 +64,7 @@ pub enum DefaultLint<S> {
     MarkdownProposalRef(markdown::ProposalRef),
     MarkdownRegex(markdown::Regex<S>),
     MarkdownRelativeLinks(markdown::RelativeLinks<S>),
+    MarkdownRequireReferenced(markdown::RequireReferenced<S>),
     MarkdownSectionOrder {
         sections: markdown::SectionOrder<S>,
     },
@@ -108,6 +109,7 @@ where
             Self::MarkdownProposalRef(l) => l,
             Self::MarkdownRegex(l) => l,
             Self::MarkdownRelativeLinks(l) => l,
+            Self::MarkdownRequireReferenced(l) => l,
             Self::MarkdownSectionOrder { sections } => sections,
             Self::MarkdownSectionRequired { sections } => sections,
             Self::MarkdownHeadingsSpace(l) => l,
@@ -240,6 +242,11 @@ where
             Self::MarkdownRelativeLinks(l) => {
                 DefaultLint::MarkdownRelativeLinks(markdown::RelativeLinks {
                     exceptions: l.exceptions.iter().map(AsRef::as_ref).collect(),
+                })
+            }
+            Self::MarkdownRequireReferenced(l) => {
+                DefaultLint::MarkdownRequireReferenced(markdown::RequireReferenced {
+                    requires: l.requires.as_ref(),
                 })
             }
             Self::MarkdownSectionOrder { sections } => DefaultLint::MarkdownSectionOrder {
@@ -398,6 +405,11 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
             DefaultLint::MarkdownRelativeLinks(l) => {
                 DefaultLint::MarkdownRelativeLinks(markdown::RelativeLinks {
                     exceptions: l.exceptions.iter().map(|x| x.to_string()).collect(),
+                })
+            }
+            DefaultLint::MarkdownRequireReferenced(l) => {
+                DefaultLint::MarkdownRequireReferenced(markdown::RequireReferenced {
+                    requires: l.requires.to_string(),
                 })
             }
             DefaultLint::MarkdownSectionOrder { sections } => DefaultLint::MarkdownSectionOrder {

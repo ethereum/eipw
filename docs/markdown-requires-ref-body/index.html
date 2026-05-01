@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-requires-ref-body</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-requires-ref-body</code></h1>
+			<p>
+				Proposals listed in the `requires` field must be mentioned 
+				somewhere in the body of the document.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-requires-ref-body]: proposals EIP-5 must be mentioned in the body
+  --> test-eip.md:11:11
+   |
+11 | requires: 4, 5, 6
+   |           ^^^^^^^ required here
+   |</pre>
+
+				<pre>error[markdown-requires-ref-body]: proposals EIP-5, EIP-6, EIP-7 must be mentioned in the body
+  --> test-eip.md:11:11
+   |
+11 | requires: 4, 5, 6, 7
+   |           ^^^^^^^^^^ required here
+   |</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-requires-ref-body</code> ensures that any proposals
+					listed in the preamble `requires` field are actually mentioned
+					somewhere in the body text of the document. This helps catch
+					cases where required proposals are listed but not discussed.
+				</p>
+				
+				<p>
+					The lint recognizes both EIP-X and ERC-X format references
+					in the body text.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

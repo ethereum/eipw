@@ -70,6 +70,7 @@ struct ExcludesVisitor<'a, 'b, 'c> {
     pattern: &'c str,
     slug: &'c str,
     message: &'c str,
+    string_title: String,
 }
 
 impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
@@ -147,11 +148,26 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
     }
 
     fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
+        // Append text content to string_title for links
+        self.string_title.push_str(txt);
         self.check(ast, txt)
     }
 
     fn enter_link(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {
-        self.check(ast, &link.title)
+        self.check(ast, &link.title)?;
+        // Initialize the string_title for capturing text content
+        self.string_title = String::new();
+        Ok(Next::TraverseChildren)
+    }
+
+    fn depart_link(&mut self, ast: &Ast, link: &NodeLink) -> Result<(), Self::Error> {
+        // Check if the captured text content is different from the URL
+        if self.string_title != link.url {
+            self.check(ast, &link.url)?;
+        }
+        // Reset the string_title
+        self.string_title.clear();
+        Ok(())
     }
 
     fn enter_image(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {

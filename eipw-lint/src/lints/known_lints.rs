@@ -61,6 +61,8 @@ pub enum DefaultLint<S> {
         pattern: markdown::NoBackticks<S>,
     },
     MarkdownLinkStatus(markdown::LinkStatus<S>),
+    MarkdownLinkTextFormat(markdown::LinkTextFormat),
+    MarkdownLinkTextMatch(markdown::LinkTextMatch),
     MarkdownProposalRef(markdown::ProposalRef),
     MarkdownRegex(markdown::Regex<S>),
     MarkdownRelativeLinks(markdown::RelativeLinks<S>),
@@ -105,6 +107,8 @@ where
             Self::MarkdownLinkFirst { pattern } => pattern,
             Self::MarkdownNoBackticks { pattern } => pattern,
             Self::MarkdownLinkStatus(l) => l,
+            Self::MarkdownLinkTextFormat(l) => l,
+            Self::MarkdownLinkTextMatch(l) => l,
             Self::MarkdownProposalRef(l) => l,
             Self::MarkdownRegex(l) => l,
             Self::MarkdownRelativeLinks(l) => l,
@@ -231,6 +235,12 @@ where
                     .map(|v| v.iter().map(AsRef::as_ref).collect())
                     .collect(),
             }),
+            Self::MarkdownLinkTextFormat(_) => {
+                DefaultLint::MarkdownLinkTextFormat(markdown::LinkTextFormat)
+            }
+            Self::MarkdownLinkTextMatch(_) => {
+                DefaultLint::MarkdownLinkTextMatch(markdown::LinkTextMatch)
+            }
             Self::MarkdownProposalRef(_) => DefaultLint::MarkdownProposalRef(markdown::ProposalRef),
             Self::MarkdownRegex(l) => DefaultLint::MarkdownRegex(markdown::Regex {
                 message: l.message.as_ref(),
@@ -386,6 +396,12 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                         .map(|v| v.iter().map(|x| x.to_string()).collect())
                         .collect(),
                 })
+            }
+            DefaultLint::MarkdownLinkTextFormat(_) => {
+                DefaultLint::MarkdownLinkTextFormat(markdown::LinkTextFormat)
+            }
+            DefaultLint::MarkdownLinkTextMatch(_) => {
+                DefaultLint::MarkdownLinkTextMatch(markdown::LinkTextMatch)
             }
             DefaultLint::MarkdownProposalRef(_) => {
                 DefaultLint::MarkdownProposalRef(markdown::ProposalRef)

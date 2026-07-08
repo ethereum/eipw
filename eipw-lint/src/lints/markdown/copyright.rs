@@ -58,25 +58,21 @@ impl Lint for Copyright {
             .filter(|line| !line.is_empty())
             .collect();
 
-        if !non_blank_lines.contains(&COPYRIGHT_WAIVER) {
-            return Ok(());
-        }
-
         if non_blank_lines.ends_with(&[COPYRIGHT_HEADING, COPYRIGHT_WAIVER]) {
             return Ok(());
         }
 
         ctx.report(
             ctx.annotation_level()
-                .title("copyright waiver must appear at the end of the file")
+                .title("the copyright waiver must be the last content in the file")
                 .id(slug)
                 .snippet(ctx.ast_snippet(
                     &copyright_heading.data.borrow(),
                     None,
-                    "move this waiver to the end",
+                    "nothing may follow this section",
                 ))
                 .footer(Level::Help.title(
-                    "end the file with `## Copyright` followed by `Copyright and related rights waived via [CC0](../LICENSE.md).`",
+                    "end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it",
                 )),
         )?;
 

@@ -1,10 +1,10 @@
-error[markdown-copyright]: copyright waiver must appear at the end of the file
+error[markdown-copyright]: the copyright waiver must be the last content in the file
   --> input.md:38:1
    |
 38 | ## Copyright
-   | ^^^^^^^^^^^^ move this waiver to the end
+   | ^^^^^^^^^^^^ nothing may follow this section
    |
-   = help: end the file with `## Copyright` followed by `Copyright and related rights waived via [CC0](../LICENSE.md).`
+   = help: end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it
 error[markdown-json-cite]: code block of type `csl-json` does not conform to required schema
   --> input.md:42:1
    |

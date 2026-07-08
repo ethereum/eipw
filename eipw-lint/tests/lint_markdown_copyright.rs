@@ -87,12 +87,12 @@ Extra text.
 
     assert_eq!(
         reports,
-        r#"error[markdown-copyright]: copyright waiver must appear at the end of the file
+        r#"error[markdown-copyright]: the copyright waiver must be the last content in the file
   |
 8 | ## Copyright
-  | ^^^^^^^^^^^^ move this waiver to the end
+  | ^^^^^^^^^^^^ nothing may follow this section
   |
-  = help: end the file with `## Copyright` followed by `Copyright and related rights waived via [CC0](../LICENSE.md).`
+  = help: end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it
 "#
     );
 }
@@ -124,12 +124,46 @@ Extra text.
 
     assert_eq!(
         reports,
-        r#"error[markdown-copyright]: copyright waiver must appear at the end of the file
+        r#"error[markdown-copyright]: the copyright waiver must be the last content in the file
   |
 8 | ## Copyright
-  | ^^^^^^^^^^^^ move this waiver to the end
+  | ^^^^^^^^^^^^ nothing may follow this section
   |
-  = help: end the file with `## Copyright` followed by `Copyright and related rights waived via [CC0](../LICENSE.md).`
+  = help: end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it
+"#
+    );
+}
+
+#[tokio::test]
+async fn invalid_wrong_waiver_text() {
+    let src = r#"---
+header: value1
+---
+
+## Abstract
+This is the abstract.
+
+## Copyright
+All rights reserved.
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-copyright", Copyright)
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-copyright]: the copyright waiver must be the last content in the file
+  |
+8 | ## Copyright
+  | ^^^^^^^^^^^^ nothing may follow this section
+  |
+  = help: end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it
 "#
     );
 }

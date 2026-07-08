@@ -64,6 +64,29 @@ hello world"#;
 }
 
 #[tokio::test]
+async fn eip_to_be_assigned() {
+    let src = r#"---
+header: value0
+other-header: value
+header: value1
+foo: bar
+eip: <to be assigned>
+---
+hello world"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("preamble-eip", Uint("eip"))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}
+
+#[tokio::test]
 async fn unicode() {
     let src = r#"---
 header: value0

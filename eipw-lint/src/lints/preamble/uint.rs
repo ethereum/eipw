@@ -30,6 +30,10 @@ where
             Some(s) => s,
         };
 
+        if self.0.as_ref() == "eip" && field.value().trim() == "<to be assigned>" {
+            return Ok(());
+        }
+
         if field.value().trim().parse::<u64>().is_err() {
             let name_count = field.name().len();
             let value_count = field.value().len();

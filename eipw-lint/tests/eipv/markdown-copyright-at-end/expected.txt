@@ -1,0 +1,7 @@
+error[markdown-copyright]: copyright waiver must appear at the end of the file
+  --> input.md:26:1
+   |
+26 | ## Copyright
+   | ^^^^^^^^^^^^ move this waiver to the end
+   |
+   = help: end the file with `## Copyright` followed by `Copyright and related rights waived via [CC0](../LICENSE.md).`

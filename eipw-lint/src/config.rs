@@ -348,6 +348,10 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             },
         ),
         (
+            "markdown-copyright",
+            MarkdownCopyright(markdown::Copyright),
+        ),
+        (
             "markdown-re-erc-dash",
             MarkdownRegex(markdown::Regex {
                 mode: markdown::regex::Mode::Excludes,

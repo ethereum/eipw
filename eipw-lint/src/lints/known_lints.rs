@@ -53,6 +53,7 @@ pub enum DefaultLint<S> {
     },
 
     MarkdownHtmlComments(markdown::HtmlComments<S>),
+    MarkdownCopyright(markdown::Copyright),
     MarkdownJsonSchema(markdown::JsonSchema<S>),
     MarkdownLinkFirst {
         pattern: markdown::LinkFirst<S>,
@@ -101,6 +102,7 @@ where
             Self::PreambleUrl { name } => name,
 
             Self::MarkdownHtmlComments(l) => l,
+            Self::MarkdownCopyright(l) => l,
             Self::MarkdownJsonSchema(l) => l,
             Self::MarkdownLinkFirst { pattern } => pattern,
             Self::MarkdownNoBackticks { pattern } => pattern,
@@ -206,6 +208,7 @@ where
                     warn_for: l.warn_for.iter().map(AsRef::as_ref).collect(),
                 })
             }
+            Self::MarkdownCopyright(l) => DefaultLint::MarkdownCopyright(l.clone()),
             Self::MarkdownJsonSchema(l) => DefaultLint::MarkdownJsonSchema(markdown::JsonSchema {
                 help: l.help.as_ref(),
                 language: l.language.as_ref(),
@@ -358,6 +361,7 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                     warn_for: l.warn_for.iter().map(|x| x.to_string()).collect(),
                 })
             }
+            DefaultLint::MarkdownCopyright(l) => DefaultLint::MarkdownCopyright(l.clone()),
             DefaultLint::MarkdownJsonSchema(l) => {
                 DefaultLint::MarkdownJsonSchema(markdown::JsonSchema {
                     help: l.help.to_string(),

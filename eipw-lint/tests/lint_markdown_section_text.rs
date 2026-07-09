@@ -43,7 +43,7 @@ Copyright and related rights waived via [CC0](../LICENSE.md).
 }
 
 #[tokio::test]
-async fn valid_with_bold_heading() {
+async fn invalid_with_bold_heading() {
     let src = r#"---
 header: value1
 ---
@@ -61,7 +61,16 @@ Copyright and related rights waived via [CC0](../LICENSE.md).
         .unwrap()
         .into_inner();
 
-    assert_eq!(reports, "");
+    assert_eq!(
+        reports,
+        r#"error[markdown-copyright]: the `Copyright` section must be the last content in the file
+  |
+8 | ## Cop**y**right
+  | ^^^^^^^^^^^^^^^^ nothing may follow this section
+  |
+  = help: end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it
+"#
+    );
 }
 
 #[tokio::test]

@@ -4,10 +4,18 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_lint::lints::markdown::Copyright;
+use eipw_lint::lints::markdown::SectionText;
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 use pretty_assertions::assert_eq;
+
+fn copyright_lint() -> SectionText<&'static str> {
+    SectionText {
+        section: "Copyright",
+        level: 2,
+        exactly: "Copyright and related rights waived via [CC0](../LICENSE.md).",
+    }
+}
 
 #[tokio::test]
 async fn valid_at_end() {
@@ -24,7 +32,7 @@ Copyright and related rights waived via [CC0](../LICENSE.md).
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-copyright", Copyright)
+        .deny("markdown-copyright", copyright_lint())
         .check_slice(None, src)
         .run()
         .await
@@ -51,7 +59,7 @@ Copyright and related rights waived via [CC0](../LICENSE.md).
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-copyright", Copyright)
+        .deny("markdown-copyright", copyright_lint())
         .check_slice(None, src)
         .run()
         .await
@@ -78,7 +86,7 @@ Extra text.
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-copyright", Copyright)
+        .deny("markdown-copyright", copyright_lint())
         .check_slice(None, src)
         .run()
         .await
@@ -87,7 +95,7 @@ Extra text.
 
     assert_eq!(
         reports,
-        r#"error[markdown-copyright]: the copyright waiver must be the last content in the file
+        r#"error[markdown-copyright]: the `Copyright` section must be the last content in the file
   |
 8 | ## Copyright
   | ^^^^^^^^^^^^ nothing may follow this section
@@ -115,7 +123,7 @@ Extra text.
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-copyright", Copyright)
+        .deny("markdown-copyright", copyright_lint())
         .check_slice(None, src)
         .run()
         .await
@@ -124,7 +132,7 @@ Extra text.
 
     assert_eq!(
         reports,
-        r#"error[markdown-copyright]: the copyright waiver must be the last content in the file
+        r#"error[markdown-copyright]: the `Copyright` section must be the last content in the file
   |
 8 | ## Copyright
   | ^^^^^^^^^^^^ nothing may follow this section
@@ -149,7 +157,7 @@ All rights reserved.
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-copyright", Copyright)
+        .deny("markdown-copyright", copyright_lint())
         .check_slice(None, src)
         .run()
         .await
@@ -158,7 +166,7 @@ All rights reserved.
 
     assert_eq!(
         reports,
-        r#"error[markdown-copyright]: the copyright waiver must be the last content in the file
+        r#"error[markdown-copyright]: the `Copyright` section must be the last content in the file
   |
 8 | ## Copyright
   | ^^^^^^^^^^^^ nothing may follow this section
@@ -180,7 +188,7 @@ This is the abstract.
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("markdown-copyright", Copyright)
+        .deny("markdown-copyright", copyright_lint())
         .check_slice(None, src)
         .run()
         .await

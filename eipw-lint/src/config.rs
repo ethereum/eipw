@@ -349,7 +349,11 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
         ),
         (
             "markdown-copyright",
-            MarkdownCopyright(markdown::Copyright),
+            MarkdownSectionText(markdown::SectionText {
+                section: "Copyright",
+                level: 2,
+                exactly: "Copyright and related rights waived via [CC0](../LICENSE.md).",
+            }),
         ),
         (
             "markdown-re-erc-dash",

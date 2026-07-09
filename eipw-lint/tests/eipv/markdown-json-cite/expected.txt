@@ -1,4 +1,4 @@
-error[markdown-copyright]: the copyright waiver must be the last content in the file
+error[markdown-copyright]: the `Copyright` section must be the last content in the file
   --> input.md:38:1
    |
 38 | ## Copyright

@@ -53,7 +53,6 @@ pub enum DefaultLint<S> {
     },
 
     MarkdownHtmlComments(markdown::HtmlComments<S>),
-    MarkdownCopyright(markdown::Copyright),
     MarkdownJsonSchema(markdown::JsonSchema<S>),
     MarkdownLinkFirst {
         pattern: markdown::LinkFirst<S>,
@@ -71,6 +70,7 @@ pub enum DefaultLint<S> {
     MarkdownSectionRequired {
         sections: markdown::SectionRequired<S>,
     },
+    MarkdownSectionText(markdown::SectionText<S>),
     MarkdownHeadingsSpace(markdown::HeadingsSpace),
     MarkdownHeadingFirst(markdown::HeadingFirst),
     MarkdownSpell(markdown::Spell<S>),
@@ -102,7 +102,6 @@ where
             Self::PreambleUrl { name } => name,
 
             Self::MarkdownHtmlComments(l) => l,
-            Self::MarkdownCopyright(l) => l,
             Self::MarkdownJsonSchema(l) => l,
             Self::MarkdownLinkFirst { pattern } => pattern,
             Self::MarkdownNoBackticks { pattern } => pattern,
@@ -112,6 +111,7 @@ where
             Self::MarkdownRelativeLinks(l) => l,
             Self::MarkdownSectionOrder { sections } => sections,
             Self::MarkdownSectionRequired { sections } => sections,
+            Self::MarkdownSectionText(l) => l,
             Self::MarkdownHeadingsSpace(l) => l,
             Self::MarkdownHeadingFirst(l) => l,
             Self::MarkdownSpell(l) => l,
@@ -208,7 +208,6 @@ where
                     warn_for: l.warn_for.iter().map(AsRef::as_ref).collect(),
                 })
             }
-            Self::MarkdownCopyright(l) => DefaultLint::MarkdownCopyright(l.clone()),
             Self::MarkdownJsonSchema(l) => DefaultLint::MarkdownJsonSchema(markdown::JsonSchema {
                 help: l.help.as_ref(),
                 language: l.language.as_ref(),
@@ -251,6 +250,13 @@ where
             Self::MarkdownSectionRequired { sections } => DefaultLint::MarkdownSectionRequired {
                 sections: markdown::SectionRequired(sections.0.iter().map(AsRef::as_ref).collect()),
             },
+            Self::MarkdownSectionText(l) => {
+                DefaultLint::MarkdownSectionText(markdown::SectionText {
+                    section: l.section.as_ref(),
+                    level: l.level,
+                    exactly: l.exactly.as_ref(),
+                })
+            }
             Self::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
             Self::MarkdownHeadingFirst(l) => DefaultLint::MarkdownHeadingFirst(l.clone()),
             Self::MarkdownSpell(s) => DefaultLint::MarkdownSpell(markdown::Spell {
@@ -361,7 +367,6 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                     warn_for: l.warn_for.iter().map(|x| x.to_string()).collect(),
                 })
             }
-            DefaultLint::MarkdownCopyright(l) => DefaultLint::MarkdownCopyright(l.clone()),
             DefaultLint::MarkdownJsonSchema(l) => {
                 DefaultLint::MarkdownJsonSchema(markdown::JsonSchema {
                     help: l.help.to_string(),
@@ -415,6 +420,13 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                         sections.0.iter().map(|x| x.to_string()).collect(),
                     ),
                 }
+            }
+            DefaultLint::MarkdownSectionText(l) => {
+                DefaultLint::MarkdownSectionText(markdown::SectionText {
+                    section: l.section.to_string(),
+                    level: l.level,
+                    exactly: l.exactly.to_string(),
+                })
             }
             DefaultLint::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
             DefaultLint::MarkdownHeadingFirst(l) => DefaultLint::MarkdownHeadingFirst(l.clone()),

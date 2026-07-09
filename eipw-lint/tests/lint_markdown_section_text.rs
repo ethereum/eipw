@@ -43,6 +43,28 @@ Copyright and related rights waived via [CC0](../LICENSE.md).
 }
 
 #[tokio::test]
+async fn valid_with_bold_heading() {
+    let src = r#"---
+header: value1
+---
+
+## Cop**y**right
+Copyright and related rights waived via [CC0](../LICENSE.md).
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-copyright", copyright_lint())
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}
+
+#[tokio::test]
 async fn allows_trailing_blank_lines() {
     let src = r#"---
 header: value1

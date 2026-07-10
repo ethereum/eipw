@@ -277,7 +277,7 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
                     vec!["Draft", "Stagnant"],
                     vec!["Review"],
                     vec!["Last Call"],
-                    vec!["Final", "Withdrawn", "Living"],
+                    vec!["Final", "Withdrawn", "Living", "Moved"],
                 ]
             }),
         ),
@@ -405,8 +405,8 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
                 r"^https://(www\.)?github\.com/ChainAgnostic/CAIPs/commit/[0-9a-f]{40}$",
 
                 // Ethereum Proof-of-Stake Consensus Specifications
-                r"^https://(www\.)?github\.com/ethereum/consensus-specs/(blob|tree)/[a-f0-9]{40}/.+$",
-                r"^https://(www\.)?github\.com/ethereum/consensus-specs/commit/[a-f0-9]{40}$",
+                r"^https://(www\.)?github\.com/ethereum/execution-specs/(blob|tree)/[a-f0-9]{40}/.+$",
+                r"^https://(www\.)?github\.com/ethereum/execution-specs/commit/[a-f0-9]{40}$",
 
                 // Ethereum Peer-to-Peer Networking Specifications
                 r"^https://(www\.)?github\.com/ethereum/devp2p/(blob|tree)/[0-9a-f]{40}/.+$",
@@ -433,6 +433,9 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
 
                 // World Wide Web Consortium (W3C)
                 r"^https://www\.w3\.org/TR/[0-9][0-9][0-9][0-9]/.*$",
+
+                // Unicode Technical Standards (UTS)
+                r"^https://www\.unicode\.org/reports/tr[0-9]+/tr[0-9]+-[0-9]+\.html$",
             ]
         })),
         (
@@ -444,7 +447,7 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
                     vec!["Draft", "Stagnant"],
                     vec!["Review"],
                     vec!["Last Call"],
-                    vec!["Final", "Withdrawn", "Living"],
+                    vec!["Final", "Withdrawn", "Living", "Moved"],
                 ]
             }),
         ),

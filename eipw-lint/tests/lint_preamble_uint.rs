@@ -4,7 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-use eipw_lint::lints::preamble::Uint;
+use eipw_lint::lints::preamble::{ConfiguredUint, Uint, UintMessage};
 use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 use pretty_assertions::assert_eq;
@@ -76,14 +76,32 @@ hello world"#;
 
     let reports = Linter::<Text<String>>::default()
         .clear_lints()
-        .deny("preamble-eip", Uint("eip"))
+        .deny(
+            "preamble-eip",
+            ConfiguredUint {
+                name: "eip",
+                messages: Some(vec![UintMessage {
+                    value: "<to be assigned>",
+                    message: "preamble header `eip` is waiting for an assigned number",
+                    label: Some("number has not been assigned yet"),
+                }]),
+            },
+        )
         .check_slice(None, src)
         .run()
         .await
         .unwrap()
         .into_inner();
 
-    assert_eq!(reports, "");
+    assert_eq!(
+        reports,
+        r#"error[preamble-eip]: preamble header `eip` is waiting for an assigned number
+  |
+6 | eip: <to be assigned>
+  |     ^^^^^^^^^^^^^^^^^ number has not been assigned yet
+  |
+"#
+    );
 }
 
 #[tokio::test]

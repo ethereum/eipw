@@ -37,5 +37,5 @@ pub use self::required::Required;
 pub use self::required_if_eq::RequiredIfEq;
 pub use self::requires_status::RequiresStatus;
 pub use self::trim::Trim;
-pub use self::uint::{Uint, UintList};
+pub use self::uint::{ConfiguredUint, Uint, UintList, UintMessage};
 pub use self::url::Url;

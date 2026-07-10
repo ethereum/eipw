@@ -20,6 +20,32 @@ use std::fmt::{Debug, Display};
 #[serde(transparent)]
 pub struct Uint<S>(pub S);
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
+pub struct ConfiguredUint<S> {
+    pub name: S,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub messages: Option<Vec<UintMessage<S>>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
+pub struct UintMessage<S> {
+    pub value: S,
+    pub message: S,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<S>,
+}
+
+impl<S> ConfiguredUint<S> {
+    pub fn new(name: S) -> Self {
+        Self {
+            name,
+            messages: None,
+        }
+    }
+}
+
 impl<S> Lint for Uint<S>
 where
     S: Display + Debug + AsRef<str>,
@@ -29,10 +55,6 @@ where
             None => return Ok(()),
             Some(s) => s,
         };
-
-        if self.0.as_ref() == "eip" && field.value().trim() == "<to be assigned>" {
-            return Ok(());
-        }
 
         if field.value().trim().parse::<u64>().is_err() {
             let name_count = field.name().len();
@@ -54,6 +76,62 @@ where
                 ),
             )?;
         }
+
+        Ok(())
+    }
+}
+
+impl<S> Lint for ConfiguredUint<S>
+where
+    S: Display + Debug + AsRef<str>,
+{
+    fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
+        let field = match ctx.preamble().by_name(self.name.as_ref()) {
+            None => return Ok(()),
+            Some(s) => s,
+        };
+
+        let value = field.value().trim();
+        if value.parse::<u64>().is_ok() {
+            return Ok(());
+        }
+
+        let name_count = field.name().len();
+        let value_count = field.value().len();
+
+        let message = self
+            .messages
+            .as_deref()
+            .unwrap_or(&[])
+            .iter()
+            .find(|message| message.value.as_ref() == value);
+
+        let label = message.map_or_else(
+            || {
+                format!(
+                    "preamble header `{}` must be an unsigned integer",
+                    self.name
+                )
+            },
+            |message| message.message.as_ref().to_string(),
+        );
+        let span_label = message
+            .and_then(|message| message.label.as_ref().map(AsRef::as_ref))
+            .unwrap_or("not a non-negative integer");
+
+        ctx.report(
+            ctx.annotation_level().title(&label).id(slug).snippet(
+                Snippet::source(field.source())
+                    .line_start(field.line_start())
+                    .fold(false)
+                    .origin_opt(ctx.origin())
+                    .annotation(
+                        ctx.annotation_level()
+                            .span_utf8(field.source(), name_count + 1, value_count)
+                            .label(span_label),
+                    ),
+            ),
+        )?;
 
         Ok(())
     }

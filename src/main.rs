@@ -12,7 +12,6 @@ use clap::{Parser, ValueEnum};
 use eipw_lint::reporters::{AdditionalHelp, Count, Json, Reporter, Text};
 use eipw_lint::Linter;
 
-use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use sysexits::ExitCode;
@@ -205,11 +204,11 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
     });
     let reporter = Count::new(reporter);
 
-    let options: DefaultOptions;
+    let mut options: DefaultOptions = Default::default();
     let mut linter;
     if let Some(ref path) = opts.config {
         options = try_read_config(path).await?;
-        linter = Linter::with_options(reporter, options);
+        linter = Linter::with_options(reporter, options.clone());
     } else {
         linter = Linter::new(reporter);
     }
@@ -223,19 +222,15 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
     }
 
     if !opts.warn.is_empty() {
-        let defaults = DefaultOptions::<String>::default();
-        let mut lints: HashMap<_, _> = defaults.lints;
         for warn in opts.warn {
-            let (k, v) = lints.remove_entry(warn.as_str()).unwrap();
+            let (k, v) = options.lints.remove_entry(warn.as_str()).unwrap();
             linter = linter.warn(k, v.into_lint().unwrap());
         }
     }
 
     if !opts.deny.is_empty() {
-        let defaults = DefaultOptions::<String>::default();
-        let mut lints: HashMap<_, _> = defaults.lints;
         for deny in opts.deny {
-            let (k, v) = lints.remove_entry(deny.as_str()).unwrap();
+            let (k, v) = options.lints.remove_entry(deny.as_str()).unwrap();
             linter = linter.deny(k, v.into_lint().unwrap());
         }
     }

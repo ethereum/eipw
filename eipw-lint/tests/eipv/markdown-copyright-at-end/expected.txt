@@ -1,0 +1,7 @@
+error[markdown-copyright]: the `Copyright` section must be the last content in the file
+  --> input.md:26:1
+   |
+26 | ## Copyright
+   | ^^^^^^^^^^^^ nothing may follow this section
+   |
+   = help: end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it

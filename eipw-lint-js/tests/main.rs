@@ -106,6 +106,46 @@ async fn lint_json_schema() {
                     "id": null,
                     "level": "Help",
                     "snippets": [],
+                    "title": "end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it"
+                },
+                {
+                    "footer": [],
+                    "id": null,
+                    "level": "Help",
+                    "snippets": [],
+                    "title": "see https://ethereum.github.io/eipw/markdown-copyright/"
+                }
+            ],
+            "formatted": "error[markdown-copyright]: the `Copyright` section must be the last content in the file\n  --> tests/eips/eip-2000.md:38:1\n   |\n38 | ## Copyright\n   | ^^^^^^^^^^^^ nothing may follow this section\n   |\n   = help: end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it\n   = help: see https://ethereum.github.io/eipw/markdown-copyright/",
+            "id": "markdown-copyright",
+            "level": "Error",
+            "snippets": [
+                {
+                    "annotations": [
+                        {
+                            "label": "nothing may follow this section",
+                            "level": "Error",
+                            "range": {
+                                "end": 12,
+                                "start": 0
+                            }
+                        }
+                    ],
+                    "fold": true,
+                    "line_start": 38,
+                    "origin": "tests/eips/eip-2000.md",
+                    "source": "## Copyright"
+                }
+            ],
+            "title": "the `Copyright` section must be the last content in the file"
+        },
+        {
+            "footer": [
+                {
+                    "footer": [],
+                    "id": null,
+                    "level": "Help",
+                    "snippets": [],
                     "title": "see https://github.com/ethereum/eipw/blob/master/eipw-lint/src/lints/markdown/json_schema/citation.json"
                 },
                 {

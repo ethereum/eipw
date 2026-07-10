@@ -89,8 +89,7 @@ impl<'a> Source<'a> {
             Self::File(f) => fetch
                 .fetch(f.to_path_buf())
                 .await
-                .with_context(|_| IoSnafu { path: f.to_owned() })
-                .map_err(Into::into),
+                .with_context(|_| IoSnafu { path: f.to_owned() }),
             Self::String { src, .. } => Ok((*src).to_owned()),
         }
     }
@@ -565,11 +564,11 @@ impl<'a> SnippetExt<'a> for Snippet<'a> {
 }
 
 trait LevelExt {
-    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation;
+    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation<'_>;
 }
 
 impl LevelExt for Level {
-    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation {
+    fn span_utf8(self, text: &str, start: usize, min_len: usize) -> Annotation<'_> {
         let end = ceil_char_boundary(text, start + min_len);
         self.span(start..end)
     }

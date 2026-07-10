@@ -9,11 +9,8 @@ use eipw_snippets::Message;
 
 use clap::{Parser, ValueEnum};
 
-use eipw_lint::lints::DefaultLint;
 use eipw_lint::reporters::{AdditionalHelp, Count, Json, Reporter, Text};
 use eipw_lint::Linter;
-
-use serde::{Deserialize, Serialize};
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -66,16 +63,11 @@ struct Opts {
     config: Option<PathBuf>,
 }
 
-#[derive(ValueEnum, Clone, Debug)]
+#[derive(Default, ValueEnum, Clone, Debug)]
 enum Format {
+    #[default]
     Text,
     Json,
-}
-
-impl Default for Format {
-    fn default() -> Self {
-        Self::Text
-    }
 }
 
 #[derive(Debug)]
@@ -178,11 +170,6 @@ async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io:
     }
 
     Ok(output)
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Lints {
-    lints: HashMap<String, DefaultLint<String>>,
 }
 
 #[cfg_attr(target_arch = "wasm32", tokio::main(flavor = "current_thread"))]

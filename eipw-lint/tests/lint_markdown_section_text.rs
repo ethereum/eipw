@@ -65,7 +65,7 @@ Copyright and related rights waived via [CC0](../LICENSE.md).
         reports,
         r#"error[markdown-copyright]: the `Copyright` section must be the last content in the file
   |
-8 | ## Cop**y**right
+5 | ## Cop**y**right
   | ^^^^^^^^^^^^^^^^ nothing may follow this section
   |
   = help: end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it

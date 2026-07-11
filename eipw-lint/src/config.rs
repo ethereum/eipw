@@ -94,6 +94,13 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             }),
         ),
         (
+            "markdown-solidity-license",
+            MarkdownCodeBlockLicense(markdown::CodeBlockLicense {
+                language: "solidity",
+                license: "CC0-1.0",
+            }),
+        ),
+        (
             "preamble-re-description-erc-dash",
             PreambleRegex(preamble::Regex {
                 name: "description",

@@ -52,6 +52,7 @@ pub enum DefaultLint<S> {
         name: preamble::Url<S>,
     },
 
+    MarkdownCodeBlockLicense(markdown::CodeBlockLicense<S>),
     MarkdownHtmlComments(markdown::HtmlComments<S>),
     MarkdownJsonSchema(markdown::JsonSchema<S>),
     MarkdownLinkFirst {
@@ -101,6 +102,7 @@ where
             Self::PreambleUintList { name } => name,
             Self::PreambleUrl { name } => name,
 
+            Self::MarkdownCodeBlockLicense(l) => l,
             Self::MarkdownHtmlComments(l) => l,
             Self::MarkdownJsonSchema(l) => l,
             Self::MarkdownLinkFirst { pattern } => pattern,
@@ -202,6 +204,12 @@ where
                 name: preamble::Url(name.0.as_ref()),
             },
 
+            Self::MarkdownCodeBlockLicense(l) => {
+                DefaultLint::MarkdownCodeBlockLicense(markdown::CodeBlockLicense {
+                    language: l.language.as_ref(),
+                    license: l.license.as_ref(),
+                })
+            }
             Self::MarkdownHtmlComments(l) => {
                 DefaultLint::MarkdownHtmlComments(markdown::HtmlComments {
                     name: l.name.as_ref(),
@@ -361,6 +369,12 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                 name: preamble::Url(name.0.to_string()),
             },
 
+            DefaultLint::MarkdownCodeBlockLicense(l) => {
+                DefaultLint::MarkdownCodeBlockLicense(markdown::CodeBlockLicense {
+                    language: l.language.to_string(),
+                    license: l.license.to_string(),
+                })
+            }
             DefaultLint::MarkdownHtmlComments(l) => {
                 DefaultLint::MarkdownHtmlComments(markdown::HtmlComments {
                     name: l.name.to_string(),

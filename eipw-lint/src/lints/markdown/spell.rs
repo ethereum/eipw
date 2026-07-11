@@ -49,7 +49,7 @@ lazy_static::lazy_static! {
         LruCache::new(NonZeroUsize::MIN).into();
 
     static ref ALLOW: RegexSet = RegexSet::new([
-        "^(0x)?[[:xdigit:]]+$",
+        "^[-+~]?(0x)?[[:xdigit:]]+$",
         "^[[:punct:]]+$",
     ]).unwrap();
 }

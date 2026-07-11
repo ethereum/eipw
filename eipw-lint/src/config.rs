@@ -173,6 +173,15 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             ),
         ),
         (
+            "preamble-len-network-upgrade",
+            PreambleLength(preamble::Length {
+                name: "network-upgrade",
+                min: Some(1),
+                max: None,
+            }
+            ),
+        ),
+        (
             "preamble-req",
             PreambleRequired { names: preamble::Required(vec![
                 "eip",
@@ -198,6 +207,7 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
                 "last-call-deadline",
                 "type",
                 "category",
+                "network-upgrade",
                 "created",
                 "requires",
                 "withdrawal-reason",
@@ -224,6 +234,15 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
                 when: "type",
                 equals: "Standards Track",
                 then: "category",
+            }
+            ),
+        ),
+        (
+            "preamble-allowed-network-upgrade",
+            PreambleAllowedOnlyIfEq(preamble::AllowedOnlyIfEq {
+                when: "type",
+                equals: "Meta",
+                then: "network-upgrade",
             }
             ),
         ),

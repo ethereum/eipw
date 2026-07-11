@@ -405,8 +405,9 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
                 r"^https://(www\.)?github\.com/ChainAgnostic/CAIPs/commit/[0-9a-f]{40}$",
 
                 // Ethereum Proof-of-Stake Consensus Specifications
-                r"^https://(www\.)?github\.com/ethereum/execution-specs/(blob|tree)/[a-f0-9]{40}/.+$",
-                r"^https://(www\.)?github\.com/ethereum/execution-specs/commit/[a-f0-9]{40}$",
+                r"^https://(www\.)?github\.com/ethereum/consensus-specs/(blob|tree)/[a-f0-9]{40}/.+$",
+                r"^https://(www\.)?github\.com/ethereum/consensus-specs/commit/[a-f0-9]{40}$",
+
 
                 // Ethereum Peer-to-Peer Networking Specifications
                 r"^https://(www\.)?github\.com/ethereum/devp2p/(blob|tree)/[0-9a-f]{40}/.+$",

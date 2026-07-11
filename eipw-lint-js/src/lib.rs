@@ -120,7 +120,12 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     let sources: Vec<_> = sources
         .into_iter()
         .map(|v| v.as_string().unwrap())
-        .map(PathBuf::from)
+        // WASM uses Unix path semantics, so Windows paths with backslashes
+        // are not parsed correctly by PathBuf::parent(). Normalizing to
+        // forward slashes fixes resolution of relative "requires" files
+        // when the working directory differs from the source directory.
+        // Node.js accepts forward-slash paths on all platforms.
+        .map(|s| PathBuf::from(s.replace('\\', "/")))
         .collect();
 
     let reporter = Json::default();

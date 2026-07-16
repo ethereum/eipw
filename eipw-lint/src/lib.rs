@@ -89,8 +89,7 @@ impl<'a> Source<'a> {
             Self::File(f) => fetch
                 .fetch(f.to_path_buf())
                 .await
-                .with_context(|_| IoSnafu { path: f.to_owned() })
-                .map_err(Into::into),
+                .with_context(|_| IoSnafu { path: f.to_owned() }),
             Self::String { src, .. } => Ok((*src).to_owned()),
         }
     }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-refs</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-spell</code></h1>
+			<p>
+				Final section in proposal is the CC0-1.0 copyright waiver.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-copyright]: the `Copyright` section must be the last content in the file
+  |
+8 | ## Copyright
+  | ^^^^^^^^^^^^ nothing may follow this section
+  |
+  = help: end the file with `## Copyright` followed immediately by `Copyright and related rights waived via [CC0](../LICENSE.md).`, with no other content after it</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>markdown-copyright</code> ensures that the final
+					section of proposals uses the correct copyright waiver. All
+					proposals are required to be released under CC0-1.0 so that
+					everyone is free to use and modify the standard in any way.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

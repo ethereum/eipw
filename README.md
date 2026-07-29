@@ -68,6 +68,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `markdown-html-comments`            | There are no HTML comments in review-ready EIPs                                               |
 | `markdown-json-cite`                | All `csl-json` code blocks adhere to the correct schema.                                      |
 | `markdown-link-first`               | First mention of an EIP must be a link.                                                       |
+| `markdown-link-first-rfc`           | First mention of each RFC must be a link.                                                      |
 | `markdown-link-status`              | EIPs linked in the body have statuses further along than the current proposal.                |
 | `markdown-no-backticks`             | No proposals are referenced inside backticks (eg. \`EIP-1234\`).                              |
 | `markdown-no-smart-quotes`          | Smart quotes (", ", ', ') are not allowed, use straight quotes (", ') instead.                |

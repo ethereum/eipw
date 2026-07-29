@@ -378,6 +378,12 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             }
         ),
         (
+            "markdown-link-first-rfc",
+            MarkdownLinkFirst {
+                pattern: markdown::LinkFirst(r"(?i)(rfc)\s+[0-9]+"),
+            }
+        ),
+        (
             "markdown-no-backticks",
             MarkdownNoBackticks {
                 pattern: markdown::NoBackticks(r"(?i)(eip|erc)-[0-9]+"),

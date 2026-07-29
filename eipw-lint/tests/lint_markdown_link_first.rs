@@ -9,6 +9,8 @@ use eipw_lint::reporters::Text;
 use eipw_lint::Linter;
 use pretty_assertions::assert_eq;
 
+const RFC_PATTERN: &str = r"(?i)(rfc)\s+[0-9]+";
+
 #[tokio::test]
 async fn unlinked_then_linked_with_header() {
     let src = r#"---
@@ -139,4 +141,88 @@ EIP-1234
         .into_inner();
 
     assert_eq!(reports, "");
+}
+
+#[tokio::test]
+async fn rfc_unlinked_then_linked() {
+    let src = r#"---
+eip: 4444
+---
+RFC 2119
+
+[RFC 2119](https://www.rfc-editor.org/rfc/rfc2119)
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-link-first-rfc", LinkFirst(RFC_PATTERN))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-link-first-rfc]: the first match of the given pattern must be a link
+  |
+4 | RFC 2119
+  | ^^^^^^^^
+  |
+  = info: the pattern in question: `(?i)(rfc)\s+[0-9]+`
+"#
+    );
+}
+
+#[tokio::test]
+async fn rfc_linked_then_unlinked() {
+    let src = r#"---
+eip: 4444
+---
+[RFC 2119](https://www.rfc-editor.org/rfc/rfc2119)
+
+RFC 2119
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-link-first-rfc", LinkFirst(RFC_PATTERN))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(reports, "");
+}
+
+#[tokio::test]
+async fn rfc_each_number_requires_its_own_link() {
+    let src = r#"---
+eip: 4444
+---
+[RFC 2119](https://www.rfc-editor.org/rfc/rfc2119)
+
+RFC 8174
+"#;
+
+    let reports = Linter::<Text<String>>::default()
+        .clear_lints()
+        .deny("markdown-link-first-rfc", LinkFirst(RFC_PATTERN))
+        .check_slice(None, src)
+        .run()
+        .await
+        .unwrap()
+        .into_inner();
+
+    assert_eq!(
+        reports,
+        r#"error[markdown-link-first-rfc]: the first match of the given pattern must be a link
+  |
+6 | RFC 8174
+  | ^^^^^^^^
+  |
+  = info: the pattern in question: `(?i)(rfc)\s+[0-9]+`
+"#
+    );
 }

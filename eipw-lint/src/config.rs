@@ -380,6 +380,10 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
         (
             "markdown-link-first-rfc",
             MarkdownLinkFirst {
+                // HACK: Capture the RFC prefix rather than the numeric identifier. `LinkFirst`
+                //       uses capture group 1 to exempt an EIP's own number; keeping that group
+                //       non-numeric prevents an EIP whose number happens to equal an RFC number
+                //       from accidentally skipping the RFC check.
                 pattern: markdown::LinkFirst(r"(?i)(rfc)\s+[0-9]+"),
             }
         ),

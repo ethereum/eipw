@@ -442,9 +442,9 @@ DEVp2p
 devp2p
 Devs
 devs
+DEX
 Dexaran
 DEXs
-DEX
 DHT
 DIDs
 differencing
@@ -867,6 +867,8 @@ initcode
 Initcontainer
 initcontainer
 initialisation
+initialiser
+initializer
 injective
 injectiveness
 inlined
@@ -1764,6 +1766,7 @@ unopinionated
 unpadded
 unpatched
 Unprefixed
+unreferenced
 unspendable
 unstaked
 unsynced

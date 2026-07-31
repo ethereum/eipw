@@ -310,6 +310,14 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             MarkdownProposalRef(markdown::ProposalRef),
         ),
         (
+            "markdown-requires-ref-body",
+            MarkdownRequiresRefBody {
+                requires: markdown::RequiresRefBody {
+                    requires: "requires",
+                },
+            },
+        ),
+        (
             "markdown-html-comments",
             MarkdownHtmlComments(markdown::HtmlComments {
                 name: "status",

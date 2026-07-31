@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-solidity-license</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-solidity-license</code></h1>
+			<p>
+				Inline Solidity code blocks that declare a
+				<code>SPDX-License-Identifier</code> must use
+				<code>CC0-1.0</code>.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-solidity-license]: code block of type `solidity` must use license `CC0-1.0`, not `MIT`
+ --> input.md
+  |
+5 | / ```solidity
+6 | | // SPDX-License-Identifier: MIT
+7 | | interface FooToken {}
+8 | | ```
+  | |___^
+  |</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					Per
+					<a href="https://eips.ethereum.org/EIPS/eip-1">EIP-1</a>,
+					proposals are licensed under
+					<code>CC0-1.0</code>. Solidity snippets included inside
+					an EIP are part of the proposal and must carry the same
+					license when they declare one.
+				</p>
+				<p>
+					Code blocks without a
+					<code>SPDX-License-Identifier</code> line are not
+					flagged: the lint only reports blocks that explicitly
+					pick a license other than the expected one.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

@@ -141,3 +141,6 @@ impl<'a, 'b, 'c> tree::Visitor for Visitor<'a, 'b, 'c> {
         Ok(Next::SkipChildren)
     }
 }
+
+#[cfg(test)]
+mod json_cite_unicode_test;

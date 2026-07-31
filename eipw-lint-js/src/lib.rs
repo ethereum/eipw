@@ -41,6 +41,12 @@ extern "C" {
     async fn read_file(path: &JsString, encoding: &JsString) -> Result<JsValue, JsValue>;
 }
 
+#[wasm_bindgen(module = "node:process")]
+extern "C" {
+    #[wasm_bindgen(js_name = cwd)]
+    fn process_cwd() -> String;
+}
+
 struct NodeFetch;
 
 impl Fetch for NodeFetch {
@@ -120,7 +126,15 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     let sources: Vec<_> = sources
         .into_iter()
         .map(|v| v.as_string().unwrap())
-        .map(PathBuf::from)
+        .map(|s| {
+            let p = PathBuf::from(&s);
+            if p.is_relative() {
+                let cwd = PathBuf::from(process_cwd());
+                cwd.join(p)
+            } else {
+                p
+            }
+        })
         .collect();
 
     let reporter = Json::default();

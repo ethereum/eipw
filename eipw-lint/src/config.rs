@@ -41,7 +41,17 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
         //
         ("preamble-no-dup", PreambleNoDuplicates(preamble::NoDuplicates)),
         ("preamble-trim", PreambleTrim(preamble::Trim)),
-        ("preamble-eip", PreambleUint { name: preamble::Uint("eip") }),
+        (
+            "preamble-eip",
+            PreambleUint(preamble::ConfiguredUint {
+                name: "eip",
+                messages: Some(vec![preamble::UintMessage {
+                    value: "<to be assigned>",
+                    message: "preamble header `eip` is waiting for an assigned number",
+                    label: Some("number has not been assigned yet"),
+                }]),
+            }),
+        ),
         ("preamble-author", PreambleAuthor { name: preamble::Author("author") } ),
         ("preamble-re-title", PreambleRegex(preamble::Regex {
             name: "title",

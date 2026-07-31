@@ -1,0 +1,6 @@
+error[preamble-eip]: preamble header `eip` is waiting for an assigned number
+ --> input.md:2:5
+  |
+2 | eip: <to be assigned>
+  |     ^^^^^^^^^^^^^^^^^ number has not been assigned yet
+  |

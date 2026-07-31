@@ -42,9 +42,7 @@ pub enum DefaultLint<S> {
     PreambleRequiredIfEq(preamble::RequiredIfEq<S>),
     PreambleRequiresStatus(preamble::RequiresStatus<S>),
     PreambleTrim(preamble::Trim),
-    PreambleUint {
-        name: preamble::Uint<S>,
-    },
+    PreambleUint(preamble::ConfiguredUint<S>),
     PreambleUintList {
         name: preamble::UintList<S>,
     },
@@ -97,7 +95,7 @@ where
             Self::PreambleRequiredIfEq(l) => l,
             Self::PreambleRequiresStatus(l) => l,
             Self::PreambleTrim(l) => l,
-            Self::PreambleUint { name } => name,
+            Self::PreambleUint(l) => l,
             Self::PreambleUintList { name } => name,
             Self::PreambleUrl { name } => name,
 
@@ -192,9 +190,19 @@ where
                 })
             }
             Self::PreambleTrim(_) => DefaultLint::PreambleTrim(preamble::Trim),
-            Self::PreambleUint { name } => DefaultLint::PreambleUint {
-                name: preamble::Uint(name.0.as_ref()),
-            },
+            Self::PreambleUint(l) => DefaultLint::PreambleUint(preamble::ConfiguredUint {
+                name: l.name.as_ref(),
+                messages: l.messages.as_ref().map(|messages| {
+                    messages
+                        .iter()
+                        .map(|message| preamble::UintMessage {
+                            value: message.value.as_ref(),
+                            message: message.message.as_ref(),
+                            label: message.label.as_ref().map(AsRef::as_ref),
+                        })
+                        .collect()
+                }),
+            }),
             Self::PreambleUintList { name } => DefaultLint::PreambleUintList {
                 name: preamble::UintList(name.0.as_ref()),
             },
@@ -351,9 +359,19 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                 })
             }
             DefaultLint::PreambleTrim(_) => DefaultLint::PreambleTrim(preamble::Trim),
-            DefaultLint::PreambleUint { name } => DefaultLint::PreambleUint {
-                name: preamble::Uint(name.0.to_string()),
-            },
+            DefaultLint::PreambleUint(l) => DefaultLint::PreambleUint(preamble::ConfiguredUint {
+                name: l.name.to_string(),
+                messages: l.messages.as_ref().map(|messages| {
+                    messages
+                        .iter()
+                        .map(|message| preamble::UintMessage {
+                            value: message.value.to_string(),
+                            message: message.message.to_string(),
+                            label: message.label.map(str::to_string),
+                        })
+                        .collect()
+                }),
+            }),
             DefaultLint::PreambleUintList { name } => DefaultLint::PreambleUintList {
                 name: preamble::UintList(name.0.to_string()),
             },

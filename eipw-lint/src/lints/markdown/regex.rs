@@ -55,6 +55,9 @@ where
                 message: self.message.as_ref(),
                 pattern,
                 slug,
+                paragraph: None,
+                previous_text: None,
+                break_pending: false,
             },
         };
 
@@ -70,6 +73,9 @@ struct ExcludesVisitor<'a, 'b, 'c> {
     pattern: &'c str,
     slug: &'c str,
     message: &'c str,
+    paragraph: Option<Ast>,
+    previous_text: Option<String>,
+    break_pending: bool,
 }
 
 impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
@@ -113,29 +119,94 @@ impl<'a, 'b, 'c> ExcludesVisitor<'a, 'b, 'c> {
 
         Ok(Next::TraverseChildren)
     }
+
+    fn check_across_break(&self, ast: &Ast, before: &str, after: &str) -> Result<(), Error> {
+        let buf = format!("{before}\n{after}");
+        let boundary = before.len();
+        let matches = self
+            .re
+            .find_iter(&buf)
+            .filter(|matched| matched.start() < boundary && matched.end() > boundary + 1)
+            .collect::<Vec<_>>();
+
+        if matches.is_empty() {
+            return Ok(());
+        }
+
+        let source = self.ctx.ast_lines(ast);
+        let offset = source.find(&buf);
+        let annotations = matches.into_iter().filter_map(|matched| {
+            let offset = offset?;
+            Some(
+                self.ctx
+                    .annotation_level()
+                    .span(offset + matched.start()..offset + matched.end()),
+            )
+        });
+        let footer_label = format!("the pattern in question: `{}`", self.pattern);
+
+        self.ctx.report(
+            self.ctx
+                .annotation_level()
+                .title(self.message)
+                .id(self.slug)
+                .snippet(
+                    Snippet::source(source)
+                        .fold(true)
+                        .line_start(ast.sourcepos.start.line)
+                        .origin_opt(self.ctx.origin())
+                        .annotations(annotations),
+                )
+                .footer(Level::Info.title(&footer_label)),
+        )?;
+
+        Ok(())
+    }
+
+    fn reset_adjacency(&mut self) {
+        self.previous_text = None;
+        self.break_pending = false;
+    }
 }
 
 impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
     type Error = Error;
 
     fn enter_front_matter(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
+        self.reset_adjacency();
         Ok(Next::SkipChildren)
     }
 
     fn enter_code(&mut self, _ast: &Ast, _code: &NodeCode) -> Result<Next, Self::Error> {
+        self.reset_adjacency();
         Ok(Next::SkipChildren)
     }
 
     fn enter_code_block(&mut self, _: &Ast, _: &NodeCodeBlock) -> Result<Next, Self::Error> {
+        self.reset_adjacency();
         Ok(Next::SkipChildren)
     }
 
     fn enter_html_inline(&mut self, _: &Ast, _: &str) -> Result<Next, Self::Error> {
+        self.reset_adjacency();
         Ok(Next::SkipChildren)
     }
 
     fn enter_html_block(&mut self, _: &Ast, _: &NodeHtmlBlock) -> Result<Next, Self::Error> {
+        self.reset_adjacency();
         Ok(Next::SkipChildren)
+    }
+
+    fn enter_paragraph(&mut self, ast: &Ast) -> Result<Next, Self::Error> {
+        self.paragraph = Some(ast.clone());
+        self.reset_adjacency();
+        Ok(Next::TraverseChildren)
+    }
+
+    fn depart_paragraph(&mut self, _: &Ast) -> Result<(), Self::Error> {
+        self.paragraph = None;
+        self.reset_adjacency();
+        Ok(())
     }
 
     fn enter_footnote_definition(
@@ -147,7 +218,27 @@ impl<'a, 'b, 'c> tree::Visitor for ExcludesVisitor<'a, 'b, 'c> {
     }
 
     fn enter_text(&mut self, ast: &Ast, txt: &str) -> Result<Next, Self::Error> {
+        if self.break_pending {
+            if let (Some(paragraph), Some(previous)) =
+                (self.paragraph.as_ref(), self.previous_text.as_deref())
+            {
+                self.check_across_break(paragraph, previous, txt)?;
+            }
+        }
+
+        self.break_pending = false;
+        self.previous_text = Some(txt.to_owned());
         self.check(ast, txt)
+    }
+
+    fn enter_soft_break(&mut self, _: &Ast) -> Result<Next, Self::Error> {
+        self.break_pending = self.previous_text.is_some();
+        Ok(Next::TraverseChildren)
+    }
+
+    fn enter_line_break(&mut self, _: &Ast) -> Result<Next, Self::Error> {
+        self.break_pending = self.previous_text.is_some();
+        Ok(Next::TraverseChildren)
     }
 
     fn enter_link(&mut self, ast: &Ast, link: &NodeLink) -> Result<Next, Self::Error> {

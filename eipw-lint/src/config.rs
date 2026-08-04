@@ -372,6 +372,14 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             }),
         ),
         (
+            "markdown-re-rfc-space",
+            MarkdownRegex(markdown::Regex {
+                mode: markdown::regex::Mode::Excludes,
+                pattern: r"(?i)\brfc(?:-?[0-9]+|(?:\s{2,}|[^\S ])[0-9]+)\b",
+                message: "RFCs must be referenced with exactly one space (for example, `RFC 2119`)",
+            }),
+        ),
+        (
             "markdown-link-first",
             MarkdownLinkFirst {
                 pattern: markdown::LinkFirst(r"(?i)(?:eip|erc)-([0-9]+)"),

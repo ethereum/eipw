@@ -64,6 +64,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 
 | id                                  | Description                                                                                   |
 |-------------------------------------|-----------------------------------------------------------------------------------------------|
+| `markdown-code-block-license`       | Code blocks that declare an SPDX license must use `CC0-1.0`.                                  |
 | `markdown-copyright`                | Final section contains the CC0-1.0 copyright waiver.                                          |
 | `markdown-html-comments`            | There are no HTML comments in review-ready EIPs                                               |
 | `markdown-json-cite`                | All `csl-json` code blocks adhere to the correct schema.                                      |

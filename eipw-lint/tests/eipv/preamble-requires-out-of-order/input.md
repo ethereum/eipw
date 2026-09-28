@@ -12,7 +12,7 @@ requires: 20, 1337, 86
 ---
 
 ## Abstract
-This is the abstract for the EIP.
+This is the abstract for the EIP. It builds on [EIP-20](./eip-20.md), [EIP-1337](./eip-1337.md), and [EIP-86](./eip-86.md).
 
 ## Motivation
 This is the motivation for the EIP.

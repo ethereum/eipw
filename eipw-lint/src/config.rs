@@ -332,6 +332,12 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             },
         ),
         (
+            "markdown-requires-ref-body",
+            MarkdownRequireReferenced(markdown::RequireReferenced {
+                requires: "requires",
+            }),
+        ),
+        (
             "markdown-order-section",
             MarkdownSectionOrder {
                 sections: markdown::SectionOrder(vec![

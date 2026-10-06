@@ -5,7 +5,7 @@ description: This proposal is a sample EIP-9 and EIP-20 extension.
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>
 discussions-to: https://ethereum-magicians.org/t/hello/1
 status: Last Call
-last-call-deadline: 2020-01-01
+last-call-deadline: 3000-12-12
 type: Standards Track
 category: Core
 created: 2020-01-01

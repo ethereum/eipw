@@ -1,0 +1,6 @@
+error[preamble-future-date]: preamble header `last-call-deadline` must be today or a future date
+ --> input.md:8:20
+  |
+8 | last-call-deadline: 2000-01-01
+  |                    ^^^^^^^^^^^ date is in the past
+  |

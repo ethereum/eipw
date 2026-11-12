@@ -36,6 +36,7 @@ pub enum DefaultLint<S> {
     PreambleProposalRef(preamble::ProposalRef<S>),
     PreambleRegex(preamble::Regex<S>),
     PreambleRequireReferenced(preamble::RequireReferenced<S>),
+    PreambleSpell(preamble::Spell<S>),
     PreambleRequired {
         names: preamble::Required<S>,
     },
@@ -93,6 +94,7 @@ where
             Self::PreambleProposalRef(l) => l,
             Self::PreambleRegex(l) => l,
             Self::PreambleRequireReferenced(l) => l,
+            Self::PreambleSpell(l) => l,
             Self::PreambleRequired { names } => names,
             Self::PreambleRequiredIfEq(l) => l,
             Self::PreambleRequiresStatus(l) => l,
@@ -170,6 +172,10 @@ where
                     requires: l.requires.as_ref(),
                 })
             }
+            Self::PreambleSpell(l) => DefaultLint::PreambleSpell(preamble::Spell {
+                names: l.names.iter().map(AsRef::as_ref).collect(),
+                personal_dictionary: l.personal_dictionary.as_ref(),
+            }),
             Self::PreambleRequired { names } => DefaultLint::PreambleRequired {
                 names: preamble::Required(names.0.iter().map(AsRef::as_ref).collect()),
             },
@@ -329,6 +335,10 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                     requires: l.requires.to_string(),
                 })
             }
+            DefaultLint::PreambleSpell(l) => DefaultLint::PreambleSpell(preamble::Spell {
+                names: l.names.iter().map(|x| x.to_string()).collect(),
+                personal_dictionary: l.personal_dictionary.to_string(),
+            }),
             DefaultLint::PreambleRequired { names } => DefaultLint::PreambleRequired {
                 names: preamble::Required(names.0.iter().map(|x| x.to_string()).collect()),
             },

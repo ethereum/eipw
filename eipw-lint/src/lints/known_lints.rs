@@ -71,6 +71,7 @@ pub enum DefaultLint<S> {
         sections: markdown::SectionRequired<S>,
     },
     MarkdownSectionText(markdown::SectionText<S>),
+    MarkdownSectionUnique(markdown::SectionUnique),
     MarkdownHeadingsSpace(markdown::HeadingsSpace),
     MarkdownHeadingFirst(markdown::HeadingFirst),
     MarkdownSpell(markdown::Spell<S>),
@@ -112,6 +113,7 @@ where
             Self::MarkdownSectionOrder { sections } => sections,
             Self::MarkdownSectionRequired { sections } => sections,
             Self::MarkdownSectionText(l) => l,
+            Self::MarkdownSectionUnique(l) => l,
             Self::MarkdownHeadingsSpace(l) => l,
             Self::MarkdownHeadingFirst(l) => l,
             Self::MarkdownSpell(l) => l,
@@ -257,6 +259,7 @@ where
                     exactly: l.exactly.as_ref(),
                 })
             }
+            Self::MarkdownSectionUnique(l) => DefaultLint::MarkdownSectionUnique(l.clone()),
             Self::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
             Self::MarkdownHeadingFirst(l) => DefaultLint::MarkdownHeadingFirst(l.clone()),
             Self::MarkdownSpell(s) => DefaultLint::MarkdownSpell(markdown::Spell {
@@ -428,6 +431,7 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                     exactly: l.exactly.to_string(),
                 })
             }
+            DefaultLint::MarkdownSectionUnique(l) => DefaultLint::MarkdownSectionUnique(l.clone()),
             DefaultLint::MarkdownHeadingsSpace(l) => DefaultLint::MarkdownHeadingsSpace(l.clone()),
             DefaultLint::MarkdownHeadingFirst(l) => DefaultLint::MarkdownHeadingFirst(l.clone()),
             DefaultLint::MarkdownSpell(l) => DefaultLint::MarkdownSpell(markdown::Spell {

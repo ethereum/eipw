@@ -73,6 +73,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `markdown-no-backticks`             | No proposals are referenced inside backticks (eg. \`EIP-1234\`).                              |
 | `markdown-no-smart-quotes`          | Smart quotes (", ", ', ') are not allowed, use straight quotes (", ') instead.                |
 | `markdown-order-section`            | There are no extra sections and the sections are in the correct order.                        |
+| `markdown-re-consecutive-spaces`    | Prose does not contain inappropriate consecutive spaces.                                      |
 | `markdown-re-eip-dash`              | Other EIPs are referenced using EIP-X, not EIPX or EIP X.                                     |
 | `markdown-re-erc-dash`              | Other ERCs are referenced using ERC-X, not ERCX or ERC X.                                     |
 | `markdown-refs`                     | ERCs are referenced using ERC-X, while other proposals use EIP-X.                             |

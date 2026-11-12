@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-re-consecutive-spaces</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-re-consecutive-spaces</code></h1>
+			<p>
+				Prose does not contain inappropriate consecutive spaces.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-re-consecutive-spaces]: prose must not contain consecutive spaces
+  --&gt; input.md
+   |
+16 | This sentence has  two spaces.
+   |                  ^^
+   |
+   = info: the pattern in question: ` {2,}`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					Use one space between words in prose. The lint ignores inline
+					code, fenced code blocks, HTML, link URLs, and the two trailing
+					spaces Markdown uses to request a hard line break.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

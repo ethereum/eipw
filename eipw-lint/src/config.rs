@@ -756,6 +756,7 @@ where
     M: 'static + Modifier,
     L: 'static + Lint,
 {
+    #[allow(clippy::type_complexity)] // TODO: Should refactor this, but it's fine for now.
     pub fn to_iters(
         self,
     ) -> (
@@ -782,6 +783,7 @@ impl<M, L> Options<M, L>
 where
     Self: DeserializeOwned,
 {
+    #[allow(clippy::result_large_err)] // TODO: Not sure if we even want to keep figment long term.
     pub fn from<T: Provider>(provider: T) -> Result<Self, figment::Error> {
         Figment::from(provider).extract()
     }

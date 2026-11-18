@@ -282,8 +282,7 @@ mod tests {
                 NodeEdge::Start(Node { data, .. }) => Some(data.borrow().clone()),
                 _ => None,
             })
-            .filter(pred)
-            .next()
+            .find(pred)
             .unwrap();
 
         context.ast_source(&link).to_owned()

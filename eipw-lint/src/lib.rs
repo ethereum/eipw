@@ -462,7 +462,7 @@ fn process<'a>(
 ) -> Result<Option<InnerContext<'a>>, Error> {
     let (preamble_source, body_source) = match Preamble::split(source) {
         Ok(v) => v,
-        Err(SplitError::MissingStart { .. }) | Err(SplitError::LeadingGarbage { .. }) => {
+        Err(SplitError::MissingStart) | Err(SplitError::LeadingGarbage) => {
             let mut footer = Vec::new();
             if source.as_bytes().get(3) == Some(&b'\r') {
                 footer.push(Level::Help.title(
@@ -487,7 +487,7 @@ fn process<'a>(
                 })?;
             return Ok(None);
         }
-        Err(SplitError::MissingEnd { .. }) => {
+        Err(SplitError::MissingEnd) => {
             reporter
                 .report(
                     Level::Error

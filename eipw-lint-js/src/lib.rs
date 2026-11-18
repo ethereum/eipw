@@ -60,7 +60,7 @@ impl Fetch for NodeFetch {
                 Ok(o) => Ok(o.as_string().unwrap()),
                 Err(e) => {
                     let txt = format!("{:?}", e);
-                    Err(std::io::Error::new(std::io::ErrorKind::Other, Error(txt)))
+                    Err(std::io::Error::other(Error(txt)))
                 }
             }
         };

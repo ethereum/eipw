@@ -4,18 +4,22 @@ eipw
 The [EIP] validator that's one more than [`eipv`](https://github.com/ethereum/eipv).
 
 ```
-USAGE:
-    eipw [OPTIONS] [SOURCES]...
+Usage: eipw [OPTIONS] [SOURCES]...
 
-ARGS:
-    <SOURCES>...    Files and/or directories to check
+Arguments:
+  [SOURCES]...  Files and/or directories to check
 
-OPTIONS:
-        --format <FORMAT>     Output format [default: text] [possible values: text, json]
-    -h, --help                Print help information
-        --lints <LINTS>       Additional lints to enable
-        --list-lints          List all available lints
-        --no-default-lints    Do not enable the default lints
+Options:
+      --defaults          Print the default configuration
+      --list-lints        List all available lints
+      --format <FORMAT>   Output format [default: text] [possible values: text, json]
+      --no-default-lints  Do not enable the default lints
+  -D, --deny <DENY>       Lints to enable as errors
+  -W, --warn <WARN>       Lints to enable as warnings
+  -A, --allow <ALLOW>     Lints to disable
+  -c, --config <CONFIG>   Path to file defining alternate default lints
+  -h, --help              Print help
+  -V, --version           Print version
 ```
 
 [EIP]: https://eips.ethereum.org/

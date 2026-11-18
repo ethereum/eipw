@@ -222,21 +222,21 @@ mod tests {
     fn split_missing_start() {
         let input = "hello world\n";
         let actual = Preamble::split(input).unwrap_err();
-        assert_matches!(actual, SplitError::MissingStart { .. });
+        assert_matches!(actual, SplitError::MissingStart);
     }
 
     #[test]
     fn split_missing_end() {
         let input = "---\nfoo: bar\n";
         let actual = Preamble::split(input).unwrap_err();
-        assert_matches!(actual, SplitError::MissingEnd { .. });
+        assert_matches!(actual, SplitError::MissingEnd);
     }
 
     #[test]
     fn split_leading_garbage() {
         let input = "hello world\n---\nfoo: bar\n---\n";
         let actual = Preamble::split(input).unwrap_err();
-        assert_matches!(actual, SplitError::LeadingGarbage { .. });
+        assert_matches!(actual, SplitError::LeadingGarbage);
     }
 
     #[test]
@@ -252,14 +252,14 @@ mod tests {
     fn split_carriage_return_then_line_feed() {
         let input = "---\r\nfoo: bar\r\n---\r\n\r\nhello world";
         let actual = Preamble::split(input).unwrap_err();
-        assert_matches!(actual, SplitError::MissingStart { .. });
+        assert_matches!(actual, SplitError::MissingStart);
     }
 
     #[test]
     fn split_carriage_return() {
         let input = "---\rfoo: bar\r---\r\rhello world";
         let actual = Preamble::split(input).unwrap_err();
-        assert_matches!(actual, SplitError::MissingStart { .. });
+        assert_matches!(actual, SplitError::MissingStart);
     }
 
     #[test]

@@ -1,6 +1,7 @@
 use std::future::Future;
-use std::path::PathBuf;
 use std::pin::Pin;
+
+use typed_path::Utf8TypedPathBuf;
 
 use super::Fetch;
 
@@ -11,9 +12,9 @@ pub struct Tokio;
 impl Fetch for Tokio {
     fn fetch(
         &self,
-        path: PathBuf,
+        path: Utf8TypedPathBuf,
     ) -> Pin<Box<dyn Future<Output = Result<String, std::io::Error>>>> {
-        let fut = async { tokio::fs::read_to_string(path).await };
+        let fut = async { tokio::fs::read_to_string(path.into_string()).await };
         Box::pin(fut)
     }
 }
@@ -22,7 +23,7 @@ impl Fetch for Tokio {
 impl Fetch for Tokio {
     fn fetch(
         &self,
-        _path: PathBuf,
+        _path: Utf8TypedPathBuf,
     ) -> Pin<Box<dyn Future<Output = Result<String, std::io::Error>>>> {
         todo!()
     }

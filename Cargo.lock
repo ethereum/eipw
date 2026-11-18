@@ -472,6 +472,7 @@ dependencies = [
  "thiserror 2.0.12",
  "tokio",
  "toml",
+ "typed-path",
 ]
 
 [[package]]
@@ -502,6 +503,7 @@ dependencies = [
  "snafu",
  "tokio",
  "toml",
+ "typed-path",
  "url",
  "zspell",
 ]
@@ -519,6 +521,7 @@ dependencies = [
  "serde",
  "serde-wasm-bindgen",
  "serde_json",
+ "typed-path",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-bindgen-test",
@@ -1873,6 +1876,12 @@ name = "typed-arena"
 version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6af6ae20167a9ece4bcb41af5b80f8a1f1df981f6391189ce00fd257af04126a"
+
+[[package]]
+name = "typed-path"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ce898823d8cd0f028662d2f349694b1af0a5cc9be83f1d213a00d3147445e1e"
 
 [[package]]
 name = "typenum"

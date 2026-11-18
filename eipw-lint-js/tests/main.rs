@@ -83,6 +83,31 @@ async fn lint_one() {
     assert_eq!(expected, actual);
 }
 
+#[wasm_bindgen(module = "node:path")]
+extern "C" {
+    fn join(a: &str, b: &str, c: &str) -> String;
+}
+
+#[wasm_bindgen_test]
+async fn lint_host_separators() {
+    let path = join("tests", "eips", "eip-1000.md");
+
+    let result = lint(vec![JsValue::from_str(&path)], None)
+        .await
+        .ok()
+        .unwrap();
+
+    let actual: serde_json::Value = serde_wasm_bindgen::from_value(result).unwrap();
+    let actual = actual.as_array().unwrap();
+
+    assert_eq!(actual.len(), 1);
+    assert_eq!(
+        actual[0]["title"],
+        "preamble header `requires` contains items not stable enough for a `status` of `Last Call`"
+    );
+    assert_eq!(actual[0]["snippets"][0]["origin"], path);
+}
+
 #[wasm_bindgen_test]
 async fn lint_json_schema() {
     let mut path = PathBuf::from("tests");

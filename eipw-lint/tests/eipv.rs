@@ -16,6 +16,8 @@ use std::path::{Path, PathBuf};
 
 use tokio::fs;
 
+use typed_path::Utf8NativePath;
+
 #[tokio::test]
 async fn eipv() -> std::io::Result<()> {
     let mut root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -35,7 +37,7 @@ async fn eipv() -> std::io::Result<()> {
 
         checked = true;
 
-        let input_path = Path::new("input.md");
+        let input_path = Utf8NativePath::new("input.md").to_typed_path();
         let expected_path = Path::new("expected.txt");
         let valid_path = Path::new("valid.txt");
 

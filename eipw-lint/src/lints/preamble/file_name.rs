@@ -13,7 +13,8 @@ use crate::{LevelExt, SnippetExt};
 use serde::{Deserialize, Serialize};
 
 use std::fmt::{Debug, Display};
-use std::path::Path;
+
+use typed_path::Utf8TypedPath;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
@@ -32,9 +33,9 @@ where
             Some(s) => s,
         };
 
-        let file_path = match ctx.origin() {
+        let file_path = match ctx.origin_path() {
             None => return Ok(()),
-            Some(o) => Path::new(o),
+            Some(o) => o,
         };
         let file_name = file_path
             .file_name()
@@ -48,15 +49,16 @@ where
         let basename = formatx!(self.format.as_ref(), number).expect("bad format for FileName");
         let expected = format!("{basename}.md");
 
-        if file_name == expected.as_str() {
+        if file_name == expected {
             return Ok(());
         }
 
         let mut footer_label = format!("this file's name should be `{expected}`");
 
         if file_name == "index.md" {
-            match file_path.parent().and_then(Path::file_name) {
-                Some(t) if *t == *basename => return Ok(()),
+            let parent = file_path.parent();
+            match parent.as_ref().and_then(Utf8TypedPath::file_name) {
+                Some(t) if t == basename => return Ok(()),
                 Some(_) | None => {
                     footer_label = format!("this file should be in a folder `{basename}`");
                 }

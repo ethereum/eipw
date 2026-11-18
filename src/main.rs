@@ -16,6 +16,8 @@ use std::path::{Path, PathBuf};
 
 use sysexits::ExitCode;
 
+use typed_path::Utf8TypedPathBuf;
+
 #[derive(Debug, Parser)]
 #[command(version, about)]
 struct Opts {
@@ -130,12 +132,25 @@ async fn try_read_config(path: &Path) -> Result<DefaultOptions, ExitCode> {
 }
 
 #[cfg(target_arch = "wasm32")]
-async fn collect_sources(_sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io::Error> {
+async fn collect_sources(_sources: Vec<PathBuf>) -> Result<Vec<Utf8TypedPathBuf>, std::io::Error> {
     todo!()
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io::Error> {
+fn to_typed(path: &Path) -> Result<Utf8TypedPathBuf, std::io::Error> {
+    use typed_path::Utf8NativePath;
+
+    match path.to_str() {
+        Some(p) => Ok(Utf8NativePath::new(p).to_typed_path_buf()),
+        None => Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            format!("path `{}` is not valid UTF-8", path.display()),
+        )),
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<Utf8TypedPathBuf>, std::io::Error> {
     use std::ffi::OsStr;
     use tokio::fs;
 
@@ -144,7 +159,7 @@ async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io:
     for source in sources.into_iter() {
         let metadata = fs::metadata(&source).await?;
         if metadata.is_file() {
-            output.push(source.clone());
+            output.push(to_typed(&source)?);
         }
 
         if !metadata.is_dir() {
@@ -164,7 +179,7 @@ async fn collect_sources(sources: Vec<PathBuf>) -> Result<Vec<PathBuf>, std::io:
                 continue;
             }
 
-            output.push(path);
+            output.push(to_typed(&path)?);
         }
     }
 
@@ -236,7 +251,7 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
     }
 
     for source in &sources {
-        linter = linter.check_file(source);
+        linter = linter.check_file(source.to_path());
     }
 
     let reporter = linter.run().await.unwrap();

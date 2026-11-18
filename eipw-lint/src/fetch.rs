@@ -8,12 +8,15 @@
 pub mod tokio;
 
 use std::future::Future;
-use std::path::PathBuf;
 use std::pin::Pin;
 
+use typed_path::Utf8TypedPathBuf;
+
 pub trait Fetch {
-    fn fetch(&self, path: PathBuf)
-        -> Pin<Box<dyn Future<Output = Result<String, std::io::Error>>>>;
+    fn fetch(
+        &self,
+        path: Utf8TypedPathBuf,
+    ) -> Pin<Box<dyn Future<Output = Result<String, std::io::Error>>>>;
 }
 
 #[derive(Debug, Default)]
@@ -22,7 +25,7 @@ pub struct Null;
 impl Fetch for Null {
     fn fetch(
         &self,
-        _path: PathBuf,
+        _path: Utf8TypedPathBuf,
     ) -> Pin<Box<dyn Future<Output = Result<String, std::io::Error>>>> {
         let fut = async { Err(std::io::ErrorKind::Unsupported.into()) };
         Box::pin(fut)

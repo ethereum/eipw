@@ -19,8 +19,9 @@ use std::collections::HashMap;
 use std::fmt;
 use std::future::Future;
 use std::ops::Deref;
-use std::path::PathBuf;
 use std::pin::Pin;
+
+use typed_path::{Utf8TypedPath, Utf8TypedPathBuf};
 
 use wasm_bindgen::prelude::*;
 
@@ -41,19 +42,31 @@ extern "C" {
     async fn read_file(path: &JsString, encoding: &JsString) -> Result<JsValue, JsValue>;
 }
 
+#[wasm_bindgen(module = "node:path")]
+extern "C" {
+    #[wasm_bindgen(thread_local_v2, js_name = sep)]
+    static SEPARATOR: JsString;
+}
+
+// The compilation target says nothing about the host platform, so the path
+// type has to come from Node.js at runtime.
+fn host_path(path: &str) -> Utf8TypedPath<'_> {
+    if SEPARATOR.with(|s| s == "\\") {
+        Utf8TypedPath::windows(path)
+    } else {
+        Utf8TypedPath::unix(path)
+    }
+}
+
 struct NodeFetch;
 
 impl Fetch for NodeFetch {
     fn fetch(
         &self,
-        path: PathBuf,
+        path: Utf8TypedPathBuf,
     ) -> Pin<Box<dyn Future<Output = Result<String, std::io::Error>>>> {
         let fut = async move {
-            let path = match path.to_str() {
-                Some(p) => JsString::from(p),
-                None => return Err(std::io::ErrorKind::InvalidInput.into()),
-            };
-
+            let path = JsString::from(path.as_str());
             let encoding = JsString::from("utf-8");
 
             match read_file(&path, &encoding).await {
@@ -120,7 +133,6 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     let sources: Vec<_> = sources
         .into_iter()
         .map(|v| v.as_string().unwrap())
-        .map(PathBuf::from)
         .collect();
 
     let reporter = Json::default();
@@ -152,7 +164,7 @@ pub async fn lint(sources: Vec<JsValue>, options: Option<Object>) -> Result<JsVa
     linter = linter.set_fetch(NodeFetch);
 
     for source in &sources {
-        linter = linter.check_file(source);
+        linter = linter.check_file(host_path(source));
     }
 
     let reporter = linter.run().await?;

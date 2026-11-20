@@ -23,6 +23,7 @@ eipw-lint.workspace = true
 serde_json.workspace = true
 serde = { workspace = true, features = [ "derive" ] }
 getrandom = { workspace = true, features = [ "js" ] }
+typed-path.workspace = true
 
 wasm-bindgen = { version = "0.2.100", features = [ "serde-serialize" ] }
 serde-wasm-bindgen = "0.6.5"

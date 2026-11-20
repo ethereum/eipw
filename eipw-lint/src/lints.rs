@@ -29,6 +29,8 @@ use std::fmt::Debug;
 use std::ops::Deref;
 use std::string::FromUtf8Error;
 
+use typed_path::Utf8TypedPath;
+
 #[derive(Debug, Snafu)]
 #[non_exhaustive]
 pub enum Error {
@@ -66,7 +68,7 @@ pub(crate) struct InnerContext<'a> {
     pub(crate) source: &'a str,
     pub(crate) body_source: &'a str,
     pub(crate) body: &'a AstNode<'a>,
-    pub(crate) origin: Option<&'a str>,
+    pub(crate) origin: Option<Utf8TypedPath<'a>>,
 }
 
 #[derive(Educe)]
@@ -186,6 +188,10 @@ where
     }
 
     pub fn origin(&self) -> Option<&'a str> {
+        self.inner.origin.map(crate::path_str)
+    }
+
+    pub fn origin_path(&self) -> Option<Utf8TypedPath<'a>> {
         self.inner.origin
     }
 
@@ -270,9 +276,14 @@ mod tests {
             annotation_level: Level::Error,
             eips: &Default::default(),
             reporter: &crate::reporters::Null,
-            inner: crate::process(&crate::reporters::Null, &arena, Some("eip-1234.md"), source)
-                .unwrap()
-                .unwrap(),
+            inner: crate::process(
+                &crate::reporters::Null,
+                &arena,
+                Some(crate::native_path("eip-1234.md")),
+                source,
+            )
+            .unwrap()
+            .unwrap(),
         };
 
         let link = context

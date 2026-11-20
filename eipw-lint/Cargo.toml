@@ -29,6 +29,7 @@ regex.workspace = true
 serde = { workspace = true, features = [ "derive" ] }
 tokio = { optional = true, workspace = true, features = [ "macros" ] }
 figment.workspace = true
+typed-path.workspace = true
 
 comrak = { version = "0.37.0", default-features = false }
 url = "2.5.4"

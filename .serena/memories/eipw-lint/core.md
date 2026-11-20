@@ -2,7 +2,7 @@
 
 ## Core types (`src/lints.rs`)
 - `Lint` trait: `find_resources(&FetchContext)` (declare proposals to fetch; string sources may not fetch) + `lint(slug, &Context)`.
-- `Context<'a,'b>`: `preamble()`, `body()` (comrak `AstNode`), `body_source()`, `origin()`, `annotation_level()`, `report(Message)`, `proposal(u32)` (parsed context of a referenced EIP), `ast_source(ast)` / `ast_lines(ast)` / `ast_snippet(ast, level, label)` for comrak node spans.
+- `Context<'a,'b>`: `preamble()`, `body()` (comrak `AstNode`), `body_source()`, `origin()` / `origin_path()`, `annotation_level()`, `report(Message)`, `proposal(u32)` (parsed context of a referenced EIP), `ast_source(ast)` / `ast_lines(ast)` / `ast_snippet(ast, level, label)` for comrak node spans.
 - `Linter<R: Reporter>` builder: `check_file` / `check_slice`, `warn` / `deny` / `allow` (panics on unknown slug) / `clear_lints`, `modify`, `set_fetch`, async `run()`. Panics if no lints or no sources. Lints run sorted by slug.
 - `process()` in `lints.rs` splits preamble, parses body with comrak (table/autolink/footnotes enabled), and **shifts all comrak line positions by the preamble line count** — lint authors never deal with that offset.
 - `tree.rs`: comrak traversal helpers (`TraverseExt`, `Visitor`, `Next`).
@@ -14,6 +14,7 @@
 - Modifiers: `DefaultModifier` enum in `src/modifiers.rs`; `Modifier` mutates `LintSettings` (annotation level) per file.
 - Reporters (`src/reporters.rs`): `Text`, `Json`, `Null`, `Count`, `AdditionalHelp` (appends "see https://ethereum.github.io/eipw/<slug>/" per lint id).
 - Fetch (`src/fetch.rs` + `fetch/tokio.rs`): referenced EIPs resolved relative to the source file's dir (parent dir if source is `index.md`); tries `eip-<n>.md` then `eip-<n>/index.md`, panics if both exist.
+- Paths are `typed_path::Utf8TypedPath` / `Utf8TypedPathBuf`, never `std::path`: WASM builds always get Unix semantics from `std::path`, so the caller states whether a path is Unix or Windows (`eipw-lint-js` asks Node.js for its separator; the CLI uses `Utf8NativePath`). String origins from `check_slice` follow the compilation target.
 
 ## Lint modules
 - `src/lints/preamble/*.rs`: author, date, file_name, length, list, no_duplicates, one_of, order, proposal_ref, regex, require_referenced, required, required_if_eq, requires_status, trim, uint (+UintList), url.

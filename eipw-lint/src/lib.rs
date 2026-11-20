@@ -34,7 +34,8 @@ use snafu::{ensure, ResultExt, Snafu};
 
 use std::cell::RefCell;
 use std::collections::hash_map::{self, HashMap};
-use std::path::{Path, PathBuf};
+
+use typed_path::{Utf8TypedPath, Utf8TypedPathBuf};
 
 #[derive(Snafu, Debug)]
 #[non_exhaustive]
@@ -42,21 +43,21 @@ pub enum Error {
     Lint {
         #[snafu(backtrace)]
         source: LintError,
-        origin: Option<PathBuf>,
+        origin: Option<Utf8TypedPathBuf>,
     },
     #[snafu(context(false))]
     Modifier {
         #[snafu(backtrace)]
         source: crate::modifiers::Error,
     },
-    #[snafu(display("i/o error accessing `{}`", path.to_string_lossy()))]
+    #[snafu(display("i/o error accessing `{path}`"))]
     Io {
-        path: PathBuf,
+        path: Utf8TypedPathBuf,
         source: std::io::Error,
     },
     SliceFetched {
         lint: String,
-        origin: Option<PathBuf>,
+        origin: Option<Utf8TypedPathBuf>,
     },
 }
 
@@ -66,16 +67,16 @@ enum Source<'a> {
         origin: Option<&'a str>,
         src: &'a str,
     },
-    File(&'a Path),
+    File(Utf8TypedPath<'a>),
 }
 
 impl<'a> Source<'a> {
-    fn origin(&self) -> Option<&Path> {
+    fn origin(&self) -> Option<Utf8TypedPath<'a>> {
         match self {
             Self::String {
                 origin: Some(s), ..
-            } => Some(Path::new(s)),
-            Self::File(p) => Some(p),
+            } => Some(native_path(s)),
+            Self::File(p) => Some(*p),
             _ => None,
         }
     }
@@ -89,7 +90,9 @@ impl<'a> Source<'a> {
             Self::File(f) => fetch
                 .fetch(f.to_path_buf())
                 .await
-                .with_context(|_| IoSnafu { path: f.to_owned() }),
+                .with_context(|_| IoSnafu {
+                    path: f.to_path_buf(),
+                }),
             Self::String { src, .. } => Ok((*src).to_owned()),
         }
     }
@@ -268,7 +271,7 @@ where
         self
     }
 
-    pub fn check_file(mut self, path: &'a Path) -> Self {
+    pub fn check_file(mut self, path: Utf8TypedPath<'a>) -> Self {
         self.sources.push(Source::File(path));
         self
     }
@@ -286,17 +289,15 @@ where
         let mut fetched_eips = HashMap::new();
 
         for source in self.sources {
-            let source_origin = source.origin().map(Path::to_path_buf);
+            let source_origin = source.origin();
             let source_content = source.fetch(&*self.fetch).await?;
 
             to_check.push((source_origin, source_content));
 
-            let (source_origin, source_content) = to_check.last().unwrap();
-            let display_origin = source_origin.as_deref().map(Path::to_string_lossy);
-            let display_origin = display_origin.as_deref();
+            let (_, source_content) = to_check.last().unwrap();
 
             let arena = Arena::new();
-            let inner = match process(&reporters::Null, &arena, display_origin, source_content)? {
+            let inner = match process(&reporters::Null, &arena, source_origin, source_content)? {
                 Some(i) => i,
                 None => continue,
             };
@@ -311,7 +312,7 @@ where
                 lint.1
                     .find_resources(&context)
                     .with_context(|_| LintSnafu {
-                        origin: source_origin.clone(),
+                        origin: source_origin.map(|p| p.to_path_buf()),
                     })?;
 
                 let fetch_proposals = context.fetch_proposals.into_inner();
@@ -324,7 +325,7 @@ where
                     fetch_proposals.is_empty() || !source.is_string(),
                     SliceFetchedSnafu {
                         lint: slug,
-                        origin: source_origin.clone(),
+                        origin: source_origin.map(|p| p.to_path_buf()),
                     }
                 );
 
@@ -336,9 +337,11 @@ where
                     Source::File(p) => p,
                     _ => unreachable!(),
                 };
-                let source_dir = source_path.parent().unwrap_or_else(|| Path::new("."));
+                let source_dir = source_path
+                    .parent()
+                    .unwrap_or_else(|| same_type(source_path, "."));
                 let root = match source_path.file_name() {
-                    Some(f) if f == "index.md" => source_dir.join(".."),
+                    Some("index.md") => source_dir.join(".."),
                     Some(_) | None => source_dir.to_path_buf(),
                 };
 
@@ -352,18 +355,16 @@ where
 
                     let mut plain_path = root.join(&basename);
                     plain_path.set_extension("md");
-                    let plain = Source::File(&plain_path).fetch(&*self.fetch).await;
+                    let plain = Source::File(plain_path.to_path()).fetch(&*self.fetch).await;
 
                     let mut index_path = root.join(&basename);
                     index_path.push("index.md");
-                    let index = Source::File(&index_path).fetch(&*self.fetch).await;
+                    let index = Source::File(index_path.to_path()).fetch(&*self.fetch).await;
 
                     let content = match (plain, index) {
-                        (Ok(_), Ok(_)) => panic!(
-                            "ambiguous proposal between `{}` and `{}`",
-                            plain_path.to_string_lossy(),
-                            index_path.to_string_lossy()
-                        ),
+                        (Ok(_), Ok(_)) => {
+                            panic!("ambiguous proposal between `{plain_path}` and `{index_path}`")
+                        }
                         (Ok(c), Err(_)) => Ok(c),
                         (Err(_), Ok(c)) => Ok(c),
                         (Err(e), Err(_)) => Err(e),
@@ -397,11 +398,8 @@ where
         lints.sort_by_key(|l| l.0);
 
         for (origin, source) in &to_check {
-            let display_origin = origin.as_ref().map(|p| p.to_string_lossy().into_owned());
-            let display_origin = display_origin.as_deref();
-
             let arena = Arena::new();
-            let inner = match process(&self.reporter, &arena, display_origin, source)? {
+            let inner = match process(&self.reporter, &arena, *origin, source)? {
                 Some(i) => i,
                 None => continue,
             };
@@ -433,7 +431,7 @@ where
                 };
 
                 lint.lint(slug, &context).with_context(|_| LintSnafu {
-                    origin: origin.clone(),
+                    origin: origin.map(|p| p.to_path_buf()),
                 })?;
             }
         }
@@ -457,9 +455,11 @@ fn comrak_options() -> comrak::Options<'static> {
 fn process<'a>(
     reporter: &dyn Reporter,
     arena: &'a Arena<Node<'a, RefCell<Ast>>>,
-    origin: Option<&'a str>,
+    origin: Option<Utf8TypedPath<'a>>,
     source: &'a str,
 ) -> Result<Option<InnerContext<'a>>, Error> {
+    let display_origin = origin.map(path_str);
+
     let (preamble_source, body_source) = match Preamble::split(source) {
         Ok(v) => v,
         Err(SplitError::MissingStart) | Err(SplitError::LeadingGarbage) => {
@@ -475,7 +475,7 @@ fn process<'a>(
                         .title("first line must be `---` exactly")
                         .snippet(
                             Snippet::source(source.lines().next().unwrap_or_default())
-                                .origin_opt(origin)
+                                .origin_opt(display_origin)
                                 .fold(false)
                                 .line_start(1),
                         )
@@ -483,7 +483,7 @@ fn process<'a>(
                 )
                 .map_err(LintError::from)
                 .with_context(|_| LintSnafu {
-                    origin: origin.map(PathBuf::from),
+                    origin: origin.map(|p| p.to_path_buf()),
                 })?;
             return Ok(None);
         }
@@ -495,13 +495,13 @@ fn process<'a>(
                 )
                 .map_err(LintError::from)
                 .with_context(|_| LintSnafu {
-                    origin: origin.map(PathBuf::from),
+                    origin: origin.map(|p| p.to_path_buf()),
                 })?;
             return Ok(None);
         }
     };
 
-    let preamble = match Preamble::parse(origin, preamble_source) {
+    let preamble = match Preamble::parse(display_origin, preamble_source) {
         Ok(p) => p,
         Err(e) => {
             for snippet in e.into_errors() {
@@ -509,7 +509,7 @@ fn process<'a>(
                     .report(snippet)
                     .map_err(LintError::from)
                     .with_context(|_| LintSnafu {
-                        origin: origin.map(PathBuf::from),
+                        origin: origin.map(|p| p.to_path_buf()),
                     })?;
             }
             Preamble::default()
@@ -548,6 +548,32 @@ fn process<'a>(
         preamble,
         origin,
     }))
+}
+
+// String origins carry no path type, so they follow the compilation target.
+fn native_path(path: &str) -> Utf8TypedPath<'_> {
+    if cfg!(windows) {
+        Utf8TypedPath::windows(path)
+    } else {
+        Utf8TypedPath::unix(path)
+    }
+}
+
+fn same_type<'a>(like: Utf8TypedPath<'_>, path: &'a str) -> Utf8TypedPath<'a> {
+    if like.is_windows() {
+        Utf8TypedPath::windows(path)
+    } else {
+        Utf8TypedPath::unix(path)
+    }
+}
+
+// `Utf8TypedPath::as_str` ties its result to the borrow of the enum instead of
+// the underlying path.
+fn path_str(path: Utf8TypedPath<'_>) -> &str {
+    match path {
+        Utf8TypedPath::Unix(p) => p.as_str(),
+        Utf8TypedPath::Windows(p) => p.as_str(),
+    }
 }
 
 trait SnippetExt<'a> {

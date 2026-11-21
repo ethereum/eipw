@@ -64,6 +64,9 @@ pub enum DefaultLint<S> {
     MarkdownProposalRef(markdown::ProposalRef),
     MarkdownRegex(markdown::Regex<S>),
     MarkdownRelativeLinks(markdown::RelativeLinks<S>),
+    MarkdownRequiresRefBody {
+        requires: markdown::RequiresRefBody<S>,
+    },
     MarkdownSectionOrder {
         sections: markdown::SectionOrder<S>,
     },
@@ -109,6 +112,7 @@ where
             Self::MarkdownProposalRef(l) => l,
             Self::MarkdownRegex(l) => l,
             Self::MarkdownRelativeLinks(l) => l,
+            Self::MarkdownRequiresRefBody { requires } => requires,
             Self::MarkdownSectionOrder { sections } => sections,
             Self::MarkdownSectionRequired { sections } => sections,
             Self::MarkdownSectionText(l) => l,
@@ -244,6 +248,11 @@ where
                     exceptions: l.exceptions.iter().map(AsRef::as_ref).collect(),
                 })
             }
+            Self::MarkdownRequiresRefBody { requires } => DefaultLint::MarkdownRequiresRefBody {
+                requires: markdown::RequiresRefBody {
+                    requires: requires.requires.as_ref(),
+                },
+            },
             Self::MarkdownSectionOrder { sections } => DefaultLint::MarkdownSectionOrder {
                 sections: markdown::SectionOrder(sections.0.iter().map(AsRef::as_ref).collect()),
             },
@@ -408,6 +417,13 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                 DefaultLint::MarkdownRelativeLinks(markdown::RelativeLinks {
                     exceptions: l.exceptions.iter().map(|x| x.to_string()).collect(),
                 })
+            }
+            DefaultLint::MarkdownRequiresRefBody { requires } => {
+                DefaultLint::MarkdownRequiresRefBody {
+                    requires: markdown::RequiresRefBody {
+                        requires: requires.requires.to_string(),
+                    },
+                }
             }
             DefaultLint::MarkdownSectionOrder { sections } => DefaultLint::MarkdownSectionOrder {
                 sections: markdown::SectionOrder(

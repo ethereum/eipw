@@ -321,6 +321,10 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             ),
         ),
         (
+            "markdown-no-duplicate-section",
+            MarkdownSectionUnique(markdown::SectionUnique),
+        ),
+        (
             "markdown-req-section",
             MarkdownSectionRequired { sections: markdown::SectionRequired(vec![
                 "Abstract",

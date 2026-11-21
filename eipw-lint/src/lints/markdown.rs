@@ -17,6 +17,7 @@ pub mod relative_links;
 pub mod section_order;
 pub mod section_required;
 pub mod section_text;
+pub mod section_unique;
 pub mod spell;
 
 pub use self::heading_first::HeadingFirst;
@@ -32,4 +33,5 @@ pub use self::relative_links::RelativeLinks;
 pub use self::section_order::SectionOrder;
 pub use self::section_required::SectionRequired;
 pub use self::section_text::SectionText;
+pub use self::section_unique::SectionUnique;
 pub use self::spell::Spell;

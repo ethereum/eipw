@@ -103,6 +103,19 @@ fn list_lints() {
     println!();
 }
 
+fn lint_help(lint: &str, config: Option<&Path>) -> String {
+    let documentation = format!("https://ethereum.github.io/eipw/{lint}/");
+
+    if let ("markdown-spell", Some(path)) = (lint, config) {
+        return format!(
+            "either correct the misspelled word or add it to the personal dictionary in `{}`; see {documentation}",
+            path.display()
+        );
+    }
+
+    format!("see {documentation}")
+}
+
 #[cfg(target_arch = "wasm32")]
 async fn read_config(_path: &Path) -> Result<DefaultOptions, toml::de::Error> {
     todo!()
@@ -199,8 +212,9 @@ async fn run(opts: Opts) -> Result<(), ExitCode> {
         Format::Text => EitherReporter::Text(Text::default()),
     };
 
-    let reporter = AdditionalHelp::new(reporter, |t: &str| {
-        Ok(format!("see https://ethereum.github.io/eipw/{}/", t))
+    let config_path = opts.config.clone();
+    let reporter = AdditionalHelp::new(reporter, move |lint: &str| {
+        Ok(lint_help(lint, config_path.as_deref()))
     });
     let reporter = Count::new(reporter);
 
@@ -267,5 +281,34 @@ fn main() {
 
     if let Err(e) = run(opts) {
         std::process::exit(e.into());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn markdown_spell_help_includes_config_path() {
+        assert_eq!(
+            lint_help("markdown-spell", Some(Path::new("config/eipw.toml"))),
+            "either correct the misspelled word or add it to the personal dictionary in `config/eipw.toml`; see https://ethereum.github.io/eipw/markdown-spell/"
+        );
+    }
+
+    #[test]
+    fn markdown_spell_help_without_config_is_unchanged() {
+        assert_eq!(
+            lint_help("markdown-spell", None),
+            "see https://ethereum.github.io/eipw/markdown-spell/"
+        );
+    }
+
+    #[test]
+    fn other_lint_help_does_not_include_config_path() {
+        assert_eq!(
+            lint_help("preamble-order", Some(Path::new("config/eipw.toml"))),
+            "see https://ethereum.github.io/eipw/preamble-order/"
+        );
     }
 }

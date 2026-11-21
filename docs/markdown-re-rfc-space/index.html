@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>markdown-re-rfc-space</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>markdown-re-rfc-space</code></h1>
+			<p>
+				RFCs are referenced using exactly one space between the prefix and number.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[markdown-re-rfc-space]: RFCs must be referenced with exactly one space (for example, `RFC 2119`)
+  --> input.md
+   |
+27 | This requirement comes from RFC-2119.
+   |                             ^^^^^^^^
+   |
+   = info: the pattern in question: `(?i)\brfc(?:-?[0-9]+|(?:\s{2,}|[^\S ])[0-9]+)\b`</pre>
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					Write references as <code>RFC 2119</code>, rather than
+					<code>RFC2119</code>, <code>RFC-2119</code>, or with
+					multiple or non-space whitespace characters.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

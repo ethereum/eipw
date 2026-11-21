@@ -17,6 +17,7 @@ use super::{markdown, preamble, Lint};
 #[serde(tag = "kind", rename_all = "kebab-case")]
 #[non_exhaustive]
 pub enum DefaultLint<S> {
+    PreambleAllowedOnlyIfEq(preamble::AllowedOnlyIfEq<S>),
     PreambleAuthor {
         name: preamble::Author<S>,
     },
@@ -82,6 +83,7 @@ where
 {
     pub(crate) fn as_inner(&self) -> &dyn Lint {
         match self {
+            Self::PreambleAllowedOnlyIfEq(l) => l,
             Self::PreambleAuthor { name } => name,
             Self::PreambleDate { name } => name,
             Self::PreambleFileName(l) => l,
@@ -125,6 +127,13 @@ where
 {
     pub(crate) fn map_to_str(&self) -> DefaultLint<&str> {
         match self {
+            Self::PreambleAllowedOnlyIfEq(l) => {
+                DefaultLint::PreambleAllowedOnlyIfEq(preamble::AllowedOnlyIfEq {
+                    equals: l.equals.as_ref(),
+                    then: l.then.as_ref(),
+                    when: l.when.as_ref(),
+                })
+            }
             Self::PreambleAuthor { name } => DefaultLint::PreambleAuthor {
                 name: preamble::Author(name.0.as_ref()),
             },
@@ -284,6 +293,13 @@ where
 impl From<DefaultLint<&str>> for DefaultLint<String> {
     fn from(value: DefaultLint<&str>) -> Self {
         match value {
+            DefaultLint::PreambleAllowedOnlyIfEq(l) => {
+                DefaultLint::PreambleAllowedOnlyIfEq(preamble::AllowedOnlyIfEq {
+                    equals: l.equals.to_string(),
+                    then: l.then.to_string(),
+                    when: l.when.to_string(),
+                })
+            }
             DefaultLint::PreambleAuthor { name } => DefaultLint::PreambleAuthor {
                 name: preamble::Author(name.0.to_string()),
             },

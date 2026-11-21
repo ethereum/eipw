@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+pub mod allowed_only_if_eq;
 pub mod author;
 pub mod date;
 pub mod file_name;
@@ -22,6 +23,7 @@ pub mod trim;
 pub mod uint;
 pub mod url;
 
+pub use self::allowed_only_if_eq::AllowedOnlyIfEq;
 pub use self::author::Author;
 pub use self::date::Date;
 pub use self::file_name::FileName;

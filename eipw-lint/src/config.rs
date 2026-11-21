@@ -356,6 +356,14 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             }),
         ),
         (
+            "markdown-re-consecutive-spaces",
+            MarkdownRegex(markdown::Regex {
+                mode: markdown::regex::Mode::Excludes,
+                pattern: r" {2,}",
+                message: "prose must not contain consecutive spaces",
+            }),
+        ),
+        (
             "markdown-re-erc-dash",
             MarkdownRegex(markdown::Regex {
                 mode: markdown::regex::Mode::Excludes,

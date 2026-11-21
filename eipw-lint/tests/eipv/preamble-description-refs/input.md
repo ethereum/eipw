@@ -12,7 +12,7 @@ requires: 9, 10
 ---
 
 ## Abstract
-This is the abstract for the EIP.
+This is the abstract for the EIP. It builds on [EIP-9](./eip-9.md) and [ERC-10](./eip-10.md).
 
 ## Motivation
 This is the motivation for the EIP.

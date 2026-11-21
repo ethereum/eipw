@@ -1,3 +1,17 @@
+error[markdown-link-status]: proposal `eip-20.md` is not stable enough for a `status` of `Last Call`
+  --> input.md:16:48
+   |
+16 | This is the abstract for the EIP. It builds on [EIP-20](./eip-20.md), [EIP-1337](./eip-1337.md), and [EIP-2048](./eip-2048.md).
+   |                                                ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: because of this link, this proposal's `status` must be one of: `Draft`, `Stagnant`
+error[markdown-link-status]: proposal `eip-2048.md` is not stable enough for a `status` of `Last Call`
+  --> input.md:16:102
+   |
+16 | This is the abstract for the EIP. It builds on [EIP-20](./eip-20.md), [EIP-1337](./eip-1337.md), and [EIP-2048](./eip-2048.md).
+   |                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: because of this link, this proposal's `status` must be one of: `Draft`, `Stagnant`
 error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`
   --> input.md:12:10
    |

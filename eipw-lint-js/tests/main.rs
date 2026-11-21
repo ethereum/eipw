@@ -44,6 +44,39 @@ async fn lint_one() {
                     "id": null,
                     "level": "Help",
                     "snippets": [],
+                    "title": "see https://ethereum.github.io/eipw/markdown-requires-ref-body/"
+                }
+            ],
+            "formatted": "error[markdown-requires-ref-body]: proposals listed in preamble header `requires` must be referenced in the body\n  --> tests/eips/eip-1000.md:12:11\n   |\n12 | requires: 20\n   |           ^^ not referenced in body\n   |\n   = help: see https://ethereum.github.io/eipw/markdown-requires-ref-body/",
+            "id": "markdown-requires-ref-body",
+            "level": "Error",
+            "snippets": [
+                {
+                    "annotations": [
+                        {
+                            "label": "not referenced in body",
+                            "level": "Error",
+                            "range": {
+                                "end": 12,
+                                "start": 10
+                            }
+                        }
+                    ],
+                    "fold": false,
+                    "line_start": 12,
+                    "origin": "tests/eips/eip-1000.md",
+                    "source": "requires: 20"
+                }
+            ],
+            "title": "proposals listed in preamble header `requires` must be referenced in the body"
+        },
+        {
+            "footer": [
+                {
+                    "footer": [],
+                    "id": null,
+                    "level": "Help",
+                    "snippets": [],
                     "title": "valid `status` values for this proposal are: `Draft`, `Stagnant`"
                 },
                 {
@@ -247,6 +280,39 @@ async fn lint_one_with_options() {
                     "id": null,
                     "level": "Help",
                     "snippets": [],
+                    "title": "see https://ethereum.github.io/eipw/markdown-requires-ref-body/"
+                }
+            ],
+            "formatted": "error[markdown-requires-ref-body]: proposals listed in preamble header `requires` must be referenced in the body\n  --> tests/eips/eip-1000.md:12:11\n   |\n12 | requires: 20\n   |           ^^ not referenced in body\n   |\n   = help: see https://ethereum.github.io/eipw/markdown-requires-ref-body/",
+            "id": "markdown-requires-ref-body",
+            "level": "Error",
+            "snippets": [
+                {
+                    "annotations": [
+                        {
+                            "label": "not referenced in body",
+                            "level": "Error",
+                            "range": {
+                                "end": 12,
+                                "start": 10
+                            }
+                        }
+                    ],
+                    "fold": false,
+                    "line_start": 12,
+                    "origin": "tests/eips/eip-1000.md",
+                    "source": "requires: 20"
+                }
+            ],
+            "title": "proposals listed in preamble header `requires` must be referenced in the body"
+        },
+        {
+            "footer": [
+                {
+                    "footer": [],
+                    "id": null,
+                    "level": "Help",
+                    "snippets": [],
                     "title": "valid `status` values for this proposal are: `Draft`, `Stagnant`"
                 },
                 {
@@ -407,6 +473,39 @@ async fn lint_one_with_default_modifiers() {
                     "id": null,
                     "level": "Help",
                     "snippets": [],
+                    "title": "see https://ethereum.github.io/eipw/markdown-requires-ref-body/"
+                }
+            ],
+            "formatted": "info[markdown-requires-ref-body]: proposals listed in preamble header `requires` must be referenced in the body\n  --> tests/eips/eip-1000.md:12:11\n   |\n12 | requires: 20\n   |           -- info: not referenced in body\n   |\n   = help: see https://ethereum.github.io/eipw/markdown-requires-ref-body/",
+            "id": "markdown-requires-ref-body",
+            "level": "Info",
+            "snippets": [
+                {
+                    "annotations": [
+                        {
+                            "label": "not referenced in body",
+                            "level": "Info",
+                            "range": {
+                                "end": 12,
+                                "start": 10
+                            }
+                        }
+                    ],
+                    "fold": false,
+                    "line_start": 12,
+                    "origin": "tests/eips/eip-1000.md",
+                    "source": "requires: 20"
+                }
+            ],
+            "title": "proposals listed in preamble header `requires` must be referenced in the body"
+        },
+        {
+            "footer": [
+                {
+                    "footer": [],
+                    "id": null,
+                    "level": "Help",
+                    "snippets": [],
                     "title": "valid `status` values for this proposal are: `Draft`, `Stagnant`"
                 },
                 {
@@ -465,14 +564,13 @@ async fn format_one() {
         .unwrap();
     let actual = format(&snippet).ok().unwrap();
 
-    let expected = r#"error[preamble-requires-status]: preamble header `requires` contains items not stable enough for a `status` of `Last Call`
-  --> tests/eips/eip-1000.md:12:10
+    let expected = r#"error[markdown-requires-ref-body]: proposals listed in preamble header `requires` must be referenced in the body
+  --> tests/eips/eip-1000.md:12:11
    |
 12 | requires: 20
-   |          ^^^ has a less advanced status
+   |           ^^ not referenced in body
    |
-   = help: valid `status` values for this proposal are: `Draft`, `Stagnant`
-   = help: see https://ethereum.github.io/eipw/preamble-requires-status/"#;
+   = help: see https://ethereum.github.io/eipw/markdown-requires-ref-body/"#;
 
     assert_eq!(expected, actual);
 }

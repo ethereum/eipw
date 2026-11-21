@@ -12,12 +12,13 @@ use comrak::{
     Arena,
 };
 use html2text::render::TrivialDecorator;
-use lru::LruCache;
-use regex::{Regex, RegexSet};
-use zspell::Dictionary;
+use regex::Regex;
 
 use crate::{
-    lints::{Context, Error, Lint},
+    lints::{
+        spell::{dictionary, is_allowed},
+        Context, Error, Lint,
+    },
     tree::{Next, TraverseExt, Visitor},
     SnippetExt,
 };
@@ -28,31 +29,7 @@ use std::{
     cell::RefCell,
     collections::HashSet,
     fmt::{Debug, Display},
-    num::NonZeroUsize,
-    sync::{Arc, Mutex},
 };
-
-const AFF: &str = include_str!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/dictionaries/dictionaries/en/index.aff"
-));
-const DICT: &str = concat!(
-    include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/dictionaries/dictionaries/en/index.dic",
-    )),
-    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/custom.dic"))
-);
-
-lazy_static::lazy_static! {
-    static ref CACHE: Mutex<LruCache<String, Arc<Dictionary>>> =
-        LruCache::new(NonZeroUsize::MIN).into();
-
-    static ref ALLOW: RegexSet = RegexSet::new([
-        "^[-+~]?(0x)?[[:xdigit:]]+$",
-        "^[[:punct:]]+$",
-    ]).unwrap();
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema-version", derive(schemars::JsonSchema))]
@@ -65,21 +42,7 @@ where
     S: Display + Debug + AsRef<str> + for<'eq> PartialEq<&'eq str>,
 {
     fn lint<'a>(&self, slug: &'a str, ctx: &Context<'a, '_>) -> Result<(), Error> {
-        let dict: Arc<Dictionary> = {
-            CACHE
-                .lock()
-                .unwrap()
-                .get_or_insert_ref(self.personal_dictionary.as_ref(), || {
-                    zspell::builder()
-                        .config_str(AFF)
-                        .dict_str(DICT)
-                        .personal_str(self.personal_dictionary.as_ref())
-                        .build()
-                        .expect("failed to build dictionary")
-                        .into()
-                })
-                .clone()
-        };
+        let dict = dictionary(self.personal_dictionary.as_ref());
 
         let arena = Arena::new();
         let mut visitor = RemoveCode::new(&arena);
@@ -98,7 +61,7 @@ where
             // Cannot use the index from `check_indices` because we spellcheck against the
             // plaintext rendered output, so the source position won't match.
             .map(|(_, w)| w)
-            .filter(|w| !ALLOW.is_match(w))
+            .filter(|w| !is_allowed(w))
             .collect::<HashSet<&str>>()
             .into_iter()
             .map(Mistake::new)

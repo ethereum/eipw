@@ -43,6 +43,13 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
         ("preamble-trim", PreambleTrim(preamble::Trim)),
         ("preamble-eip", PreambleUint { name: preamble::Uint("eip") }),
         ("preamble-author", PreambleAuthor { name: preamble::Author("author") } ),
+        (
+            "preamble-spell",
+            PreambleSpell(preamble::Spell {
+                names: vec!["title", "description"],
+                personal_dictionary: "",
+            }),
+        ),
         ("preamble-re-title", PreambleRegex(preamble::Regex {
             name: "title",
             mode: regex::Mode::Excludes,

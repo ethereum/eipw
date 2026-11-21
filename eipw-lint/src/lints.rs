@@ -7,6 +7,7 @@
 mod known_lints;
 pub mod markdown;
 pub mod preamble;
+mod spell;
 
 use eipw_snippets::{Level, Message, Snippet};
 

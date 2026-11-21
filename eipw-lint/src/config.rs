@@ -219,6 +219,10 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             PreambleDate { name: preamble::Date("last-call-deadline") },
         ),
         (
+            "preamble-future-date",
+            PreambleFutureDate { name: preamble::FutureDate("last-call-deadline") },
+        ),
+        (
             "preamble-req-category",
             PreambleRequiredIfEq(preamble::RequiredIfEq {
                 when: "type",

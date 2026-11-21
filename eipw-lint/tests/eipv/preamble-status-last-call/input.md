@@ -5,7 +5,7 @@ description: A sample proposal
 author: John Doe (@johndoe)
 discussions-to: https://ethereum-magicians.org/t/hello/1
 status: Last Call
-last-call-deadline: 2021-01-01
+last-call-deadline: 3000-12-12
 type: Standards Track
 category: Core
 created: 2020-01-01

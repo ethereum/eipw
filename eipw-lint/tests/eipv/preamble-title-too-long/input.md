@@ -1,6 +1,6 @@
 ---
 eip: 1
-title: A sample proposal whose title is too long to still be considered valid for the purposes of the Ethereum Improvement Proposal processes and the repository in which they reside
+title: A Sample Proposal Whose Title Is Too Long to Still Be Considered Valid for the Purposes of the Ethereum Improvement Proposal Processes and the Repository in Which They Reside
 description: A sample description
 author: John Doe (@johndoe)
 discussions-to: https://ethereum-magicians.org/t/hello/1

@@ -15,7 +15,7 @@ error[preamble-re-description-erc-dash]: proposals must be referenced with the f
 error[preamble-re-title-eip-dash]: proposals must be referenced with the form `EIP-N` (not `EIPN` or `EIP N`)
  --> input.md:3:7
   |
-3 | title: A sample extension for EIP 1 and ERC-5
+3 | title: A Sample Extension for EIP 1 and ERC-5
   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ prohibited pattern was matched
   |
   = info: the pattern in question: `(?i)eip[\s]*[0-9]+`

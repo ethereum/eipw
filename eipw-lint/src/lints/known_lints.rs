@@ -41,6 +41,7 @@ pub enum DefaultLint<S> {
     },
     PreambleRequiredIfEq(preamble::RequiredIfEq<S>),
     PreambleRequiresStatus(preamble::RequiresStatus<S>),
+    PreambleTitleCase(preamble::TitleCase<S>),
     PreambleTrim(preamble::Trim),
     PreambleUint {
         name: preamble::Uint<S>,
@@ -96,6 +97,7 @@ where
             Self::PreambleRequired { names } => names,
             Self::PreambleRequiredIfEq(l) => l,
             Self::PreambleRequiresStatus(l) => l,
+            Self::PreambleTitleCase(l) => l,
             Self::PreambleTrim(l) => l,
             Self::PreambleUint { name } => name,
             Self::PreambleUintList { name } => name,
@@ -191,6 +193,11 @@ where
                         .collect(),
                 })
             }
+            Self::PreambleTitleCase(l) => DefaultLint::PreambleTitleCase(preamble::TitleCase {
+                name: l.name.as_ref(),
+                small_words: l.small_words.iter().map(AsRef::as_ref).collect(),
+                allowed: l.allowed.iter().map(AsRef::as_ref).collect(),
+            }),
             Self::PreambleTrim(_) => DefaultLint::PreambleTrim(preamble::Trim),
             Self::PreambleUint { name } => DefaultLint::PreambleUint {
                 name: preamble::Uint(name.0.as_ref()),
@@ -348,6 +355,13 @@ impl From<DefaultLint<&str>> for DefaultLint<String> {
                         .iter()
                         .map(|v| v.iter().map(|x| x.to_string()).collect())
                         .collect(),
+                })
+            }
+            DefaultLint::PreambleTitleCase(l) => {
+                DefaultLint::PreambleTitleCase(preamble::TitleCase {
+                    name: l.name.to_string(),
+                    small_words: l.small_words.iter().map(|x| x.to_string()).collect(),
+                    allowed: l.allowed.iter().map(|x| x.to_string()).collect(),
                 })
             }
             DefaultLint::PreambleTrim(_) => DefaultLint::PreambleTrim(preamble::Trim),

@@ -1,6 +1,6 @@
 ---
 eip: 1abc
-title: A sample proposal
+title: A Sample Proposal
 description: A sample proposal
 author: John Doe (@johndoe)
 discussions-to: https://ethereum-magicians.org/t/foo/1234

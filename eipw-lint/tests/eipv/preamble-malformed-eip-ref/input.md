@@ -1,6 +1,6 @@
 ---
 eip: 1
-title: A sample extension for EIP 1 and ERC-5
+title: A Sample Extension for EIP 1 and ERC-5
 description: Floop ERC55 ánd EIP99
 author: John Doe (@johndoe), Jenny Doe <jenny.doe@example.com>
 discussions-to: https://ethereum-magicians.org/t/hello/1

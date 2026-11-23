@@ -164,6 +164,19 @@ fn default_lints() -> impl Iterator<Item = (&'static str, DefaultLint<&'static s
             ),
         ),
         (
+            "preamble-title-case",
+            PreambleTitleCase(preamble::TitleCase {
+                name: "title",
+                small_words: vec![
+                    "a", "across", "after", "against", "an", "and", "are", "as", "at", "before",
+                    "between", "but", "by", "during", "for", "from", "in", "into", "is", "like",
+                    "nor", "not", "of", "on", "only", "onto", "or", "over", "per", "than", "the",
+                    "through", "to", "under", "upon", "via", "vs", "with", "within", "without",
+                ],
+                allowed: vec![],
+            }),
+        ),
+        (
             "preamble-len-description",
             PreambleLength(preamble::Length {
                 name: "description",

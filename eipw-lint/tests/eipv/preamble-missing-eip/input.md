@@ -1,5 +1,5 @@
 ---
-title: A sample proposal
+title: A Sample Proposal
 description: A sample description
 author: John Doe (@johndoe)
 discussions-to: https://ethereum-magicians.org/t/foo/1234

@@ -7,7 +7,7 @@ error[preamble-requires-ref-description]: proposals mentioned in preamble header
 error[preamble-requires-ref-title]: proposals mentioned in preamble header `title` must appear in `requires`
  --> input.md:3:31
   |
-3 | title: A sample extension for EIP-1 and EIP-5
+3 | title: A Sample Extension for EIP-1 and EIP-5
   |                               ^^^^^     ^^^^^ mentioned here
   |                               |
   |                               mentioned here

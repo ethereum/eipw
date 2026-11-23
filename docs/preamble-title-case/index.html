@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>preamble-title-case</title>
+		<link rel="stylesheet" href="../main.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body>
+		<article>
+			<h1><code>preamble-title-case</code></h1>
+			<p>
+				The <code>title</code> preamble header is in title case.
+			</p>
+
+			<section>
+				<h2>Examples</h2>
+
+				<pre>error[preamble-title-case]: preamble header `title` should be in title case
+ --&gt; eip-1.md:3:12
+  |
+3 | title: SSZ transaction signature scheme
+  |            ^^^^^^^^^^^ ^^^^^^^^^ ^^^^^^
+  |
+  = help: capitalize every word, except these when not first or last: a, across, after, against, an, and, are, as, at, before, between, but, by, during, for, from, in, into, is, like, nor, not, of, on, only, onto, or, over, per, than, the, through, to, under, upon, via, vs, with, within, without</pre>
+
+			</section>
+			<section>
+				<h2>Explanation</h2>
+
+				<p>
+					<code>preamble-title-case</code> ensures that every word in
+					the <code>title</code> front matter (or preamble) field
+					starts with an uppercase letter. For a hyphenated word,
+					only the first part has to be capitalized.
+				</p>
+
+				<p>
+					The following are exempt, and are never reported:
+				</p>
+
+				<ul>
+					<li>
+						Small words (like <code>of</code>, <code>for</code>, or
+						<code>the</code>), unless they are the first or last
+						word of the title. The list of small words is
+						configurable.
+					</li>
+					<li>
+						Identifiers, which are words that contain a digit, an
+						underscore, a slash, or an uppercase letter after their
+						first character (like <code>secp256k1</code>,
+						<code>eth_call</code>, <code>eth/70</code>, or
+						<code>ecRecover</code>.)
+					</li>
+					<li>
+						Anything inside a code span delimited by backticks.
+					</li>
+					<li>
+						Words that are explicitly allowed in the lint's
+						configuration.
+					</li>
+				</ul>
+
+				<p>
+					EIP-1 requires titles to be in title case. Capitalizing
+					titles consistently makes lists of proposals easier to
+					scan.
+				</p>
+			</section>
+		</article>
+	</body>
+</html>

@@ -1,6 +1,6 @@
 ---
 eip: 1
-title: A sample proposal
+title: A Sample Proposal
 description: A sample description
 discussions-to: https://ethereum-magicians.org/t/hello/1
 status: Draft

@@ -119,6 +119,7 @@ error[preamble-order]: preamble header `description` must come after `title`
 | `preamble-requires-ref-description` | Proposals mentioned in the `description` header appear in the `requires` header.              |
 | `preamble-requires-ref-title`       | Proposals mentioned in the `title` header appear in the `requires` header.                    |
 | `preamble-requires-status`          | EIPs listed in `requires` have statuses further along than the current proposal.              |
+| `preamble-title-case`               | The `title` header is in title case.                                                          |
 | `preamble-trim`                     | There is no extra whitespace around preamble fields.                                          |
 | `preamble-uint-requires`            | The `requires` header is a sorted list of non-negative integers.                              |
 

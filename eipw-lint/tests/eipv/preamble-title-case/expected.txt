@@ -1,0 +1,7 @@
+error[preamble-title-case]: preamble header `title` should be in title case
+ --> input.md:3:12
+  |
+3 | title: SSZ transaction signature scheme
+  |            ^^^^^^^^^^^ ^^^^^^^^^ ^^^^^^
+  |
+  = help: capitalize every word, except these when not first or last: a, across, after, against, an, and, are, as, at, before, between, but, by, during, for, from, in, into, is, like, nor, not, of, on, only, onto, or, over, per, than, the, through, to, under, upon, via, vs, with, within, without

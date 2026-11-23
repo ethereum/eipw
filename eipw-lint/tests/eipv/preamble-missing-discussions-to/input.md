@@ -1,6 +1,6 @@
 ---
 eip: 1
-title: A sample proposal
+title: A Sample Proposal
 description: A sample description
 author: John Doe (@johndoe)
 status: Draft
